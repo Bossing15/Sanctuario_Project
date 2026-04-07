@@ -1,0 +1,398 @@
+.my-services-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+/* Hero Banner */
+.services-hero {
+  position: relative;
+  height: 400px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: white;
+  padding: 20px;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+}
+
+.services-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+}
+
+.services-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 15px 20px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tab-btn:hover {
+  background: rgba(0, 100, 0, 0.05);
+  color: #006400;
+}
+
+.tab-btn.active {
+  background: #006400;
+  color: white;
+}
+
+.services-content {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  min-height: 400px;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #006400;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  color: #ccc;
+  margin-bottom: 20px;
+}
+
+.empty-state h3 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.btn-primary {
+  background: #006400;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #004d00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 100, 0, 0.3);
+}
+
+.bookings-list,
+.inquiries-list {
+  display: grid;
+  gap: 20px;
+}
+
+.booking-card,
+.inquiry-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.booking-card:hover,
+.inquiry-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.card-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.2rem;
+}
+
+.inquiry-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inquiry-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-confirmed,
+.status-approved {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-completed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-cancelled,
+.status-rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-review {
+  background: #e7f3ff;
+  color: #004085;
+}
+
+.status-default {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  color: #495057;
+}
+
+.info-icon {
+  color: #006400;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.info-label {
+  font-weight: 600;
+  min-width: 140px;
+  color: #6c757d;
+}
+
+.info-value {
+  color: #2c3e50;
+}
+
+.message-row {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.message-text {
+  margin: 8px 0 0 0;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border-left: 3px solid #006400;
+  line-height: 1.6;
+}
+
+.response-section {
+  margin-top: 20px;
+  padding: 15px;
+  background: #e7f3ff;
+  border-radius: 8px;
+  border-left: 3px solid #0066cc;
+}
+
+.response-section h4 {
+  margin: 0 0 10px 0;
+  color: #004085;
+  font-size: 1rem;
+}
+
+.response-section p {
+  margin: 0;
+  color: #2c3e50;
+  line-height: 1.6;
+}
+
+.status-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  padding: 12px;
+  background: #fff3cd;
+  border-radius: 8px;
+  border-left: 3px solid #ffc107;
+  color: #856404;
+  font-size: 0.9rem;
+}
+
+.status-info-icon {
+  color: #ffc107;
+  flex-shrink: 0;
+}
+
+.card-footer {
+  padding: 12px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.card-footer small {
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .services-hero {
+    height: 300px;
+  }
+
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+
+  .services-container {
+    padding: 0 15px 30px;
+  }
+
+  .services-tabs {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .tab-btn {
+    padding: 12px 15px;
+    font-size: 0.9rem;
+  }
+
+  .services-content {
+    padding: 25px 20px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .info-label {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .services-hero {
+    height: 250px;
+  }
+
+  .hero-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .services-content {
+    padding: 20px 15px;
+  }
+}

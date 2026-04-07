@@ -1,0 +1,44 @@
+<svg width="1200" height="400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#006400;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#009900;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#bg-gradient)" />
+  
+  <!-- Decorative elements -->
+  <circle cx="200" cy="100" r="80" fill="rgba(255,255,255,0.1)" />
+  <circle cx="1000" cy="300" r="120" fill="rgba(255,255,255,0.1)" />
+  <circle cx="600" cy="50" r="40" fill="rgba(255,255,255,0.1)" />
+  
+  <!-- Team silhouettes -->
+  <g transform="translate(400, 200)" fill="rgba(255,255,255,0.2)">
+    <!-- Person 1 -->
+    <circle cx="-150" cy="0" r="40" />
+    <rect x="-170" y="40" width="40" height="80" rx="10" />
+    
+    <!-- Person 2 -->
+    <circle cx="-50" cy="-10" r="40" />
+    <rect x="-70" y="30" width="40" height="80" rx="10" />
+    
+    <!-- Person 3 -->
+    <circle cx="50" cy="0" r="40" />
+    <rect x="30" y="40" width="40" height="80" rx="10" />
+    
+    <!-- Person 4 -->
+    <circle cx="150" cy="-10" r="40" />
+    <rect x="130" y="30" width="40" height="80" rx="10" />
+    
+    <!-- Person 5 -->
+    <circle cx="250" cy="0" r="40" />
+    <rect x="230" y="40" width="40" height="80" rx="10" />
+  </g>
+  
+  <!-- Text placeholder -->
+  <text x="600" y="200" font-family="Arial, sans-serif" font-size="60" font-weight="bold" text-anchor="middle" fill="rgba(255,255,255,0.8)">Our Team</text>
+  <text x="600" y="250" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="rgba(255,255,255,0.8)">Working together to honor your loved ones</text>
+</svg>

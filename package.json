@@ -1,0 +1,35 @@
+{
+  "name": "tailwind",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "start": "php artisan serve",
+    "start-with-build": "npm run build && copy \"public\\build\\.vite\\manifest.json\" \"public\\build\\manifest.json\" && php artisan serve",
+    "quick-start": "npm run build && copy \"public\\build\\.vite\\manifest.json\" \"public\\build\\manifest.json\" && start http://127.0.0.1:8000 && php artisan serve"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.12",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.8.2",
+    "react-icons": "^5.5.0",
+    "tailwindcss": "^4.1.12"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.0",
+    "eslint": "^9.33.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "laravel-vite-plugin": "^2.0.1",
+    "vite": "^7.1.2"
+  }
+}

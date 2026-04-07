@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Customers API</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1000px; margin: 0 auto; }
+        .result { margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .debug { background-color: #f8f9fa; color: #495057; border: 1px solid #dee2e6; font-family: monospace; white-space: pre-wrap; font-size: 12px; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; background-color: #007bff; color: white; }
+        button:hover { background-color: #0056b3; }
+        .token-info { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; padding: 10px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Debug Customers API</h1>
+    <p>This page helps debug the customers API issue.</p>
+    
+    <button onclick="debugAPI()">Debug API Call</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <div id="results"></div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = message;
+            resultsDiv.appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function debugAPI() {
+            clearResults();
+            
+            // Check authentication token
+            const token = localStorage.getItem('authToken');
+            const userRole = localStorage.getItem('userRole');
+            
+            addResult(`<strong>Authentication Check:</strong><br>
+                Token: ${token ? 'Present (' + token.substring(0, 20) + '...)' : 'Missing'}<br>
+                User Role: ${userRole || 'Not set'}<br>
+                Current URL: ${window.location.href}`, 'info');
+            
+            if (!token) {
+                addResult('❌ No authentication token found. Please login to the admin panel first.', 'error');
+                return;
+            }
+            
+            // Test API call
+            const apiUrl = `${window.location.protocol}//${window.location.host}/api/clients`;
+            addResult(`<strong>Testing API URL:</strong> ${apiUrl}`, 'info');
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                });
+                
+                addResult(`<strong>Response Status:</strong> ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        if (data.clients && Array.isArray(data.clients)) {
+                            addResult(`✅ Success! Found ${data.clients.length} customers`, 'success');
+                            
+                            if (data.clients.length > 0) {
+                                const sample = data.clients.slice(0, 3);
+                                let sampleHTML = '<strong>Sample customers:</strong><br>';
+                                sample.forEach(customer => {
+                                    sampleHTML += `• ${customer.name} (${customer.email}) - Status: ${customer.status}<br>`;
+                                });
+                                addResult(sampleHTML, 'success');
+                            }
+                        } else {
+                            addResult('❌ Invalid response format: missing clients array', 'error');
+                            addResult(`Response data: ${JSON.stringify(data, null, 2)}`, 'debug');
+                        }
+                    } catch (jsonError) {
+                        addResult('❌ Response is not valid JSON', 'error');
+                        addResult(`Response text: ${responseText.substring(0, 500)}...`, 'debug');
+                    }
+                } else {
+                    addResult('❌ API request failed', 'error');
+                    
+                    // Check if response is HTML (error page)
+                    if (responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
+                        addResult('Server returned an HTML error page instead of JSON. This usually means:<br>• Authentication failed<br>• Route not found<br>• Server error', 'error');
+                        addResult(`HTML Response (first 300 chars): ${responseText.substring(0, 300)}...`, 'debug');
+                    } else {
+                        try {
+                            const errorData = JSON.parse(responseText);
+                            addResult(`Error response: ${JSON.stringify(errorData, null, 2)}`, 'debug');
+                        } catch {
+                            addResult(`Raw error response: ${responseText}`, 'debug');
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                addResult(`❌ Network error: ${error.message}`, 'error');
+                console.error('API debug error:', error);
+            }
+        }
+        
+        // Show initial info
+        window.addEventListener('load', () => {
+            addResult('Debug page loaded. Click "Debug API Call" to test the customers API.', 'info');
+        });
+    </script>
+</body>
+</html>

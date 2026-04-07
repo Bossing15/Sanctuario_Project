@@ -1,0 +1,253 @@
+/* ============================================
+   SIDEBAR STYLES
+   ============================================ */
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 280px;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  color: white;
+  padding: 1.5rem 0;
+  overflow-y: auto;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.no-transition {
+  transition: none;
+}
+
+.sidebar.collapsed {
+  width: 80px;
+}
+
+.sidebar-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 1rem !important;
+  margin-bottom: 2rem !important;
+  padding: 0 1rem 1.5rem 1rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.sidebar-logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+  margin-left: -1rem;
+}
+
+.sidebar.collapsed .sidebar-logo {
+  display: none;
+}
+
+.sidebar-toggle {
+  background: none !important;
+  border: none !important;
+  color: white !important;
+  cursor: pointer !important;
+  padding: 0.75rem 1rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+.sidebar.collapsed .sidebar-toggle {
+  margin: 0 !important;
+  padding: 0.75rem !important;
+}.sidebar-toggle img {
+  width: 16px !important;
+  height: 16px !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.sidebar-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.sidebar.collapsed .sidebar-item {
+  justify-content: center;
+  gap: 0;
+  padding: 0.75rem;
+}
+
+.sidebar-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.sidebar-item.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border-left: 3px solid white;
+  padding-left: calc(1rem - 3px);
+}
+
+.sidebar.collapsed .sidebar-item.active {
+  border-left: none;
+  border-radius: 0.5rem;
+}
+
+.sidebar-item-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-item-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar.collapsed .sidebar-item-label {
+  display: none;
+}
+
+.sidebar-footer {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 0;
+  right: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1rem 1rem 0 1rem;
+}
+
+.sidebar-footer .sidebar-item {
+  margin: 0;
+}
+
+/* ============================================
+   NAVBAR STYLES
+   ============================================ */
+
+.navbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 280px;
+  height: 70px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 99;
+  transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.navbar.no-transition {
+  transition: none;
+}
+
+.navbar.collapsed {
+  left: 80px;
+}
+
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+
+main {
+  margin-top: 70px;
+  margin-left: 280px;
+  padding: 0;
+  margin-bottom: 0;
+  transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+main.no-transition {
+  transition: none;
+}
+
+main.collapsed {
+  margin-left: 80px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    margin-bottom: 1rem;
+    border-radius: 0.75rem;
+  }
+
+  .sidebar.collapsed {
+    width: 100%;
+  }
+
+  .sidebar-menu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .sidebar-item-label {
+    display: block;
+  }
+
+  .sidebar.collapsed .sidebar-item-label {
+    display: block;
+  }
+
+  .navbar {
+    left: 0;
+    position: relative;
+    margin-bottom: 1rem;
+    border-radius: 0.75rem;
+  }
+
+  .navbar.collapsed {
+    left: 0;
+  }
+
+  main {
+    margin-top: 0;
+  }
+}

@@ -1,0 +1,3 @@
+# Keep the services upload directory in version control
+*
+!.gitignore

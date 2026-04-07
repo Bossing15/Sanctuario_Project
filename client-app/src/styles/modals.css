@@ -1,0 +1,694 @@
+/* ============================================
+   MODERN MODAL & DIALOG STYLES - CLIENT SIDE
+   ============================================ */
+
+/* Modal Overlay */
+.modal-overlay,
+.modal-backdrop,
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+  opacity: 1;
+}
+
+.modal-overlay.closing {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Modal Container */
+.modal,
+.modal-content,
+.dialog,
+.dialog-content {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.modal.closing,
+.modal-content.closing,
+.dialog.closing,
+.dialog-content.closing {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+}
+
+/* Modal Header */
+.modal-header,
+.dialog-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+}
+
+.modal-header-title,
+.dialog-header-title,
+.modal-title,
+.dialog-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modal-header-icon,
+.dialog-header-icon {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal Close Button */
+.modal-close,
+.dialog-close,
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.modal-close:hover,
+.dialog-close:hover,
+.close-btn:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+  transform: rotate(90deg);
+}
+
+.modal-close:active,
+.dialog-close:active,
+.close-btn:active {
+  transform: rotate(90deg) scale(0.95);
+}
+
+/* Modal Body */
+.modal-body,
+.dialog-body {
+  padding: 2rem;
+  overflow-y: auto;
+  flex: 1;
+  color: #374151;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.modal-body::-webkit-scrollbar,
+.dialog-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track,
+.dialog-body::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb,
+.dialog-body::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover,
+.dialog-body::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Modal Footer */
+.modal-footer,
+.dialog-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+}
+
+/* Modal Buttons */
+.modal-btn,
+.dialog-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-btn:hover,
+.dialog-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal-btn:active,
+.dialog-btn:active {
+  transform: translateY(0);
+}
+
+/* Primary Button */
+.modal-btn.primary,
+.dialog-btn.primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  border: 1px solid #1d4ed8;
+}
+
+.modal-btn.primary:hover,
+.dialog-btn.primary:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+/* Secondary Button */
+.modal-btn.secondary,
+.dialog-btn.secondary {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.modal-btn.secondary:hover,
+.dialog-btn.secondary:hover {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+/* Danger Button */
+.modal-btn.danger,
+.dialog-btn.danger {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: #ffffff;
+  border: 1px solid #b91c1c;
+}
+
+.modal-btn.danger:hover,
+.dialog-btn.danger:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+/* Success Button */
+.modal-btn.success,
+.dialog-btn.success {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  color: #ffffff;
+  border: 1px solid #15803d;
+}
+
+.modal-btn.success:hover,
+.dialog-btn.success:hover {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+}
+
+/* ============================================
+   NOTIFICATION STYLES - CLIENT SIDE
+   ============================================ */
+
+/* Notification Container */
+.notification-container,
+.toast-container {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 400px;
+  pointer-events: none;
+}
+
+.notification-container.bottom-right,
+.toast-container.bottom-right {
+  top: auto;
+  bottom: 1.5rem;
+}
+
+.notification-container.top-left,
+.toast-container.top-left {
+  right: auto;
+  left: 1.5rem;
+}
+
+.notification-container.bottom-left,
+.toast-container.bottom-left {
+  top: auto;
+  bottom: 1.5rem;
+  right: auto;
+  left: 1.5rem;
+}
+
+/* Notification Item */
+.notification,
+.toast,
+.alert {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  animation: slideInRight 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: auto;
+  border-left: 4px solid #2563eb;
+  min-width: 300px;
+  position: relative;
+}
+
+.notification.closing,
+.toast.closing,
+.alert.closing {
+  animation: slideOutRight 0.3s ease-out forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+
+/* Notification Icon */
+.notification-icon,
+.toast-icon,
+.alert-icon {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* Notification Content */
+.notification-content,
+.toast-content,
+.alert-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.notification-title,
+.toast-title,
+.alert-title {
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.notification-message,
+.toast-message,
+.alert-message {
+  color: #6b7280;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Notification Close Button */
+.notification-close,
+.toast-close,
+.alert-close {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.notification-close:hover,
+.toast-close:hover,
+.alert-close:hover {
+  color: #6b7280;
+  transform: rotate(90deg);
+}
+
+/* Notification Progress Bar */
+.notification-progress,
+.toast-progress,
+.alert-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: currentColor;
+  border-radius: 0 0 0.75rem 0;
+  animation: progress 5s linear forwards;
+}
+
+@keyframes progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Notification Types */
+
+/* Success */
+.notification.success,
+.toast.success,
+.alert.success {
+  border-left-color: #16a34a;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.notification.success .notification-icon,
+.toast.success .toast-icon,
+.alert.success .alert-icon {
+  color: #16a34a;
+}
+
+.notification.success .notification-title,
+.toast.success .toast-title,
+.alert.success .alert-title {
+  color: #166534;
+}
+
+.notification.success .notification-progress,
+.toast.success .toast-progress,
+.alert.success .alert-progress {
+  background: #16a34a;
+}
+
+/* Error */
+.notification.error,
+.toast.error,
+.alert.error {
+  border-left-color: #dc2626;
+  background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+}
+
+.notification.error .notification-icon,
+.toast.error .toast-icon,
+.alert.error .alert-icon {
+  color: #dc2626;
+}
+
+.notification.error .notification-title,
+.toast.error .toast-title,
+.alert.error .alert-title {
+  color: #991b1b;
+}
+
+.notification.error .notification-progress,
+.toast.error .toast-progress,
+.alert.error .alert-progress {
+  background: #dc2626;
+}
+
+/* Warning */
+.notification.warning,
+.toast.warning,
+.alert.warning {
+  border-left-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+}
+
+.notification.warning .notification-icon,
+.toast.warning .toast-icon,
+.alert.warning .alert-icon {
+  color: #f59e0b;
+}
+
+.notification.warning .notification-title,
+.toast.warning .toast-title,
+.alert.warning .alert-title {
+  color: #b45309;
+}
+
+.notification.warning .notification-progress,
+.toast.warning .toast-progress,
+.alert.warning .alert-progress {
+  background: #f59e0b;
+}
+
+/* Info */
+.notification.info,
+.toast.info,
+.alert.info {
+  border-left-color: #2563eb;
+  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+}
+
+.notification.info .notification-icon,
+.toast.info .toast-icon,
+.alert.info .alert-icon {
+  color: #2563eb;
+}
+
+.notification.info .notification-title,
+.toast.info .toast-title,
+.alert.info .alert-title {
+  color: #1e40af;
+}
+
+.notification.info .notification-progress,
+.toast.info .toast-progress,
+.alert.info .alert-progress {
+  background: #2563eb;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .modal,
+  .modal-content,
+  .dialog,
+  .dialog-content {
+    max-width: 95vw;
+    max-height: 95vh;
+    border-radius: 0.75rem;
+  }
+
+  .modal-header,
+  .dialog-header {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .modal-body,
+  .dialog-body {
+    padding: 1.5rem;
+  }
+
+  .modal-footer,
+  .dialog-footer {
+    padding: 1.25rem 1.5rem;
+    flex-direction: column-reverse;
+  }
+
+  .modal-btn,
+  .dialog-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .notification-container,
+  .toast-container {
+    left: 1rem;
+    right: 1rem;
+    max-width: none;
+  }
+
+  .notification,
+  .toast,
+  .alert {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal,
+  .modal-content,
+  .dialog,
+  .dialog-content {
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .modal-header,
+  .dialog-header {
+    padding: 1rem 1.25rem;
+  }
+
+  .modal-body,
+  .dialog-body {
+    padding: 1.25rem;
+  }
+
+  .modal-footer,
+  .dialog-footer {
+    padding: 1rem 1.25rem;
+  }
+
+  .notification-container,
+  .toast-container {
+    left: 0.5rem;
+    right: 0.5rem;
+    top: 0.5rem;
+  }
+
+  .notification,
+  .toast,
+  .alert {
+    padding: 0.875rem 1rem;
+    gap: 0.75rem;
+  }
+}
+
+
+/* ============================================
+   ALERT MODAL SPECIFIC STYLES
+   ============================================ */
+
+.alert-modal-message {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #4b5563;
+  margin: 0;
+  text-align: center;
+}
+
+.login-prompt-message {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #4b5563;
+  margin: 0;
+  text-align: center;
+}
+
+.confirmation-message {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #4b5563;
+  margin: 0;
+  text-align: center;
+}
+
+.confirmation-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+@media (max-width: 480px) {
+  .confirmation-actions {
+    flex-direction: column-reverse;
+  }
+
+  .confirmation-actions .modal-btn {
+    width: 100%;
+  }
+}

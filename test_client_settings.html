@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Client Settings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .setting {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .setting-key {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .setting-value {
+            color: #666;
+            font-style: italic;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+        }
+        .error {
+            color: red;
+            background-color: #ffe6e6;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            color: green;
+            background-color: #e6ffe6;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Client Settings Test</h1>
+        <p>This page tests if the client-side can fetch settings from the API.</p>
+        
+        <div id="status" class="loading">Loading settings...</div>
+        <div id="settings-container"></div>
+    </div>
+
+    <script>
+        async function testSettings() {
+            const statusDiv = document.getElementById('status');
+            const settingsContainer = document.getElementById('settings-container');
+            
+            try {
+                statusDiv.textContent = 'Fetching settings from API...';
+                
+                const response = await fetch('/api/site-settings');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.settings) {
+                    statusDiv.className = 'success';
+                    statusDiv.textContent = `✅ Successfully loaded ${Object.keys(data.settings).length} settings!`;
+                    
+                    // Display settings
+                    Object.entries(data.settings).forEach(([key, setting]) => {
+                        const settingDiv = document.createElement('div');
+                        settingDiv.className = 'setting';
+                        settingDiv.innerHTML = `
+                            <div class="setting-key">${key}</div>
+                            <div class="setting-value">${setting.value || 'No value'}</div>
+                        `;
+                        settingsContainer.appendChild(settingDiv);
+                    });
+                } else {
+                    throw new Error('Invalid response format');
+                }
+                
+            } catch (error) {
+                statusDiv.className = 'error';
+                statusDiv.textContent = `❌ Error: ${error.message}`;
+                console.error('Settings test failed:', error);
+            }
+        }
+        
+        // Run test when page loads
+        testSettings();
+    </script>
+</body>
+</html>

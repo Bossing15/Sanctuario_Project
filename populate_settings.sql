@@ -1,0 +1,45 @@
+-- Insert Homepage Settings
+INSERT INTO site_settings (`key`, category, type, value, label, description, is_active, sort_order) VALUES 
+('homepage_title', 'homepage', 'text', 'Welcome to Sanctuario De Carmona Memorial Park', 'Homepage Title', 'Main title displayed on the homepage hero section', 1, 1),
+('homepage_subtitle', 'homepage', 'textarea', 'Your sanctuary for peace and tranquility in the heart of Cavite', 'Homepage Subtitle', 'Subtitle text displayed below the main title', 1, 2),
+('homepage_hero_image', 'homepage', 'image', 'assets/images/pic7.jpg', 'Hero Background Image', 'Background image for the homepage hero section', 1, 3);
+
+-- Insert About Settings
+INSERT INTO site_settings (`key`, category, type, value, label, description, is_active, sort_order) VALUES 
+('about_title', 'about', 'text', 'Who We Are', 'About Section Title', 'Title for the about section on homepage', 1, 1),
+('about_description', 'about', 'textarea', 'Sanctuario De Carmona Memorial Park is a peaceful sanctuary dedicated to honoring the memory of your loved ones. With over a decade of experience, we provide compassionate care and professional services in a serene environment.', 'About Description', 'Main description text for the about section', 1, 2);
+
+-- Insert Contact Settings
+INSERT INTO site_settings (`key`, category, type, value, label, description, is_active, sort_order) VALUES 
+('contact_phone', 'contact', 'text', '+63 912 345 6789', 'Phone Number', 'Main contact phone number', 1, 1),
+('contact_email', 'contact', 'email', 'info@sanctuario.com', 'Email Address', 'Main contact email address', 1, 2),
+('contact_address', 'contact', 'textarea', 'Sanctuario De Carmona Memorial Park, Carmona, Cavite, Philippines', 'Address', 'Physical address of the memorial park', 1, 3);
+
+-- Insert Services Settings
+INSERT INTO site_settings (`key`, category, type, value, label, description, is_active, sort_order) VALUES 
+('services_title', 'services', 'text', 'Our Products & Services', 'Services Section Title', 'Title for the services section', 1, 1),
+('services_description', 'services', 'textarea', 'At Sanctuario De Carmona Memorial Park, we provide comprehensive memorial products and services designed to honor your loved ones with dignity and respect.', 'Services Description', 'Description text for the services section', 1, 2);
+
+-- Insert Footer Settings
+INSERT INTO site_settings (`key`, category, type, value, label, description, is_active, sort_order) VALUES 
+('footer_company_name', 'footer', 'text', 'Sanctuario De Carmona Memorial Park', 'Company Name', 'Company name displayed in footer', 1, 1),
+('footer_copyright_text', 'footer', 'text', '© 2024 Sanctuario De Carmona Memorial Park. All rights reserved.', 'Copyright Text', 'Copyright notice displayed in footer', 1, 2),
+('footer_description', 'footer', 'textarea', 'A peaceful sanctuary dedicated to honoring the memory of your loved ones with compassionate care and professional services.', 'Footer Description', 'Short description displayed in footer', 1, 3),
+('footer_logo', 'footer', 'image', 'assets/images/Sanctuario_Logo_Good.png', 'Footer Logo', 'Logo displayed in footer', 1, 4);
+
+-- Insert Social Media Settings
+INSERT INTO site_settings (`key`, category, type, value, label, description, is_active, sort_order) VALUES 
+('social_facebook', 'social', 'text', 'https://facebook.com/sanctuario', 'Facebook URL', 'Facebook page link', 1, 1),
+('social_twitter', 'social', 'text', 'https://twitter.com/sanctuario', 'Twitter URL', 'Twitter profile link', 1, 2),
+('social_instagram', 'social', 'text', 'https://instagram.com/sanctuario', 'Instagram URL', 'Instagram profile link', 1, 3),
+('social_youtube', 'social', 'text', 'https://youtube.com/sanctuario', 'YouTube URL', 'YouTube channel link', 1, 4),
+('social_linkedin', 'social', 'text', 'https://linkedin.com/company/sanctuario', 'LinkedIn URL', 'LinkedIn company page link', 1, 5);
+
+-- Insert General Settings
+INSERT INTO site_settings (`key`, category, type, value, label, description, is_active, sort_order) VALUES 
+('site_name', 'general', 'text', 'Sanctuario De Carmona Memorial Park', 'Site Name', 'Main site name', 1, 1),
+('site_tagline', 'general', 'text', 'A Sanctuary for Peace and Remembrance', 'Site Tagline', 'Short tagline for the site', 1, 2),
+('site_logo', 'general', 'image', 'assets/images/Sanctuario_Logo_Good.png', 'Site Logo', 'Main site logo', 1, 3),
+('site_favicon', 'general', 'image', 'assets/images/main_icon.jpg', 'Site Favicon', 'Browser tab icon', 1, 4),
+('maintenance_mode', 'general', 'text', 'false', 'Maintenance Mode', 'Set to true to enable maintenance mode (true/false)', 1, 5),
+('site_description', 'general', 'textarea', 'Sanctuario De Carmona Memorial Park - A peaceful sanctuary dedicated to honoring the memory of your loved ones.', 'Site Meta Description', 'SEO meta description for search engines', 1, 6);

@@ -1,0 +1,38 @@
+.signup-bg {
+  min-height: 100vh;
+  width: 100vw;
+  background: url('../assets/bg_sign_up.jpg') no-repeat center center/cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.signup-container {
+  background: rgba(255,255,255,0.85); /* Para makita ang bg */
+  padding: 32px 24px;
+  border-radius: 10px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 320px;
+}
+
+.signup-input {
+  border: 1px solid #bdbdbd;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+.signup-btn {
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 0;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 8px;
+}
