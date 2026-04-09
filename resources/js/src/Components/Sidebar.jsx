@@ -12,14 +12,12 @@ import menuIcon from "../assets/icons/icons8-hamburger-menu-50.png";
 import inquiryIcon from "../assets/icons/icons8-notification-50.png";
 import maintenanceIcon from "../assets/icons/Maintenance.png";
 import requirementIcon from "../assets/icons/Requirements.png";
-// Use public path instead of import for better reliability
+
 const appLogo = "/Sanctuario_Logo_Good.png";
 
-const Sidebar = ({ collapsed, setCollapsed }) => {
+const Sidebar = ({ collapsed, setCollapsed, mobileMenuOpen, setMobileMenuOpen }) => {
   const [mounted, setMounted] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  // Disable transitions on mount
   useEffect(() => {
     setMounted(true);
     const timer = setTimeout(() => {
@@ -28,29 +26,25 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Close mobile menu on window resize
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth > 768) {
+      if (window.innerWidth > 768 && mobileMenuOpen) {
         setMobileMenuOpen(false);
       }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [mobileMenuOpen, setMobileMenuOpen]);
 
-  // Close mobile menu when a link is clicked
   const handleMenuItemClick = () => {
     if (window.innerWidth <= 768) {
       setMobileMenuOpen(false);
     }
   };
   
-  // Get user and permissions from localStorage
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const permissions = user.permissions || {};
 
-  // Define all menu items with their permission keys
   const allMenuItems = [
     { label: "Dashboard", icon: dashboardIcon, path: "/admin/dashboard", key: 'dashboard' },
     { label: "Customers", icon: customerIcon, path: "/customers", key: 'customers' },
@@ -63,10 +57,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     { label: "Admin", icon: adminIcon, path: "/admin", key: 'admin' },
   ];
 
-  // All items are visible, but we track which ones have action permissions
   const menuItems = useMemo(() => {
     return allMenuItems.map(item => {
-      // Handle both old (boolean) and new (object) permission formats
       const permission = permissions[item.key];
       const canPerformActions = typeof permission === 'object' 
         ? permission?.can_perform_actions !== false 
@@ -113,7 +105,6 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
                 console.error('Logo failed to load:', e.target.src);
                 e.target.outerHTML = '<div class="text-neutral-800 font-bold text-sm">SANCTUARIO</div>';
               }}
-              onLoad={(e) => console.log('Sidebar logo loaded successfully from:', e.target.src)}
             />
           )}
         </div>

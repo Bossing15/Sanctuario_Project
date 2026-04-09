@@ -51,7 +51,7 @@ const RootRedirect = () => {
   return <Navigate to="/login" replace />;
 };
 
-const Layout = ({ children, collapsed, setCollapsed }) => {
+const Layout = ({ children, collapsed, setCollapsed, mobileMenuOpen, setMobileMenuOpen }) => {
   const location = useLocation();
   const [mounted, setMounted] = useState(false);
 
@@ -67,7 +67,7 @@ const Layout = ({ children, collapsed, setCollapsed }) => {
 
   return (
     <>
-      {!isAuthPage && <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />}
+      {!isAuthPage && <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />}
       {!isAuthPage && <Navbar collapsed={collapsed} />}
 
       <main
@@ -88,6 +88,7 @@ const Layout = ({ children, collapsed, setCollapsed }) => {
 
 const App = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // Add preload class to disable animations on initial load
@@ -103,7 +104,7 @@ const App = () => {
 
   return (
     <Router>
-      <Layout collapsed={collapsed} setCollapsed={setCollapsed}>
+      <Layout collapsed={collapsed} setCollapsed={setCollapsed} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/admin/login" element={<Navigate to="/login" replace />} />
