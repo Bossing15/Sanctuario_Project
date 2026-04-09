@@ -9,6 +9,7 @@ const Navbar = ({ collapsed }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null);
   const [mounted, setMounted] = useState(false);
 
@@ -119,8 +120,11 @@ const Navbar = ({ collapsed }) => {
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
 
-        <div className="relative group pointer-events-auto">
-          <button className="flex items-center gap-2 hover:bg-gray-50 px-3 py-2 rounded-lg transition-all">
+        <div className="relative pointer-events-auto">
+          <button 
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            className="flex items-center gap-2 hover:bg-gray-50 px-3 py-2 rounded-lg transition-all"
+          >
             {profilePicture ? (
               <img
                 src={profilePicture}
@@ -142,52 +146,60 @@ const Navbar = ({ collapsed }) => {
                 {user?.access_level ? user.access_level.charAt(0).toUpperCase() + user.access_level.slice(1) : 'Staff'}
               </small>
             </div>
-            <svg className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-all duration-200 transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+            <svg className={`w-4 h-4 text-gray-600 transition-all duration-200 transform ${showProfileMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M7 10l5 5 5-5" />
             </svg>
           </button>
 
-          <ul className="absolute right-0 mt-2 w-56 bg-white text-gray-800 rounded-xl shadow-xl border border-gray-100 hidden group-hover:block overflow-hidden z-[9999]">
-            <li className="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-transparent">
-              <div className="flex items-center gap-3">
-                {profilePicture ? (
-                  <img 
-                    src={profilePicture} 
-                    alt="Profile" 
-                    className="w-10 h-10 rounded-full object-cover border-2 border-green-500" 
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                    <img src={adminIcon} alt="Profile" className="w-6 h-6" />
+          {showProfileMenu && (
+            <ul className="absolute right-0 mt-2 w-56 bg-white text-gray-800 rounded-xl shadow-xl border border-gray-100 overflow-hidden z-[9999]">
+              <li className="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-transparent">
+                <div className="flex items-center gap-3">
+                  {profilePicture ? (
+                    <img 
+                      src={profilePicture} 
+                      alt="Profile" 
+                      className="w-10 h-10 rounded-full object-cover border-2 border-green-500" 
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                      <img src={adminIcon} alt="Profile" className="w-6 h-6" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 truncate">{user?.name || 'User'}</p>
+                    <p className="text-xs text-gray-500">
+                      {user?.access_level ? user.access_level.charAt(0).toUpperCase() + user.access_level.slice(1) : 'Staff'}
+                    </p>
                   </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{user?.name || 'User'}</p>
-                  <p className="text-xs text-gray-500">
-                    {user?.access_level ? user.access_level.charAt(0).toUpperCase() + user.access_level.slice(1) : 'Staff'}
-                  </p>
                 </div>
-              </div>
-            </li>
-            <li>
-              <button
-                onClick={() => navigate("/profile")}
-                className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition-colors text-gray-700 font-medium"
-              >
-                <img src={adminIcon} alt="Profile" className="w-5 h-5 object-contain" />
-                My Profile
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={handleLogout}
-                className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm hover:bg-red-50 transition-colors text-red-600 font-medium border-t border-gray-100"
-              >
-                <img src={logoutIcon} alt="Logout" className="w-5 h-5 object-contain" />
-                Logout
-              </button>
-            </li>
-          </ul>
+              </li>
+              <li>
+                <button
+                  onClick={() => {
+                    navigate("/profile");
+                    setShowProfileMenu(false);
+                  }}
+                  className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition-colors text-gray-700 font-medium"
+                >
+                  <img src={adminIcon} alt="Profile" className="w-5 h-5 object-contain" />
+                  My Profile
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setShowProfileMenu(false);
+                  }}
+                  className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm hover:bg-red-50 transition-colors text-red-600 font-medium border-t border-gray-100"
+                >
+                  <img src={logoutIcon} alt="Logout" className="w-5 h-5 object-contain" />
+                  Logout
+                </button>
+              </li>
+            </ul>
+          )}
         </div>
       </div>
 

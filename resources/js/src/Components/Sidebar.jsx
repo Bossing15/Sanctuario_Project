@@ -65,11 +65,11 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     });
   }, [permissions]);
 
-  // Mobile bottom navigation
+  // Mobile bottom navigation with scrollable menu
   if (isMobile) {
     return (
       <nav className="mobile-nav">
-        {menuItems.slice(0, 5).map((item, idx) => (
+        {menuItems.map((item, idx) => (
           <NavLink
             key={idx}
             to={item.path}
