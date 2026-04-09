@@ -17,6 +17,7 @@ const appLogo = "/Sanctuario_Logo_Good.png";
 
 const Sidebar = ({ collapsed, setCollapsed }) => {
   const [mounted, setMounted] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Disable transitions on mount
   useEffect(() => {
@@ -26,6 +27,24 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     }, 50);
     return () => clearTimeout(timer);
   }, []);
+
+  // Close mobile menu on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Close mobile menu when a link is clicked
+  const handleMenuItemClick = () => {
+    if (window.innerWidth <= 768) {
+      setMobileMenuOpen(false);
+    }
+  };
   
   // Get user and permissions from localStorage
   const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -61,70 +80,86 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
   }, [permissions]);
 
   return (
-    <div
-      className={`sidebar ${collapsed ? "collapsed" : "expanded"} ${mounted ? "no-transition" : ""}`}
-    >
-      {/* Header with hamburger */}
-      <div className="sidebar-header">
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="sidebar-toggle"
-        >
-          <img src={menuIcon} alt="Menu" className="w-4 h-4" />
-        </button>
-        {!collapsed && (
-          <img
-            src={appLogo}
-            alt="Sanctuario Logo"
-            className="sidebar-logo"
-            onError={(e) => {
-              console.error('Logo failed to load:', e.target.src);
-              e.target.outerHTML = '<div class="text-neutral-800 font-bold text-sm">SANCTUARIO</div>';
+    <>
+      {/* Mobile overlay */}
+      <div 
+        className={`sidebar-overlay ${mobileMenuOpen ? 'active' : ''}`}
+        onClick={() => setMobileMenuOpen(false)}
+      />
+      
+      <div
+        className={`sidebar ${collapsed ? "collapsed" : "expanded"} ${mounted ? "no-transition" : ""} ${mobileMenuOpen ? "mobile-open" : ""}`}
+      >
+        {/* Header with hamburger */}
+        <div className="sidebar-header">
+          <button
+            onClick={() => {
+              if (window.innerWidth <= 768) {
+                setMobileMenuOpen(!mobileMenuOpen);
+              } else {
+                setCollapsed(!collapsed);
+              }
             }}
-            onLoad={(e) => console.log('Sidebar logo loaded successfully from:', e.target.src)}
-          />
-        )}
-      </div>
+            className="sidebar-toggle"
+          >
+            <img src={menuIcon} alt="Menu" className="w-4 h-4" />
+          </button>
+          {!collapsed && (
+            <img
+              src={appLogo}
+              alt="Sanctuario Logo"
+              className="sidebar-logo"
+              onError={(e) => {
+                console.error('Logo failed to load:', e.target.src);
+                e.target.outerHTML = '<div class="text-neutral-800 font-bold text-sm">SANCTUARIO</div>';
+              }}
+              onLoad={(e) => console.log('Sidebar logo loaded successfully from:', e.target.src)}
+            />
+          )}
+        </div>
 
-      {/* Menu Items */}
-      <div className="sidebar-menu">
-        {menuItems.map((item, idx) => (
+        {/* Menu Items */}
+        <div className="sidebar-menu">
+          {menuItems.map((item, idx) => (
+            <NavLink
+              key={idx}
+              to={item.path}
+              end={item.path === "/admin"}
+              onClick={handleMenuItemClick}
+              className={({ isActive }) =>
+                `sidebar-item ${isActive ? 'active' : ''} ${!item.canPerformActions ? 'opacity-60' : ''}`
+              }
+            >
+              <div className="sidebar-item-icon">
+                <img src={item.icon} alt={item.label} className="w-5 h-5" />
+              </div>
+              <span className="sidebar-item-label">
+                {item.label}
+                {!item.canPerformActions && !collapsed && (
+                  <span className="ml-1 text-xs text-warning-600">(View Only)</span>
+                )}
+              </span>
+            </NavLink>
+          ))}
+        </div>
+
+        {/* Settings */}
+        <div className="sidebar-footer">
           <NavLink
-            key={idx}
-            to={item.path}
-            end={item.path === "/admin"}
+            to="/settings"
+            onClick={handleMenuItemClick}
             className={({ isActive }) =>
-              `sidebar-item ${isActive ? 'active' : ''} ${!item.canPerformActions ? 'opacity-60' : ''}`
+              `sidebar-item ${isActive ? 'active' : ''}`
             }
           >
             <div className="sidebar-item-icon">
-              <img src={item.icon} alt={item.label} className="w-5 h-5" />
+              <img src={settingsIcon} alt="Settings" className="w-5 h-5" />
             </div>
-            <span className="sidebar-item-label">
-              {item.label}
-              {!item.canPerformActions && !collapsed && (
-                <span className="ml-1 text-xs text-warning-600">(View Only)</span>
-              )}
-            </span>
+            <span className="sidebar-item-label">Settings</span>
           </NavLink>
-        ))}
+        </div>
       </div>
-
-      {/* Settings */}
-      <div className="sidebar-footer">
-        <NavLink
-          to="/settings"
-          className={({ isActive }) =>
-            `sidebar-item ${isActive ? 'active' : ''}`
-          }
-        >
-          <div className="sidebar-item-icon">
-            <img src={settingsIcon} alt="Settings" className="w-5 h-5" />
-          </div>
-          <span className="sidebar-item-label">Settings</span>
-        </NavLink>
-      </div>
-    </div>
+    </>
   );
 };
 

@@ -566,13 +566,57 @@
     gap: 1rem;
   }
 
+  .messages-header-title {
+    gap: 0.5rem;
+  }
+
+  .messages-header-title img {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .messages-header h2 {
+    font-size: 1.25rem;
+  }
+
   .filter-section {
-    flex-direction: row !important;
-    justify-content: space-between !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    gap: 1rem !important;
+  }
+
+  .filter-wrapper {
+    width: 100% !important;
+    flex: 1 !important;
+    order: 1 !important;
+  }
+
+  .refresh-wrapper {
+    width: 100% !important;
+    flex: 1 !important;
+    order: 2 !important;
+    margin-left: 0 !important;
+  }
+
+  .refresh-wrapper .refresh-btn {
+    width: 100%;
   }
 
   .messages-stats {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
   }
 
   .messages-table {
@@ -586,5 +630,54 @@
 
   .modal-content {
     width: 95%;
+  }
+
+  .detail-row {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-row strong {
+    margin-bottom: 0.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .messages-management {
+    padding: 0.75rem;
+  }
+
+  .messages-header-title img {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .messages-header h2 {
+    font-size: 1rem;
+  }
+
+  .messages-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 0.75rem;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .messages-table th,
+  .messages-table td {
+    padding: 0.4rem;
+    font-size: 0.7rem;
+  }
+
+  .modal-content {
+    width: 98%;
+  }
+
+  .filter-select {
+    width: 100%;
   }
 }
