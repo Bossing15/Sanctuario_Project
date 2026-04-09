@@ -444,28 +444,52 @@ table tbody tr td.currency.negative {
   }
 
   table {
-    min-width: 500px;
+    min-width: auto;
+    width: 100%;
   }
 
   table thead tr th {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.7rem;
+    padding: 0.35rem 0.25rem;
+    font-size: 0.6rem;
+    font-weight: 600;
   }
 
   table tbody tr td {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.75rem;
+    padding: 0.35rem 0.25rem;
+    font-size: 0.65rem;
+  }
+
+  table tbody tr td.font-mono {
+    font-size: 0.6rem;
+  }
+
+  table tbody tr td.font-bold {
+    font-size: 0.65rem;
+  }
+
+  table tbody tr td.date-cell {
+    font-size: 0.6rem;
+  }
+
+  table tbody tr td.currency {
+    font-size: 0.65rem;
   }
 
   .action-btn {
-    padding: 0.375rem 0.5rem;
-    font-size: 0.7rem;
-    min-height: 36px;
+    padding: 0.2rem 0.3rem;
+    font-size: 0.55rem;
+    min-height: 24px;
   }
 
   .status-badge {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.65rem;
+    padding: 0.15rem 0.25rem;
+    font-size: 0.55rem;
+  }
+
+  .status-badge::before {
+    width: 0.7rem;
+    height: 0.7rem;
+    font-size: 0.45rem;
   }
 
   .table-header-actions {
@@ -480,27 +504,43 @@ table tbody tr td.currency.negative {
 
 @media (max-width: 480px) {
   table {
-    min-width: 400px;
+    min-width: auto;
+    width: 100%;
   }
 
   table thead tr th {
-    padding: 0.4rem 0.5rem;
-    font-size: 0.65rem;
+    padding: 0.3rem 0.2rem;
+    font-size: 0.55rem;
   }
 
   table tbody tr td {
-    padding: 0.4rem 0.5rem;
-    font-size: 0.7rem;
+    padding: 0.3rem 0.2rem;
+    font-size: 0.6rem;
+  }
+
+  table tbody tr td.font-mono {
+    font-size: 0.55rem;
+  }
+
+  table tbody tr td.date-cell {
+    font-size: 0.55rem;
   }
 
   .action-btn {
-    padding: 0.3rem 0.4rem;
-    font-size: 0.65rem;
+    padding: 0.15rem 0.25rem;
+    font-size: 0.5rem;
+    min-height: 20px;
   }
 
   .status-badge {
-    padding: 0.2rem 0.4rem;
-    font-size: 0.6rem;
+    padding: 0.1rem 0.2rem;
+    font-size: 0.5rem;
+  }
+
+  .status-badge::before {
+    width: 0.6rem;
+    height: 0.6rem;
+    font-size: 0.4rem;
   }
 
   .table-header-title {
