@@ -203,6 +203,13 @@ main.collapsed {
   display: none;
 }
 
+.navbar-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  display: none;
+}
+
 /* ============================================
    TABLET LAYOUT (1024px and below)
    ============================================ */
@@ -260,6 +267,12 @@ main.collapsed {
 
   .navbar.collapsed {
     left: 0;
+  }
+
+  .navbar-logo {
+    display: block;
+    height: 35px;
+    width: auto;
   }
 
   /* Main content with bottom nav space */

@@ -86,16 +86,14 @@ const Navbar = ({ collapsed }) => {
   return (
     <div className={`navbar ${collapsed ? "collapsed" : ""} ${mounted ? "no-transition" : ""}`}>
       <div className="flex items-center">
-        {collapsed && (
-          <img
-            src={logo}
-            alt="Sanctuario Logo"
-            className="w-40 h-10 object-contain"
-            onError={(e) => {
-              e.target.outerHTML = '<div class="text-gray-800 font-bold text-lg">SANCTUARIO</div>';
-            }}
-          />
-        )}
+        <img
+          src={logo}
+          alt="Sanctuario Logo"
+          className="navbar-logo"
+          onError={(e) => {
+            e.target.outerHTML = '<div class="text-gray-800 font-bold text-lg">SANCTUARIO</div>';
+          }}
+        />
       </div>
 
       <div className="flex items-center gap-4 ml-auto">
