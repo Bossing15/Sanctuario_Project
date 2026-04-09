@@ -266,9 +266,9 @@ main.collapsed {
   main {
     margin-top: 60px;
     margin-left: 0;
-    margin-bottom: 100px;
+    margin-bottom: 150px;
     padding: 1rem;
-    padding-bottom: 2rem;
+    padding-bottom: 3rem;
   }
 
   main.collapsed {
@@ -362,9 +362,9 @@ main.collapsed {
 
   main {
     margin-top: 56px;
-    margin-bottom: 100px;
+    margin-bottom: 150px;
     padding: 0.75rem;
-    padding-bottom: 2rem;
+    padding-bottom: 3rem;
   }
 
   .mobile-nav {
