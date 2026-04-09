@@ -84,58 +84,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
+  gap: 1rem;
   margin-bottom: 2rem;
   width: 100%;
-  flex-wrap: wrap;
 }
 
 .filter-wrapper {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background-color: white;
-  padding: 1rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e5e7eb;
-  order: 1;
-}
-
-.refresh-wrapper {
-  display: flex;
-  align-items: center;
-  background-color: white;
-  padding: 1rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e5e7eb;
-  order: 2;
-  margin-left: auto;
-}
-
-.refresh-wrapper .refresh-btn {
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.refresh-wrapper .refresh-btn:hover {
-  background-color: #2563eb;
-  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
 }
 
 .filter-section-label {
   font-weight: 600;
   color: #374151;
   font-size: 0.875rem;
-  white-space: nowrap;
 }
 
 .filter-select {
@@ -152,6 +115,28 @@
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.refresh-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.refresh-btn {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover {
+  background-color: #2563eb;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
 }
 
 .messages-stats {
@@ -584,25 +569,16 @@
   .filter-section {
     flex-direction: row;
     justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
+    gap: 0.75rem;
   }
 
   .filter-wrapper {
-    flex: 0 1 auto;
-    width: auto;
-    order: 1;
+    flex: 1;
+    min-width: 0;
   }
 
   .refresh-wrapper {
-    flex: 0 1 auto;
-    width: auto;
-    margin-left: auto;
-    order: 2;
-  }
-
-  .refresh-wrapper .refresh-btn {
-    width: auto;
+    flex: 0 0 auto;
   }
 
   .messages-stats {
