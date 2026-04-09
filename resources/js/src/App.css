@@ -210,6 +210,10 @@ main.collapsed {
   display: none;
 }
 
+.graves-container {
+  padding-top: 2rem;
+}
+
 /* ============================================
    TABLET LAYOUT (1024px and below)
    ============================================ */
@@ -273,6 +277,10 @@ main.collapsed {
     display: block;
     height: 35px;
     width: auto;
+  }
+
+  .graves-container {
+    padding-top: 3rem;
   }
 
   /* Main content with bottom nav space */

@@ -712,7 +712,7 @@ export default function Graves() {
         </div>
       )}
 
-      <div className="px-8 pt-8">
+      <div className="px-8 pt-8 graves-container">
         <div className="flex items-center mb-8">
           <img src={graveIcon} alt="Grave Icon" className="w-10 h-10 object-contain mr-4" />
           <h3 className="text-3xl font-bold text-gray-800">Graves & Maintenance</h3>
