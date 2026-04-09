@@ -83,7 +83,7 @@
 .filter-section {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 1.5rem;
   margin-bottom: 2rem;
   width: 100%;
@@ -99,6 +99,7 @@
   border-radius: 0.75rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border: 1px solid #e5e7eb;
+  order: 1;
 }
 
 .refresh-wrapper {
@@ -109,10 +110,12 @@
   border-radius: 0.75rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border: 1px solid #e5e7eb;
+  order: 2;
+  margin-left: auto;
 }
 
 .refresh-wrapper .refresh-btn {
-  background-color: #16a34a;
+  background-color: #3b82f6;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -124,8 +127,8 @@
 }
 
 .refresh-wrapper .refresh-btn:hover {
-  background-color: #15803d;
-  box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.3);
+  background-color: #2563eb;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
 }
 
 .filter-section-label {
@@ -580,7 +583,7 @@
 
   .filter-section {
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: space-between;
     gap: 1rem;
     flex-wrap: wrap;
   }
@@ -588,12 +591,14 @@
   .filter-wrapper {
     flex: 0 1 auto;
     width: auto;
+    order: 1;
   }
 
   .refresh-wrapper {
     flex: 0 1 auto;
     width: auto;
-    margin-left: 0;
+    margin-left: auto;
+    order: 2;
   }
 
   .refresh-wrapper .refresh-btn {
