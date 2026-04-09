@@ -274,7 +274,7 @@ export default function Settings() {
         {/* Tabs */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-100">
           <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6">
+            <nav className="settings-tabs flex space-x-8 px-6">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}

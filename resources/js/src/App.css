@@ -225,6 +225,35 @@ main.collapsed {
   gap: 0.75rem;
 }
 
+/* Settings Component Mobile Styles */
+.settings-tabs {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .settings-tabs {
+    gap: 0;
+  }
+
+  .settings-tabs button {
+    padding: 1rem 0.75rem !important;
+    font-size: 0.7rem !important;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .settings-tabs button span {
+    margin-right: 0.25rem !important;
+  }
+
+  .settings-tabs button span:first-child {
+    display: none;
+  }
+}
+
 /* ============================================
    TABLET LAYOUT (1024px and below)
    ============================================ */
