@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useMemo, useState, useEffect } from "react";
 
 import adminIcon from "../assets/icons/icons8-admin-50.png";
@@ -15,8 +15,10 @@ import requirementIcon from "../assets/icons/Requirements.png";
 
 const appLogo = "/Sanctuario_Logo_Good.png";
 
-const Sidebar = ({ collapsed, setCollapsed, mobileMenuOpen, setMobileMenuOpen }) => {
+const Sidebar = ({ collapsed, setCollapsed }) => {
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const location = useLocation();
   
   useEffect(() => {
     setMounted(true);
@@ -28,19 +30,11 @@ const Sidebar = ({ collapsed, setCollapsed, mobileMenuOpen, setMobileMenuOpen })
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth > 768 && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
+      setIsMobile(window.innerWidth <= 768);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [mobileMenuOpen, setMobileMenuOpen]);
-
-  const handleMenuItemClick = () => {
-    if (window.innerWidth <= 768) {
-      setMobileMenuOpen(false);
-    }
-  };
+  }, []);
   
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const permissions = user.permissions || {};
@@ -71,86 +65,101 @@ const Sidebar = ({ collapsed, setCollapsed, mobileMenuOpen, setMobileMenuOpen })
     });
   }, [permissions]);
 
-  return (
-    <>
-      {/* Mobile overlay */}
-      <div 
-        className={`sidebar-overlay ${mobileMenuOpen ? 'active' : ''}`}
-        onClick={() => setMobileMenuOpen(false)}
-      />
-      
-      <div
-        className={`sidebar ${collapsed ? "collapsed" : "expanded"} ${mounted ? "no-transition" : ""} ${mobileMenuOpen ? "mobile-open" : ""}`}
-      >
-        {/* Header with hamburger */}
-        <div className="sidebar-header">
-          <button
-            onClick={() => {
-              if (window.innerWidth <= 768) {
-                setMobileMenuOpen(!mobileMenuOpen);
-              } else {
-                setCollapsed(!collapsed);
-              }
-            }}
-            className="sidebar-toggle"
-          >
-            <img src={menuIcon} alt="Menu" className="w-4 h-4" />
-          </button>
-          {!collapsed && (
-            <img
-              src={appLogo}
-              alt="Sanctuario Logo"
-              className="sidebar-logo"
-              onError={(e) => {
-                console.error('Logo failed to load:', e.target.src);
-                e.target.outerHTML = '<div class="text-neutral-800 font-bold text-sm">SANCTUARIO</div>';
-              }}
-            />
-          )}
-        </div>
-
-        {/* Menu Items */}
-        <div className="sidebar-menu">
-          {menuItems.map((item, idx) => (
-            <NavLink
-              key={idx}
-              to={item.path}
-              end={item.path === "/admin"}
-              onClick={handleMenuItemClick}
-              className={({ isActive }) =>
-                `sidebar-item ${isActive ? 'active' : ''} ${!item.canPerformActions ? 'opacity-60' : ''}`
-              }
-            >
-              <div className="sidebar-item-icon">
-                <img src={item.icon} alt={item.label} className="w-5 h-5" />
-              </div>
-              <span className="sidebar-item-label">
-                {item.label}
-                {!item.canPerformActions && !collapsed && (
-                  <span className="ml-1 text-xs text-warning-600">(View Only)</span>
-                )}
-              </span>
-            </NavLink>
-          ))}
-        </div>
-
-        {/* Settings */}
-        <div className="sidebar-footer">
+  // Mobile bottom navigation
+  if (isMobile) {
+    return (
+      <nav className="mobile-nav">
+        {menuItems.slice(0, 5).map((item, idx) => (
           <NavLink
-            to="/settings"
-            onClick={handleMenuItemClick}
+            key={idx}
+            to={item.path}
+            end={item.path === "/admin/dashboard"}
             className={({ isActive }) =>
-              `sidebar-item ${isActive ? 'active' : ''}`
+              `mobile-nav-item ${isActive ? 'active' : ''}`
+            }
+          >
+            <img src={item.icon} alt={item.label} />
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `mobile-nav-item ${isActive ? 'active' : ''}`
+          }
+        >
+          <img src={settingsIcon} alt="Settings" />
+          <span>Settings</span>
+        </NavLink>
+      </nav>
+    );
+  }
+
+  // Desktop sidebar
+  return (
+    <div
+      className={`sidebar ${collapsed ? "collapsed" : "expanded"} ${mounted ? "no-transition" : ""}`}
+    >
+      {/* Header with hamburger */}
+      <div className="sidebar-header">
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="sidebar-toggle"
+        >
+          <img src={menuIcon} alt="Menu" className="w-4 h-4" />
+        </button>
+        {!collapsed && (
+          <img
+            src={appLogo}
+            alt="Sanctuario Logo"
+            className="sidebar-logo"
+            onError={(e) => {
+              console.error('Logo failed to load:', e.target.src);
+              e.target.outerHTML = '<div class="text-neutral-800 font-bold text-sm">SANCTUARIO</div>';
+            }}
+          />
+        )}
+      </div>
+
+      {/* Menu Items */}
+      <div className="sidebar-menu">
+        {menuItems.map((item, idx) => (
+          <NavLink
+            key={idx}
+            to={item.path}
+            end={item.path === "/admin"}
+            className={({ isActive }) =>
+              `sidebar-item ${isActive ? 'active' : ''} ${!item.canPerformActions ? 'opacity-60' : ''}`
             }
           >
             <div className="sidebar-item-icon">
-              <img src={settingsIcon} alt="Settings" className="w-5 h-5" />
+              <img src={item.icon} alt={item.label} className="w-5 h-5" />
             </div>
-            <span className="sidebar-item-label">Settings</span>
+            <span className="sidebar-item-label">
+              {item.label}
+              {!item.canPerformActions && !collapsed && (
+                <span className="ml-1 text-xs text-warning-600">(View Only)</span>
+              )}
+            </span>
           </NavLink>
-        </div>
+        ))}
       </div>
-    </>
+
+      {/* Settings */}
+      <div className="sidebar-footer">
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `sidebar-item ${isActive ? 'active' : ''}`
+          }
+        >
+          <div className="sidebar-item-icon">
+            <img src={settingsIcon} alt="Settings" className="w-5 h-5" />
+          </div>
+          <span className="sidebar-item-label">Settings</span>
+        </NavLink>
+      </div>
+    </div>
   );
 };
 

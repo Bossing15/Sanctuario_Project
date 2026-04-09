@@ -51,7 +51,7 @@ const RootRedirect = () => {
   return <Navigate to="/login" replace />;
 };
 
-const Layout = ({ children, collapsed, setCollapsed, mobileMenuOpen, setMobileMenuOpen }) => {
+const Layout = ({ children, collapsed, setCollapsed }) => {
   const location = useLocation();
   const [mounted, setMounted] = useState(false);
 
@@ -67,7 +67,7 @@ const Layout = ({ children, collapsed, setCollapsed, mobileMenuOpen, setMobileMe
 
   return (
     <>
-      {!isAuthPage && <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />}
+      {!isAuthPage && <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />}
       {!isAuthPage && <Navbar collapsed={collapsed} />}
 
       <main

@@ -100,7 +100,7 @@ const Navbar = ({ collapsed }) => {
       <div className="flex items-center gap-4 ml-auto">
         <button 
           onClick={() => setShowNotifications(!showNotifications)}
-          className="relative p-2 hover:bg-gray-100 rounded-lg transition-all text-gray-600"
+          className="relative p-2 hover:bg-gray-100 rounded-lg transition-all text-gray-600 pointer-events-auto"
           title="Notifications"
         >
           <svg
@@ -119,7 +119,7 @@ const Navbar = ({ collapsed }) => {
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
 
-        <div className="relative group">
+        <div className="relative group pointer-events-auto">
           <button className="flex items-center gap-2 hover:bg-gray-50 px-3 py-2 rounded-lg transition-all">
             {profilePicture ? (
               <img
@@ -147,7 +147,7 @@ const Navbar = ({ collapsed }) => {
             </svg>
           </button>
 
-          <ul className="absolute right-0 mt-2 w-56 bg-white text-gray-800 rounded-xl shadow-xl border border-gray-100 hidden group-hover:block overflow-hidden z-50">
+          <ul className="absolute right-0 mt-2 w-56 bg-white text-gray-800 rounded-xl shadow-xl border border-gray-100 hidden group-hover:block overflow-hidden z-[9999]">
             <li className="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-transparent">
               <div className="flex items-center gap-3">
                 {profilePicture ? (

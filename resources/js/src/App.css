@@ -238,51 +238,23 @@ main.collapsed {
    ============================================ */
 
 @media (max-width: 768px) {
-  /* Sidebar as drawer */
+  /* Hide sidebar on mobile */
   .sidebar {
-    position: fixed;
-    left: -280px;
-    top: 70px;
-    width: 280px;
-    height: calc(100vh - 70px);
-    margin: 0;
-    border-radius: 0;
-    transition: left 0.3s ease;
-    z-index: 50;
-    padding: 1rem 0;
-    overflow-y: auto;
+    display: none;
   }
 
-  .sidebar.mobile-open {
-    left: 0;
+  .sidebar-overlay {
+    display: none;
   }
 
-  .sidebar.collapsed {
-    width: 280px;
-    left: -280px;
-  }
-
-  .sidebar.collapsed.mobile-open {
-    left: 0;
-  }
-
-  .sidebar-footer {
-    position: relative;
-    bottom: auto;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 1rem 1rem 0 1rem;
-    margin-top: 2rem;
-  }
-
-  /* Navbar stays on top */
+  /* Navbar full width */
   .navbar {
     left: 0;
     right: 0;
     top: 0;
-    height: 70px;
+    height: 60px;
     padding: 0 1rem;
-    z-index: 100;
-    position: relative;
+    z-index: 40;
     pointer-events: auto;
   }
 
@@ -290,10 +262,11 @@ main.collapsed {
     left: 0;
   }
 
-  /* Main content */
+  /* Main content with bottom nav space */
   main {
-    margin-top: 70px;
+    margin-top: 60px;
     margin-left: 0;
+    margin-bottom: 70px;
     padding: 1rem;
   }
 
@@ -301,38 +274,62 @@ main.collapsed {
     margin-left: 0;
   }
 
-  /* Overlay for sidebar */
-  .sidebar-overlay {
-    display: none;
+  /* Mobile bottom navigation */
+  .mobile-nav {
     position: fixed;
-    top: 70px;
+    bottom: 0;
     left: 0;
     right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 49;
+    height: 70px;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 30;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    pointer-events: auto;
   }
 
-  .sidebar-overlay.active {
-    display: block;
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    text-decoration: none;
+    color: #6b7280;
+    transition: all 0.2s ease;
+    flex: 1;
+    height: 100%;
+    pointer-events: auto;
   }
-}
 
-/* ============================================
-   NAVBAR DROPDOWN FIX
-   ============================================ */
+  .mobile-nav-item:hover,
+  .mobile-nav-item.active {
+    color: #16a34a;
+    background-color: #f0fdf4;
+  }
 
-.navbar .relative {
-  position: relative;
-  z-index: 101;
-}
+  .mobile-nav-item img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    pointer-events: none;
+  }
 
-.navbar .group:hover > ul {
-  z-index: 101;
-}
-
-.navbar ul {
-  z-index: 101;
+  .mobile-nav-item span {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    pointer-events: none;
+  }
 }
 
 /* ============================================
@@ -340,38 +337,22 @@ main.collapsed {
    ============================================ */
 
 @media (max-width: 480px) {
-  .sidebar {
-    width: 100%;
-    left: -100%;
-  }
-
-  .sidebar.mobile-open {
-    left: 0;
-  }
-
   .navbar {
-    height: 60px;
+    height: 56px;
     padding: 0 0.75rem;
   }
 
   main {
-    margin-top: 60px;
+    margin-top: 56px;
+    margin-bottom: 70px;
     padding: 0.75rem;
   }
 
-  /* Ensure navbar elements are clickable on mobile */
-  .navbar button {
-    position: relative;
-    z-index: 101;
+  .mobile-nav {
+    height: 70px;
   }
 
-  .navbar .group {
-    position: relative;
-    z-index: 101;
-  }
-
-  .navbar .group:hover > ul {
-    display: block;
-    z-index: 101;
+  .mobile-nav-item span {
+    font-size: 0.6rem;
   }
 }
