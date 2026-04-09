@@ -645,54 +645,67 @@ export default function RequirementManagement() {
                 </tr>
               </thead>
               <tbody>
-                {requirements.map((requirement) => (
-                  <tr key={requirement.id}>
-                    <td>
-                      <div>
-                        <div className="font-bold">{requirement.name}</div>
-                        <div className="text-sm text-gray-500">{requirement.description}</div>
+                {requirements.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+                      <div style={{ fontSize: '1rem', fontWeight: '500' }}>
+                        📋 No requirements found
                       </div>
-                    </td>
-                    <td className="text-center">
-                      <span className={`status-badge ${
-                        requirement.file_type === 'image' 
-                          ? 'info' 
-                          : requirement.file_type === 'pdf'
-                          ? 'warning'
-                          : 'info'
-                      }`}>
-                        {requirement.file_type === 'image' ? 'Image Only' : requirement.file_type.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="text-center">
-                      {requirement.sample_image_path ? (
-                        <span className="status-badge completed">✓ Has Sample</span>
-                      ) : (
-                        <span className="status-badge inactive">No Sample</span>
-                      )}
-                    </td>
-                    <td className="text-center">
-                      <div className="flex gap-2 justify-center">
-                        <button
-                          onClick={() => canManageRequirements && handleEditRequirement(requirement)}
-                          disabled={!canManageRequirements}
-                          className={`action-btn primary ${!canManageRequirements ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          title={!canManageRequirements ? 'You do not have permission to edit requirements' : ''}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteRequirement(requirement.id)}
-                          disabled={!canManageRequirements}
-                          className={`action-btn danger ${!canManageRequirements ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          title={!canManageRequirements ? 'You do not have permission to delete requirements' : ''}
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.5rem' }}>
+                        Create your first requirement to get started
+                      </p>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  requirements.map((requirement) => (
+                    <tr key={requirement.id}>
+                      <td>
+                        <div>
+                          <div className="font-bold">{requirement.name}</div>
+                          <div className="text-sm text-gray-500">{requirement.description}</div>
+                        </div>
+                      </td>
+                      <td className="text-center">
+                        <span className={`status-badge ${
+                          requirement.file_type === 'image' 
+                            ? 'info' 
+                            : requirement.file_type === 'pdf'
+                            ? 'warning'
+                            : 'info'
+                        }`}>
+                          {requirement.file_type === 'image' ? 'Image Only' : requirement.file_type.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="text-center">
+                        {requirement.sample_image_path ? (
+                          <span className="status-badge completed">✓ Has Sample</span>
+                        ) : (
+                          <span className="status-badge inactive">No Sample</span>
+                        )}
+                      </td>
+                      <td className="text-center">
+                        <div className="flex gap-2 justify-center">
+                          <button
+                            onClick={() => canManageRequirements && handleEditRequirement(requirement)}
+                            disabled={!canManageRequirements}
+                            className={`action-btn primary ${!canManageRequirements ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title={!canManageRequirements ? 'You do not have permission to edit requirements' : ''}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteRequirement(requirement.id)}
+                            disabled={!canManageRequirements}
+                            className={`action-btn danger ${!canManageRequirements ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title={!canManageRequirements ? 'You do not have permission to delete requirements' : ''}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
