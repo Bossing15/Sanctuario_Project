@@ -238,7 +238,7 @@ main.collapsed {
    ============================================ */
 
 @media (max-width: 768px) {
-  /* Hide desktop sidebar, show mobile menu */
+  /* Sidebar as drawer */
   .sidebar {
     position: fixed;
     left: -280px;
@@ -248,7 +248,7 @@ main.collapsed {
     margin: 0;
     border-radius: 0;
     transition: left 0.3s ease;
-    z-index: 100;
+    z-index: 50;
     padding: 1rem 0;
     overflow-y: auto;
   }
@@ -274,19 +274,23 @@ main.collapsed {
     margin-top: 2rem;
   }
 
+  /* Navbar stays on top */
   .navbar {
     left: 0;
     right: 0;
     top: 0;
     height: 70px;
     padding: 0 1rem;
-    z-index: 99;
+    z-index: 100;
+    position: relative;
+    pointer-events: auto;
   }
 
   .navbar.collapsed {
     left: 0;
   }
 
+  /* Main content */
   main {
     margin-top: 70px;
     margin-left: 0;
@@ -297,6 +301,7 @@ main.collapsed {
     margin-left: 0;
   }
 
+  /* Overlay for sidebar */
   .sidebar-overlay {
     display: none;
     position: fixed;
@@ -305,12 +310,29 @@ main.collapsed {
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 98;
+    z-index: 49;
   }
 
   .sidebar-overlay.active {
     display: block;
   }
+}
+
+/* ============================================
+   NAVBAR DROPDOWN FIX
+   ============================================ */
+
+.navbar .relative {
+  position: relative;
+  z-index: 101;
+}
+
+.navbar .group:hover > ul {
+  z-index: 101;
+}
+
+.navbar ul {
+  z-index: 101;
 }
 
 /* ============================================
@@ -335,5 +357,21 @@ main.collapsed {
   main {
     margin-top: 60px;
     padding: 0.75rem;
+  }
+
+  /* Ensure navbar elements are clickable on mobile */
+  .navbar button {
+    position: relative;
+    z-index: 101;
+  }
+
+  .navbar .group {
+    position: relative;
+    z-index: 101;
+  }
+
+  .navbar .group:hover > ul {
+    display: block;
+    z-index: 101;
   }
 }
