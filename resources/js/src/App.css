@@ -214,6 +214,17 @@ main.collapsed {
   padding-top: 2rem;
 }
 
+.graves-legend {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 /* ============================================
    TABLET LAYOUT (1024px and below)
    ============================================ */
@@ -281,6 +292,11 @@ main.collapsed {
 
   .graves-container {
     padding-top: 3rem;
+  }
+
+  .graves-legend {
+    margin-top: 3rem;
+    margin-bottom: 2rem;
   }
 
   /* Main content with bottom nav space */

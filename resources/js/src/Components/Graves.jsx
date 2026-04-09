@@ -822,7 +822,7 @@ export default function Graves() {
                   </table>
                 </div>
 
-                <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-2">
+                <div className="graves-legend">
                   <p className="text-sm">
                     <span className="text-green-600 font-semibold">✅ Active</span> – The Customer is Active and is Paying for the Services.
                   </p>
