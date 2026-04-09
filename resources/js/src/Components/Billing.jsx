@@ -220,41 +220,54 @@ const Billing = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredPaymentData.map((row) => {
-                const id = row.id || row.payment_id || row.uuid;
-                const name = row.customer_name || row.client?.name || row.client_name || row.payer_name || row.name || 'N/A';
-                const date = row.due_date || row.date || row.created_at;
-                const amount = row.amount || row.total || row.amount_paid || row.value || 0;
-                const status = (row.status || '').toString();
-                const method = row.method || row.payment_method || row.channel || '-';
-                const productService = row.description || 
-                                      row.service?.name || 
-                                      row.grave?.location || 
-                                      'General Payment';
-                return (
-                  <tr
-                    key={id}
-                    onClick={() => setSelectedRow({ id, name, date, amount, status, method, productService })}
-                    className={selectedRow?.id === id ? 'selected' : ''}
-                  >
-                    <td className="font-mono">{id}</td>
-                    <td className="font-bold">{name}</td>
-                    <td>{productService}</td>
-                    <td className="date-cell">{formatDate(date)}</td>
-                    <td className="currency">{Number(amount).toLocaleString()}</td>
-                    <td className="text-center">
-                      <span className={`status-badge ${
-                        status.toLowerCase() === 'paid' || status.toLowerCase() === 'completed' ? 'completed' :
-                        status.toLowerCase() === 'overdue' ? 'overdue' :
-                        status.toLowerCase() === 'pending' || status.toLowerCase() === 'unpaid' ? 'pending' :
-                        'info'
-                      }`}>
-                        {status.toLowerCase() === 'unpaid' ? 'Unpaid' : status}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
+              {filteredPaymentData.length === 0 ? (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: '500' }}>
+                      💳 No payments found
+                    </div>
+                    <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.5rem' }}>
+                      No billing records match your search criteria
+                    </p>
+                  </td>
+                </tr>
+              ) : (
+                filteredPaymentData.map((row) => {
+                  const id = row.id || row.payment_id || row.uuid;
+                  const name = row.customer_name || row.client?.name || row.client_name || row.payer_name || row.name || 'N/A';
+                  const date = row.due_date || row.date || row.created_at;
+                  const amount = row.amount || row.total || row.amount_paid || row.value || 0;
+                  const status = (row.status || '').toString();
+                  const method = row.method || row.payment_method || row.channel || '-';
+                  const productService = row.description || 
+                                        row.service?.name || 
+                                        row.grave?.location || 
+                                        'General Payment';
+                  return (
+                    <tr
+                      key={id}
+                      onClick={() => setSelectedRow({ id, name, date, amount, status, method, productService })}
+                      className={selectedRow?.id === id ? 'selected' : ''}
+                    >
+                      <td className="font-mono">{id}</td>
+                      <td className="font-bold">{name}</td>
+                      <td>{productService}</td>
+                      <td className="date-cell">{formatDate(date)}</td>
+                      <td className="currency">{Number(amount).toLocaleString()}</td>
+                      <td className="text-center">
+                        <span className={`status-badge ${
+                          status.toLowerCase() === 'paid' || status.toLowerCase() === 'completed' ? 'completed' :
+                          status.toLowerCase() === 'overdue' ? 'overdue' :
+                          status.toLowerCase() === 'pending' || status.toLowerCase() === 'unpaid' ? 'pending' :
+                          'info'
+                        }`}>
+                          {status.toLowerCase() === 'unpaid' ? 'Unpaid' : status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
