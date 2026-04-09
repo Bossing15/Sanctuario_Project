@@ -226,6 +226,52 @@ main.collapsed {
 }
 
 /* Settings Component Mobile Styles */
+@media (max-width: 768px) {
+  .settings-tabs {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overflow-y: hidden;
+    margin-bottom: 8px;
+  }
+
+  .settings-tabs::-webkit-scrollbar {
+    height: 8px;
+    margin-top: 10px;
+  }
+
+  .settings-tabs::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    margin-top: 10px;
+  }
+
+  .settings-tabs::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+  }
+
+  .settings-tabs::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+
+  .settings-tabs button {
+    padding: 1rem 0.75rem !important;
+    font-size: 0.7rem !important;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .settings-tabs button span {
+    margin-right: 0.25rem !important;
+  }
+
+  .settings-tabs button span:first-child {
+    display: none;
+  }
+}
+
+/* Settings Component Mobile Styles */
 .settings-tabs {
   display: flex;
   gap: 0;
