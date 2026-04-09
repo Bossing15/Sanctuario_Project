@@ -249,12 +249,12 @@ const Billing = () => {
                       onClick={() => setSelectedRow({ id, name, date, amount, status, method, productService })}
                       className={selectedRow?.id === id ? 'selected' : ''}
                     >
-                      <td className="font-mono" data-label="ID">{id}</td>
-                      <td className="font-bold" data-label="Customer">{name}</td>
-                      <td data-label="Service">{productService}</td>
-                      <td className="date-cell" data-label="Date">{formatDate(date)}</td>
-                      <td className="currency" data-label="Amount">{Number(amount).toLocaleString()}</td>
-                      <td className="text-center" data-label="Status">
+                      <td className="font-mono">{id}</td>
+                      <td className="font-bold">{name}</td>
+                      <td>{productService}</td>
+                      <td className="date-cell">{formatDate(date)}</td>
+                      <td className="currency">{Number(amount).toLocaleString()}</td>
+                      <td className="text-center">
                         <span className={`status-badge ${
                           status.toLowerCase() === 'paid' || status.toLowerCase() === 'completed' ? 'completed' :
                           status.toLowerCase() === 'overdue' ? 'overdue' :
