@@ -155,7 +155,7 @@ const SmsModal = ({ isOpen, onClose }) => {
       {/* Header Card */}
       <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         <h3 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-          <span>📱</span> Send SMS
+          Send SMS
         </h3>
         <p className="text-gray-600 text-sm">Send single or bulk SMS messages to your clients</p>
       </div>

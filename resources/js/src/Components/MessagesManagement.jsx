@@ -193,7 +193,6 @@ const MessagesManagement = () => {
             <img src={messageIcon} alt="Messages Icon" className="messages-header-icon" />
             <div>
               <h2>Messages & SMS</h2>
-              <p className="messages-header-subtitle">Total Messages: 0</p>
             </div>
           </div>
         </div>
@@ -296,7 +295,6 @@ const MessagesManagement = () => {
           <img src={messageIcon} alt="Messages Icon" className="messages-header-icon" />
           <div>
             <h2>Messages & SMS</h2>
-            <p className="messages-header-subtitle">Total Messages: {messages.length}</p>
           </div>
         </div>
         {!canManageMessages && (
@@ -333,13 +331,6 @@ const MessagesManagement = () => {
         <div className="messages-content-wrapper">
           {/* Filter Section */}
           <div className="filter-section">
-            <button 
-              onClick={fetchMessages}
-              className="btn-view"
-              style={{ background: '#2c5f2d' }}
-            >
-              Refresh
-            </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <label className="filter-section-label">Filter by Status:</label>
               <select 
@@ -354,6 +345,12 @@ const MessagesManagement = () => {
                 <option value="Archived">Archived</option>
               </select>
             </div>
+            <button 
+              onClick={fetchMessages}
+              className="refresh-btn"
+            >
+              Refresh
+            </button>
           </div>
 
           {/* Stats Cards */}
@@ -392,13 +389,9 @@ const MessagesManagement = () => {
           </thead>
           <tbody>
             {filteredMessages.length === 0 ? (
-              <tr>
-                <td colSpan="7" className="text-center">
-                  <div className="table-empty-state">
-                    <div className="table-empty-state-icon">📧</div>
-                    <div className="table-empty-state-title">No Messages Found</div>
-                    <div className="table-empty-state-text">Messages will appear here</div>
-                  </div>
+              <tr className="empty-row">
+                <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#6b7280', fontStyle: 'italic' }}>
+                  No data available
                 </td>
               </tr>
             ) : (

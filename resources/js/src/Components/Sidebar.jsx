@@ -9,7 +9,7 @@ import graveIcon from "../assets/icons/Graves.png";
 import settingsIcon from "../assets/icons/Settings.png";
 import messageIcon from "../assets/icons/icons8-message-50.png";
 import menuIcon from "../assets/icons/icons8-hamburger-menu-50.png";
-import inquiryIcon from "../assets/icons/icons8-notification-50.png";
+import productsIcon from "../assets/icons/Products.png";
 import maintenanceIcon from "../assets/icons/Maintenance.png";
 import requirementIcon from "../assets/icons/Requirements.png";
 
@@ -45,8 +45,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     { label: "Billing", icon: billingIcon, path: "/billing", key: 'billing' },
     { label: "Graves", icon: graveIcon, path: "/graves", key: 'graves' },
     { label: "Requirements", icon: requirementIcon, path: "/requirements", key: 'requirements' },
-    { label: "Inquiries", icon: inquiryIcon, path: "/inquiries", key: 'inquiries' },
-    { label: "Maintenance", icon: maintenanceIcon, path: "/maintenance-requests", key: 'inquiries' },
+    { label: "Products", icon: productsIcon, path: "/products", key: 'graves' },
+    { label: "Services", icon: maintenanceIcon, path: "/services", key: 'graves' },
     { label: "Messages", icon: messageIcon, path: "/messages", key: 'messages' },
     { label: "Admin", icon: adminIcon, path: "/admin", key: 'admin' },
   ];

@@ -43,6 +43,28 @@ class ServiceSeeder extends Seeder
                 'price_yearly' => 14400.00,
                 'status' => 'Active',
             ],
+            [
+                'title' => 'Interment',
+                'slug' => 'interment',
+                'category' => 'Services',
+                'description' => 'Honoring your departed loved ones with dignity and respect. Our interment services provide a compassionate and professional approach to laying your loved ones to rest. We handle every detail with care and reverence.',
+                'image_path' => 'uploads/services/interment.jpg',
+                'price_monthly' => null,
+                'price_quarterly' => null,
+                'price_yearly' => null,
+                'status' => 'Active',
+            ],
+            [
+                'title' => 'Cremation',
+                'slug' => 'cremation',
+                'category' => 'Services',
+                'description' => 'Respectful cremation services for your loved ones. At the time to embrace a modern way in the country, we are proud to offer our cremation services with dignity and respect for your loved ones.',
+                'image_path' => 'uploads/services/cremation.jpg',
+                'price_monthly' => null,
+                'price_quarterly' => null,
+                'price_yearly' => null,
+                'status' => 'Active',
+            ],
         ];
 
         foreach ($services as $service) {

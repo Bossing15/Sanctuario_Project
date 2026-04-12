@@ -2,6 +2,12 @@
    MODERN MODAL & DIALOG STYLES - CLIENT SIDE
    ============================================ */
 
+/* NOTE: PaymentModal uses its own styles (PaymentModal.css) and should not be affected by these generic modal styles */
+
+body.modal-open {
+  overflow: hidden;
+}
+
 /* Modal Overlay */
 .modal-overlay,
 .modal-backdrop,

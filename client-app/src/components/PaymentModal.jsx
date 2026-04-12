@@ -219,14 +219,20 @@ function PaymentModal({ service, planType, amount, bookingId, paymentId, onClose
   return (
     <div className="payment-modal-overlay">
       <div className="payment-modal-container">
-        <button className="payment-modal-back" onClick={onClose}>
-          <FaArrowLeft />
-          <span>Back</span>
-        </button>
-        
-        <button className="payment-modal-close" onClick={onClose}>
-          <FaTimes />
-        </button>
+        <div className="payment-modal-header">
+          <div className="payment-modal-header-title">
+            <span>💳 Payment</span>
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto' }}>
+            <button className="payment-modal-back" onClick={onClose}>
+              <FaArrowLeft />
+              <span>Back</span>
+            </button>
+            <button className="payment-modal-close" onClick={onClose}>
+              <FaTimes />
+            </button>
+          </div>
+        </div>
 
         <div className="payment-modal-content">
           <h2 className="payment-modal-title">Complete Your Payment</h2>

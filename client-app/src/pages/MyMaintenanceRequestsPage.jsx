@@ -195,7 +195,7 @@ function MyMaintenanceRequestsPage() {
               className="refresh-button"
               disabled={loading}
             >
-              🔄 {loading ? 'Refreshing...' : 'Refresh'}
+              {loading ? 'Refreshing...' : 'Refresh'}
             </button>
           </div>
           {loading ? (

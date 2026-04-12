@@ -31,9 +31,12 @@
    ============================================ */
 
 body {
-  background-color: #f9fafb;
   font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
   color: var(--neutral-900);
+}
+
+#root {
+  /* Background is set in colors.css */
 }
 
 /* ============================================
@@ -524,6 +527,10 @@ body {
    MODALS
    ============================================ */
 
+body.modal-open {
+  overflow: hidden;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -545,7 +552,8 @@ body {
   max-width: 600px;
   width: 90%;
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   animation: slideUp 0.3s ease;
 }
 
@@ -564,6 +572,24 @@ body {
 }
 
 .modal::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Custom scrollbar for modal-body */
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
 
@@ -620,6 +646,8 @@ body {
 
 .modal-body {
   padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .modal-footer {
@@ -629,6 +657,42 @@ body {
   border-top: 1px solid var(--neutral-200);
   background-color: var(--neutral-50);
   justify-content: flex-end;
+  border-radius: 0 0 1.5rem 1.5rem;
+}
+
+/* Modal Buttons */
+.modal-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-btn:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal-btn:active {
+  opacity: 0.9;
+}
+
+.modal-btn.primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+}
+
+.modal-btn.primary:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+}
+
+.modal-btn.secondary {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.modal-btn.secondary:hover {
+  background-color: #e5e7eb;
 }
 
 /* ============================================
@@ -934,6 +998,64 @@ body {
 }
 
 .refresh-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* ============================================
+   STANDARDIZED TABLE WRAPPER
+   ============================================ */
+
+.table-container {
+  background: white;
+  border-radius: 0.75rem;
+  border: none;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12), 0 5px 10px rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  transition: all 0.2s ease;
+}
+
+.table-container:hover {
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15), 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   STANDARDIZED REFRESH BUTTON WRAPPER
+   ============================================ */
+
+.refresh-button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.refresh-button-wrapper .refresh-btn {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.refresh-button-wrapper .refresh-btn:hover {
+  background-color: #2563eb;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+}
+
+.refresh-button-wrapper .refresh-btn:disabled {
   background-color: #9ca3af;
   cursor: not-allowed;
   transform: none;

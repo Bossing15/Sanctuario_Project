@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './InquiriesManagement.css';
 import '../styles/tables.css';
-import inquiryIcon from "../assets/icons/icons8-notification-50.png";
+import inquiryIcon from "../assets/icons/Products.png";
 import usePermissions from '../utils/usePermissions';
 import { TableSkeleton } from './SkeletonLoader';
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 function InquiriesManagement() {
   const { canPerformActions } = usePermissions();
@@ -20,6 +21,11 @@ function InquiriesManagement() {
   const [serviceFilter, setServiceFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [dateRange, setDateRange] = useState('All');
+
+  // Delete confirmation modal state
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [inquiryToDelete, setInquiryToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchInquiries();
@@ -133,11 +139,17 @@ function InquiriesManagement() {
     }
   };
 
-  const deleteInquiry = async (inquiryId) => {
-    if (!window.confirm('Are you sure you want to delete this inquiry?')) return;
+  const deleteInquiry = (inquiryId) => {
+    setInquiryToDelete(inquiryId);
+    setShowDeleteConfirmModal(true);
+  };
 
+  const confirmDeleteInquiry = async () => {
+    if (!inquiryToDelete) return;
+
+    setIsDeleting(true);
     try {
-      const response = await fetch(`/api/admin/inquiries/${inquiryId}`, {
+      const response = await fetch(`/api/admin/inquiries/${inquiryToDelete}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
@@ -148,10 +160,19 @@ function InquiriesManagement() {
       if (response.ok) {
         fetchInquiries();
         setShowDetailModal(false);
+        setShowDeleteConfirmModal(false);
+        setInquiryToDelete(null);
       }
     } catch (error) {
       console.error('Error deleting inquiry:', error);
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const closeDeleteConfirmModal = () => {
+    setShowDeleteConfirmModal(false);
+    setInquiryToDelete(null);
   };
 
   const getStatusBadgeClass = (status) => {
@@ -187,13 +208,15 @@ function InquiriesManagement() {
   };
 
   return (
-    <div className="p-8 bg-white min-h-screen">
+    <div className="p-8 bg-gray-50 min-h-screen">
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <img src={inquiryIcon} alt="Inquiries Icon" className="w-10 h-10 object-contain mr-4" />
-            <h3 className="text-3xl font-bold text-gray-800">Customer Inquiries</h3>
+            <img src={inquiryIcon} alt="Products Icon" className="w-10 h-10 object-contain mr-4" />
+            <h3 className="text-3xl font-bold text-gray-800">Products Management</h3>
           </div>
+        </div>
+        <div className="flex justify-end mt-4">
           <button className="refresh-btn" onClick={fetchInquiries}>
             Refresh
           </button>
@@ -206,7 +229,7 @@ function InquiriesManagement() {
       </div>
 
       {/* Filters Section */}
-      <div className="inquiries-filters">
+      <div className="inquiries-filters mt-6">
         <div className="filter-group">
           <label>Status:</label>
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
@@ -242,12 +265,34 @@ function InquiriesManagement() {
 
         <div className="filter-group search-group">
           <label>Search:</label>
-          <input
-            type="text"
-            placeholder="Search by name, email, or phone..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            border: '1px solid #d1d5db',
+            borderRadius: '0.25rem',
+            padding: '0.5rem 0.75rem',
+            backgroundColor: '#ffffff',
+            transition: 'all 0.2s ease',
+            height: '38px'
+          }}>
+            <input
+              type="text"
+              placeholder="Search by name, email, or phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                flex: 1,
+                border: 'none',
+                backgroundColor: 'transparent',
+                outline: 'none',
+                fontSize: '0.875rem',
+                color: '#374151'
+              }}
+            />
+            <svg style={{ width: '20px', height: '20px', color: '#6b7280', marginLeft: '0.5rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
         </div>
       </div>
 
@@ -274,57 +319,67 @@ function InquiriesManagement() {
       {/* Inquiries Table */}
       {loading ? (
         <TableSkeleton rows={8} columns={6} />
-      ) : filteredInquiries.length === 0 ? (
-        <div className="table-container">
-          <div className="table-empty-state">
-            <div className="table-empty-state-icon">📋</div>
-            <h3 className="table-empty-state-title">No Inquiries Found</h3>
-            <p className="table-empty-state-text">No inquiries match your current filters.</p>
-          </div>
-        </div>
       ) : (
-        <div className="table-container">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Customer_Name</th>
-                <th>Contact</th>
-                <th>Service</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredInquiries.map((inquiry) => (
-                <tr key={inquiry.id} onClick={() => openDetailModal(inquiry)} style={{ cursor: 'pointer' }}>
-                  <td>{formatDate(inquiry.created_at)}</td>
-                  <td className="font-semibold">{inquiry.full_name}</td>
-                  <td>
-                    <div>{inquiry.email}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>{inquiry.phone}</div>
-                  </td>
-                  <td>{inquiry.product_interest}</td>
-                  <td>
-                    <span className={`status-badge ${inquiry.status === 'New' ? 'pending' : inquiry.status === 'Responded' ? 'completed' : inquiry.status === 'Closed' ? 'inactive' : 'active'}`}>
-                      {inquiry.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className="table-action-btn primary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDetailModal(inquiry);
-                      }}
-                    >
-                      View
-                    </button>
-                  </td>
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-gray-700 text-white">
+                <tr>
+                  <th className="px-6 py-4 text-sm font-semibold">DATE</th>
+                  <th className="px-6 py-4 text-sm font-semibold">CUSTOMER_NAME</th>
+                  <th className="px-6 py-4 text-sm font-semibold">CONTACT</th>
+                  <th className="px-6 py-4 text-sm font-semibold">SERVICE</th>
+                  <th className="px-6 py-4 text-sm font-semibold">STATUS</th>
+                  <th className="px-6 py-4 text-sm font-semibold">ACTIONS</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredInquiries.length === 0 ? (
+                  <tr className="empty-row">
+                    <td colSpan="6" className="px-6 py-8 text-center text-gray-500" style={{ fontStyle: 'italic' }}>
+                      No data available
+                    </td>
+                  </tr>
+                ) : (
+                  filteredInquiries.map((inquiry, index) => (
+                    <tr key={inquiry.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors cursor-pointer`} onClick={() => openDetailModal(inquiry)}>
+                      <td className="px-6 py-4 text-sm text-gray-900">{formatDate(inquiry.created_at)}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900 font-semibold">{inquiry.full_name}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        <div>{inquiry.email}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>{inquiry.phone}</div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{inquiry.product_interest}</td>
+                      <td className="px-6 py-4 text-sm">
+                        <span className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg ${
+                          inquiry.status === 'New' 
+                            ? 'bg-yellow-100 text-yellow-700' 
+                            : inquiry.status === 'Responded' 
+                            ? 'bg-green-100 text-green-700' 
+                            : inquiry.status === 'Closed' 
+                            ? 'bg-red-100 text-red-700' 
+                            : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {inquiry.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        <button
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openDetailModal(inquiry);
+                          }}
+                        >
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -411,8 +466,18 @@ function InquiriesManagement() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        show={showDeleteConfirmModal}
+        itemName="this inquiry"
+        onConfirm={confirmDeleteInquiry}
+        onCancel={closeDeleteConfirmModal}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
 
 export default InquiriesManagement;
+

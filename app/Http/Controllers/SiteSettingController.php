@@ -32,8 +32,25 @@ class SiteSettingController extends Controller
     {
         try {
             $settings = SiteSetting::all();
+            
+            // Organize settings by category
+            $organizedSettings = [];
+            foreach ($settings as $setting) {
+                $category = $setting->category ?? 'general';
+                if (!isset($organizedSettings[$category])) {
+                    $organizedSettings[$category] = [];
+                }
+                $organizedSettings[$category][$setting->key] = [
+                    'label' => $setting->label ?? ucfirst(str_replace('_', ' ', $setting->key)),
+                    'description' => $setting->description ?? '',
+                    'type' => $setting->type ?? 'text',
+                    'value' => $setting->value,
+                    'is_active' => $setting->is_active ?? true,
+                ];
+            }
+            
             return response()->json([
-                'settings' => $settings,
+                'settings' => $organizedSettings,
                 'count' => $settings->count()
             ]);
         } catch (\Exception $e) {
@@ -83,11 +100,16 @@ class SiteSettingController extends Controller
                     ['key' => $validated['key']],
                     ['value' => $path]
                 );
+
+                return response()->json([
+                    'message' => 'Image uploaded successfully',
+                    'path' => $path
+                ]);
             }
 
             return response()->json([
-                'message' => 'Image uploaded successfully'
-            ]);
+                'message' => 'No image file provided'
+            ], 400);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to upload image',

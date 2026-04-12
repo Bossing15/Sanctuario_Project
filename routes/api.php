@@ -23,8 +23,8 @@ Route::prefix('payments')->group(function () {
     Route::get('/cancel', [App\Http\Controllers\PaymentController::class, 'paymentCancel']);
     Route::post('/webhook', [App\Http\Controllers\PaymentController::class, 'handleWebhook']);
     
-    // Protected routes requiring billing permission (for admin payment processing)
-    Route::middleware(['auth:sanctum', 'billing.permission'])->group(function () {
+    // Protected routes for authenticated users (clients and admins)
+    Route::middleware('auth:sanctum')->group(function () {
         Route::get('/methods', [App\Http\Controllers\PaymentController::class, 'getPaymentMethods']);
         Route::post('/create-intent', [App\Http\Controllers\PaymentController::class, 'createPaymentIntent']);
         Route::post('/create-checkout', [App\Http\Controllers\PaymentController::class, 'createCheckoutSession']);
@@ -165,9 +165,19 @@ Route::middleware('auth:sanctum')->group(function () {
     // Service routes
     Route::prefix('services')->group(function () {
         Route::get('/', [App\Http\Controllers\ServiceController::class, 'index']);
+        Route::get('/{id}', [App\Http\Controllers\ServiceController::class, 'show']);
         Route::post('/', [App\Http\Controllers\ServiceController::class, 'store']);
         Route::post('/{id}', [App\Http\Controllers\ServiceController::class, 'update']);
         Route::delete('/{id}', [App\Http\Controllers\ServiceController::class, 'destroy']);
+    });
+    
+    // Product routes
+    Route::prefix('products')->group(function () {
+        Route::get('/', [App\Http\Controllers\ProductController::class, 'index']);
+        Route::get('/{id}', [App\Http\Controllers\ProductController::class, 'show']);
+        Route::post('/', [App\Http\Controllers\ProductController::class, 'store']);
+        Route::post('/{id}', [App\Http\Controllers\ProductController::class, 'update']);
+        Route::delete('/{id}', [App\Http\Controllers\ProductController::class, 'destroy']);
     });
     
     // Payment Management routes - protected by billing permission

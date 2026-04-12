@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './NotificationDropdown.css';
 
-function NotificationDropdown({ isOpen, onClose }) {
+function NotificationDropdown({ isOpen, onClose, buttonRef }) {
   const [notifications, setNotifications] = useState([]);
   const [activeTab, setActiveTab] = useState('all');
   const [loading, setLoading] = useState(false);
@@ -11,7 +11,13 @@ function NotificationDropdown({ isOpen, onClose }) {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      // Check if click is outside the dropdown AND outside the button
+      if (
+        dropdownRef.current && 
+        !dropdownRef.current.contains(event.target) &&
+        buttonRef?.current &&
+        !buttonRef.current.contains(event.target)
+      ) {
         onClose();
       }
     };
@@ -24,7 +30,7 @@ function NotificationDropdown({ isOpen, onClose }) {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, buttonRef]);
 
   const fetchNotifications = async () => {
     try {
@@ -172,9 +178,17 @@ function NotificationDropdown({ isOpen, onClose }) {
 
       <div className="notification-dropdown-body">
         {loading ? (
-          <div className="notification-empty">
-            <div className="notification-empty-icon">⏳</div>
-            <p>Loading notifications...</p>
+          <div className="notification-skeleton-list">
+            {[1, 2, 3, 4, 5].map((item) => (
+              <div key={item} className="notification-skeleton-item">
+                <div className="notification-skeleton-icon"></div>
+                <div className="notification-skeleton-content">
+                  <div className="notification-skeleton-title"></div>
+                  <div className="notification-skeleton-message"></div>
+                  <div className="notification-skeleton-time"></div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : filterNotifications().length === 0 ? (
           <div className="notification-empty">

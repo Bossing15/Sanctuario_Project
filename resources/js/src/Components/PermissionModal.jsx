@@ -96,7 +96,7 @@ const PermissionModal = ({ isOpen, onClose, admin, onSave }) => {
     billing: 'Billing',
     graves: 'Graves',
     requirements: 'Requirements',
-    inquiries: 'Inquiries',
+    inquiries: 'Products',
     messages: 'Messages',
     admin: 'Admin Management',
   };

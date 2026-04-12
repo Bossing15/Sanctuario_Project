@@ -122,23 +122,6 @@
   align-items: center;
 }
 
-.refresh-wrapper .refresh-btn {
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.refresh-wrapper .refresh-btn:hover {
-  background-color: #2563eb;
-  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
-}
-
 .messages-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -179,6 +162,31 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border: 1px solid #e5e7eb;
   overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.messages-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.messages-table-container::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 4px;
+}
+
+.messages-table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.messages-table-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.messages-table-container {
+  scrollbar-color: #cbd5e1 #f3f4f6;
+  scrollbar-width: thin;
 }
 
 .messages-table {
@@ -362,6 +370,10 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+}
+
+body.modal-open {
+  overflow: hidden;
 }
 
 .modal-content {
@@ -599,12 +611,14 @@
   }
 
   .messages-table {
-    font-size: 0.85rem;
+    font-size: 0.8125rem;
+    min-width: 800px;
   }
 
   .messages-table th,
   .messages-table td {
-    padding: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.8125rem;
   }
 
   .modal-content {
@@ -648,8 +662,12 @@
 
   .messages-table th,
   .messages-table td {
-    padding: 0.4rem;
-    font-size: 0.7rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .messages-table {
+    min-width: 700px;
   }
 
   .modal-content {

@@ -22,6 +22,7 @@ function Navbar() {
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const offersDropdownRef = useRef(null);
+  const notificationRef = useRef(null);
   const fileInputRef = useRef(null);
   
   // Check if user is logged in
@@ -259,18 +260,21 @@ function Navbar() {
           <div className="nav-contact-search">
             {isLoggedIn ? (
               <>
-                <button
-                  className="notification-icon-btn"
-                  aria-label="Notifications"
-                  onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                >
-                  <FaBell />
-                </button>
-                
-                <NotificationDropdown 
-                  isOpen={isNotificationOpen} 
-                  onClose={() => setIsNotificationOpen(false)} 
-                />
+                <div ref={notificationRef}>
+                  <button
+                    className="notification-icon-btn"
+                    aria-label="Notifications"
+                    onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                  >
+                    <FaBell />
+                  </button>
+                  
+                  <NotificationDropdown 
+                    isOpen={isNotificationOpen} 
+                    onClose={() => setIsNotificationOpen(false)}
+                    buttonRef={notificationRef}
+                  />
+                </div>
                 
                 <div className="profile-dropdown-container" ref={dropdownRef}>
                   <button

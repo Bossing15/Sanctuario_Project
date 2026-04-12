@@ -22,6 +22,8 @@ const Admin = () => {
   const [editing, setEditing] = useState(null);
   const [permissionModalOpen, setPermissionModalOpen] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState(null);
+  const [rolesSearchQuery, setRolesSearchQuery] = useState("");
+  const [listSearchQuery, setListSearchQuery] = useState("");
 
   const roleOptions = ["Admin", "Staff", "Caretaker"];
   const defaultPermissions = { 
@@ -180,7 +182,7 @@ const Admin = () => {
   }
 
   return (
-    <div className="w-full bg-white min-h-screen">
+    <div className="w-full bg-gray-50 min-h-screen">
       <div style={{ paddingLeft: '2rem', paddingRight: '2rem', paddingTop: '2rem', paddingBottom: '1rem' }}>
         <div className="flex items-center">
           <img src={adminIcon} alt="Admin Icon" className="w-10 h-10 object-contain mr-4" />
@@ -241,6 +243,37 @@ const Admin = () => {
                 </p>
               </div>
             )}
+
+            {/* Search Bar */}
+            <div className="mb-6">
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.5rem',
+                padding: '0.75rem 1rem',
+                backgroundColor: '#ffffff',
+                transition: 'all 0.2s ease'
+              }}>
+                <input
+                  type="text"
+                  placeholder="Search by admin name, email, or contact..."
+                  value={listSearchQuery}
+                  onChange={(e) => setListSearchQuery(e.target.value)}
+                  style={{
+                    flex: 1,
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    outline: 'none',
+                    fontSize: '0.875rem',
+                    color: '#374151'
+                  }}
+                />
+                <svg style={{ width: '20px', height: '20px', color: '#6b7280', marginLeft: '0.5rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
             
             {loading ? (
               <TableSkeleton rows={5} />
@@ -260,8 +293,22 @@ const Admin = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {adminList.length > 0 ? (
-                      adminList.map((a) => (
+                    {adminList.filter((a) => {
+                      const query = listSearchQuery.toLowerCase();
+                      return (
+                        a.name.toLowerCase().includes(query) ||
+                        a.email.toLowerCase().includes(query) ||
+                        (a.contact || a.phone || '').toLowerCase().includes(query)
+                      );
+                    }).length > 0 ? (
+                      adminList.filter((a) => {
+                        const query = listSearchQuery.toLowerCase();
+                        return (
+                          a.name.toLowerCase().includes(query) ||
+                          a.email.toLowerCase().includes(query) ||
+                          (a.contact || a.phone || '').toLowerCase().includes(query)
+                        );
+                      }).map((a) => (
                         <tr key={a.id}>
                           <td className="font-mono">{a.id}</td>
                           <td className="font-semibold">{a.name}</td>
@@ -673,6 +720,36 @@ const Admin = () => {
             {loading ? (
               <TableSkeleton rows={5} />
             ) : (
+              <>
+                <div className="mb-6">
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    padding: '0.75rem 1rem',
+                    backgroundColor: '#ffffff',
+                    transition: 'all 0.2s ease'
+                  }}>
+                    <input
+                      type="text"
+                      placeholder="Search by admin name or email..."
+                      value={rolesSearchQuery}
+                      onChange={(e) => setRolesSearchQuery(e.target.value)}
+                      style={{
+                        flex: 1,
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        outline: 'none',
+                        fontSize: '0.875rem',
+                        color: '#374151'
+                      }}
+                    />
+                    <svg style={{ width: '20px', height: '20px', color: '#6b7280', marginLeft: '0.5rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                </div>
               <div className="table-wrapper">
                 <table>
                   <thead>
@@ -687,7 +764,13 @@ const Admin = () => {
                   </thead>
                   <tbody>
                     {adminList.length > 0 ? (
-                      adminList.map((a) => (
+                      adminList.filter((a) => {
+                        const query = rolesSearchQuery.toLowerCase();
+                        return (
+                          a.name.toLowerCase().includes(query) ||
+                          a.email.toLowerCase().includes(query)
+                        );
+                      }).map((a) => (
                         <tr key={a.id}>
                           <td className="font-semibold">{a.name}</td>
                           <td>{a.email}</td>
@@ -718,6 +801,7 @@ const Admin = () => {
                   </tbody>
                 </table>
               </div>
+              </>
             )}
           </div>
         )}
@@ -734,3 +818,4 @@ const Admin = () => {
 };
 
 export default Admin;
+

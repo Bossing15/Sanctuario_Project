@@ -20,6 +20,9 @@ import MessagesManagement from "./Components/MessagesManagement";
 import AdminPaymentSuccess from "./Components/AdminPaymentSuccess";
 import AdminPaymentCancel from "./Components/AdminPaymentCancel";
 import Maintenance from "./Components/Maintenance";
+import Services from "./Components/Services";
+import Products from "./Components/Products";
+import ServiceDetailEditor from "./Components/ServiceDetailEditor";
 
 const ProtectedRoute = ({ children, requiredRole = null }) => {
   const token = localStorage.getItem('authToken');
@@ -74,7 +77,7 @@ const Layout = ({ children, collapsed, setCollapsed }) => {
         className={`${
           isAuthPage
             ? "h-screen w-screen m-0 p-0 overflow-hidden"
-            : `bg-gray-50 overflow-auto min-h-screen ${
+            : `overflow-auto min-h-screen ${
                 collapsed ? "collapsed" : ""
               } ${mounted ? "no-transition" : ""}`
         }`}
@@ -157,6 +160,21 @@ const App = () => {
           <Route path="/maintenance-requests" element={
             <ProtectedRoute requiredRole="admin">
               <Maintenance />
+            </ProtectedRoute>
+          } />
+          <Route path="/services" element={
+            <ProtectedRoute requiredRole="admin">
+              <Services />
+            </ProtectedRoute>
+          } />
+          <Route path="/services/:serviceId/edit" element={
+            <ProtectedRoute requiredRole="admin">
+              <ServiceDetailEditor />
+            </ProtectedRoute>
+          } />
+          <Route path="/products" element={
+            <ProtectedRoute requiredRole="admin">
+              <Products />
             </ProtectedRoute>
           } />
           <Route path="/messages" element={

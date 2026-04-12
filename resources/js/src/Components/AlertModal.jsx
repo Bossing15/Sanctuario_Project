@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './AlertModal.css';
 
 function AlertModal({ type = 'info', title, message, onClose }) {
+  useEffect(() => {
+    document.body.classList.add('modal-open');
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, []);
+
   const icons = {
     success: (
       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

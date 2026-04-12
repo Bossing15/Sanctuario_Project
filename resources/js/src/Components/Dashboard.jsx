@@ -7,6 +7,7 @@ import pending from "../assets/icons/icons8-pending-50.png";
 import dashboardIcon from "../assets/icons/Dashboard.png";
 import usePermissions from '../utils/usePermissions';
 import { TableSkeleton } from './SkeletonLoader';
+import './Dashboard.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const Dashboard = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadedPhotos, setUploadedPhotos] = useState([]);
+  const [dashboardSearchQuery, setDashboardSearchQuery] = useState("");
 
   useEffect(() => {
     fetchDashboardData();
@@ -169,18 +171,18 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-8 bg-white min-h-screen" style={{ backgroundColor: '#ffffff' }}>
+    <div className="p-8 min-h-screen" style={{ backgroundColor: '#f8f9fa' }}>
       {/* Quick Stats */}
       <div className="mb-8">
         <div className="flex items-center mb-8">
           <img src={dashboardIcon} alt="Dashboard Icon" className="w-10 h-10 object-contain mr-4" />
           <h3 className="text-3xl font-bold text-gray-800">Quick Stats Overview</h3>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 dashboard-stats">
           {/* Customers */}
           <div 
             onClick={() => navigate('/customers')}
-            className="bg-white text-center p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-100 hover:scale-105 transition-all duration-300 cursor-pointer"
+            className="stat-card bg-white text-center p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-100 hover:scale-105 transition-all duration-300 cursor-pointer"
           >
             <div className="flex items-center justify-center mb-3">
               <img src={customerIcon} alt="Customer Icon" className="w-10 h-10" />
@@ -192,7 +194,7 @@ const Dashboard = () => {
           </div>
 
           {/* Pending Maintenance */}
-          <div className="bg-white text-center p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-100 hover:scale-105 transition-all duration-300">
+          <div className="stat-card bg-white text-center p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-100 hover:scale-105 transition-all duration-300">
             <div className="flex items-center justify-center mb-3">
               <img src={pending} alt="Pending Icon" className="w-10 h-10" />
             </div>
@@ -205,7 +207,7 @@ const Dashboard = () => {
           {/* Revenue */}
           <div 
             onClick={() => navigate('/billing', { state: { tab: 'analytics' } })}
-            className="bg-white text-center p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-100 hover:scale-105 transition-all duration-300 cursor-pointer"
+            className="stat-card bg-white text-center p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-100 hover:scale-105 transition-all duration-300 cursor-pointer"
           >
             <div className="flex items-center justify-center mb-3">
               <img src={revenueIcon} alt="Revenue Icon" className="w-10 h-10" />
@@ -219,7 +221,7 @@ const Dashboard = () => {
           {/* Invoices */}
           <div 
             onClick={() => navigate('/billing')}
-            className="bg-white text-center p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-100 hover:scale-105 transition-all duration-300 cursor-pointer"
+            className="stat-card bg-white text-center p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-100 hover:scale-105 transition-all duration-300 cursor-pointer"
           >
             <div className="flex items-center justify-center mb-3">
               <img src={invoiceIcon} alt="Invoice Icon" className="w-10 h-10" />
@@ -232,10 +234,49 @@ const Dashboard = () => {
 
       {/* Upcoming Tasks */}
       <div className="mb-6">
-        <h4 className="font-bold text-2xl text-gray-800 mb-4">Upcoming Tasks</h4>
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="font-bold text-2xl text-gray-800">Upcoming Tasks</h4>
+          <button 
+            onClick={fetchMaintenanceRequests}
+            disabled={loadingMaintenance}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loadingMaintenance ? 'Loading...' : 'Refresh'}
+          </button>
+        </div>
         {loadingMaintenance ? (
           <TableSkeleton rows={5} columns={8} />
         ) : (
+          <>
+            <div className="mb-6">
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.5rem',
+                padding: '0.75rem 1rem',
+                backgroundColor: '#ffffff',
+                transition: 'all 0.2s ease'
+              }}>
+                <input
+                  type="text"
+                  placeholder="Search by customer name, location, or status..."
+                  value={dashboardSearchQuery}
+                  onChange={(e) => setDashboardSearchQuery(e.target.value)}
+                  style={{
+                    flex: 1,
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    outline: 'none',
+                    fontSize: '0.875rem',
+                    color: '#374151'
+                  }}
+                />
+                <svg style={{ width: '20px', height: '20px', color: '#6b7280', marginLeft: '0.5rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
           <div className="table-wrapper">
             <table>
               <thead>
@@ -252,17 +293,22 @@ const Dashboard = () => {
               </thead>
               <tbody>
                 {maintenanceRequests.length === 0 ? (
-                  <tr>
-                    <td colSpan="8" className="text-center">
-                      <div className="table-empty-state">
-                        <div className="table-empty-state-icon">📋</div>
-                        <div className="table-empty-state-title">No Maintenance Requests</div>
-                        <div className="table-empty-state-text">Maintenance requests will appear here</div>
-                      </div>
+                  <tr className="empty-row">
+                    <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: '#6b7280', fontStyle: 'italic' }}>
+                      No data available
                     </td>
                   </tr>
                 ) : (
                   maintenanceRequests
+                    .filter((request) => {
+                      const query = dashboardSearchQuery.toLowerCase();
+                      return (
+                        request.id.toString().includes(query) ||
+                        (request.customer_name || '').toLowerCase().includes(query) ||
+                        (request.grave_location || '').toLowerCase().includes(query) ||
+                        (request.status || '').toLowerCase().includes(query)
+                      );
+                    })
                     .sort((a, b) => {
                       const statusPriority = {
                         'New': 1,
@@ -337,6 +383,7 @@ const Dashboard = () => {
               </tbody>
             </table>
           </div>
+          </>
         )}
 
         {/* Status Legend */}

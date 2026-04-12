@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AlertModal from './AlertModal';
 
 const PaymentAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [alertModal, setAlertModal] = useState({ show: false, type: 'info', message: '' });
   const [dateRange, setDateRange] = useState({
     start_date: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
     end_date: new Date().toISOString().split('T')[0]
@@ -51,10 +53,19 @@ const PaymentAnalytics = () => {
 
       if (response.ok) {
         const data = await response.json();
-        alert(`Reminders sent: ${data.sent} of ${data.total}`);
+        setAlertModal({
+          show: true,
+          type: 'success',
+          message: `Reminders sent: ${data.sent} of ${data.total}`
+        });
       }
     } catch (error) {
       console.error('Error sending reminders:', error);
+      setAlertModal({
+        show: true,
+        type: 'error',
+        message: 'Failed to send reminders'
+      });
     }
   };
 
@@ -71,11 +82,20 @@ const PaymentAnalytics = () => {
 
       if (response.ok) {
         const data = await response.json();
-        alert(`Overdue payments updated: ${data.count}`);
+        setAlertModal({
+          show: true,
+          type: 'success',
+          message: `Overdue payments updated: ${data.count}`
+        });
         fetchAnalytics();
       }
     } catch (error) {
       console.error('Error checking overdue:', error);
+      setAlertModal({
+        show: true,
+        type: 'error',
+        message: 'Failed to check overdue payments'
+      });
     }
   };
 
@@ -141,13 +161,13 @@ const PaymentAnalytics = () => {
           onClick={sendReminders}
           className="bg-yellow-500 text-white p-4 rounded-xl font-semibold hover:bg-yellow-600 shadow-lg"
         >
-          📧 Send Payment Reminders
+          Send Payment Reminders
         </button>
         <button
           onClick={checkOverdue}
           className="bg-red-500 text-white p-4 rounded-xl font-semibold hover:bg-red-600 shadow-lg"
         >
-          ⚠️ Check Overdue Payments
+          Check Overdue Payments
         </button>
       </div>
 
@@ -286,6 +306,14 @@ const PaymentAnalytics = () => {
           </div>
         </div>
       </div>
+
+      {alertModal.show && (
+        <AlertModal
+          type={alertModal.type}
+          message={alertModal.message}
+          onClose={() => setAlertModal({ show: false, type: 'info', message: '' })}
+        />
+      )}
     </div>
   );
 };

@@ -9,19 +9,44 @@ function PaymentSuccess() {
   const location = useLocation();
   const [alertModal, setAlertModal] = useState({ show: false, type: 'info', message: '' });
   
-  // Get payment data from state or query parameters
+  // Get payment data from state or query parameters or sessionStorage
   const getPaymentData = () => {
     // Check if data is passed via state (from modal)
     if (location.state) {
       return location.state;
     }
     
-    // Otherwise, check query parameters (from PayMongo redirect)
+    // Check query parameters (from PayMongo redirect)
     const params = new URLSearchParams(location.search);
+    if (params.get('session_id')) {
+      return {
+        amount: params.get('amount') || 0,
+        method: params.get('method') || 'PayMongo',
+        reference: params.get('session_id') || 'N/A'
+      };
+    }
+    
+    // Check sessionStorage (fallback when PayMongo strips query params)
+    const storedPaymentInfo = sessionStorage.getItem('paymentInfo');
+    if (storedPaymentInfo) {
+      try {
+        const info = JSON.parse(storedPaymentInfo);
+        sessionStorage.removeItem('paymentInfo'); // Clear after retrieving
+        return {
+          amount: info.amount || 0,
+          method: info.method || 'PayMongo',
+          reference: info.sessionId || 'N/A'
+        };
+      } catch (e) {
+        console.error('Error parsing stored payment info:', e);
+      }
+    }
+    
+    // Default fallback
     return {
-      amount: params.get('amount') || 0,
-      method: params.get('method') || 'PayMongo',
-      reference: params.get('reference') || params.get('id') || 'N/A'
+      amount: 0,
+      method: 'PayMongo',
+      reference: 'N/A'
     };
   };
 

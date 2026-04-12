@@ -12,6 +12,10 @@
   padding: 20px;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 .requirements-modal {
   background: white;
   border-radius: 20px;

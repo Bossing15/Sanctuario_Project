@@ -735,6 +735,10 @@ html, body {
   padding: 20px;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 .sample-modal-content {
   position: relative;
   background: white;

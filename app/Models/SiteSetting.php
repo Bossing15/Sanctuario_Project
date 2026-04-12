@@ -1,1 +1,10 @@
-<?php namespace App\Models; use Illuminate\Database\Eloquent\Model; class SiteSetting extends Model { protected $fillable = ['key', 'value', 'type']; }
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class SiteSetting extends Model
+{
+    protected $fillable = ['key', 'value', 'type', 'category', 'label', 'description', 'is_active', 'sort_order'];
+}

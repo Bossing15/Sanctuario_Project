@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import requirementIcon from "../assets/icons/Requirements.png";
 import usePermissions from '../utils/usePermissions';
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import { TableSkeleton } from "./SkeletonLoader";
+import StatsCards from "./StatsCards";
 
 function SubmissionReviewCard({ booking, onReviewComplete, canManageRequirements }) {
   const [submissions, setSubmissions] = useState([]);
@@ -246,6 +249,7 @@ export default function RequirementManagement() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [editingRequirement, setEditingRequirement] = useState(null);
   const [sampleImage, setSampleImage] = useState(null);
   const [sampleImagePreview, setSampleImagePreview] = useState(null);
@@ -256,6 +260,11 @@ export default function RequirementManagement() {
     max_file_size: 5242880,
     is_mandatory: true
   });
+
+  // Delete confirmation modal state
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [requirementToDelete, setRequirementToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (activeTab === "requirements") {
@@ -418,16 +427,22 @@ export default function RequirementManagement() {
     }
   };
 
-  const handleDeleteRequirement = async (id) => {
+  const handleDeleteRequirement = (id) => {
+    setRequirementToDelete(id);
+    setShowDeleteConfirmModal(true);
+  };
+
+  const confirmDeleteRequirement = async () => {
+    if (!requirementToDelete) return;
+
     if (!canManageRequirements) {
       return;
     }
-    
-    if (!confirm('Are you sure you want to delete this requirement?')) return;
 
+    setIsDeleting(true);
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`/api/requirements/${id}`, {
+      const response = await fetch(`/api/requirements/${requirementToDelete}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -437,10 +452,19 @@ export default function RequirementManagement() {
 
       if (response.ok) {
         fetchRequirements();
+        setShowDeleteConfirmModal(false);
+        setRequirementToDelete(null);
       }
     } catch (error) {
       console.error('Error deleting requirement:', error);
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const closeDeleteConfirmModal = () => {
+    setShowDeleteConfirmModal(false);
+    setRequirementToDelete(null);
   };
 
   return (
@@ -504,8 +528,247 @@ export default function RequirementManagement() {
       {/* Requirements Tab */}
       {activeTab === 'requirements' && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', backgroundColor: 'white', padding: '1rem', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e5e7eb' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
             <h3 style={{ fontSize: '1.125rem', fontWeight: '600', margin: '0' }}>Requirement Definitions</h3>
+            <button
+              onClick={fetchRequirements}
+              disabled={loading}
+              style={{
+                background: '#2563eb',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontWeight: '600',
+                fontSize: '0.875rem',
+                opacity: loading ? 0.6 : 1
+              }}
+            >
+              {loading ? 'Loading...' : 'Refresh'}
+            </button>
+          </div>
+
+          {showAddForm && (
+            <div className="modal-overlay" onClick={handleCancelEdit}>
+              <div className="modal max-w-2xl" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <div className="modal-header-title">
+                    <span className="modal-header-icon">📋</span>
+                    <span>{editingRequirement ? 'Edit Requirement' : 'Create New Requirement'}</span>
+                  </div>
+                  <button className="modal-close" onClick={handleCancelEdit}>×</button>
+                </div>
+                <div className="modal-body">
+                  <form onSubmit={handleCreateRequirement} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>
+                          Name *
+                        </label>
+                        <input
+                          type="text"
+                          value={newRequirement.name}
+                          onChange={(e) => setNewRequirement({...newRequirement, name: e.target.value})}
+                          style={{ width: '100%', border: '1px solid #d1d5db', borderRadius: '0.5rem', padding: '0.5rem 0.75rem', fontSize: '0.875rem' }}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>
+                          File Type
+                        </label>
+                        <select
+                          value={newRequirement.file_type}
+                          onChange={(e) => setNewRequirement({...newRequirement, file_type: e.target.value})}
+                          style={{ width: '100%', border: '1px solid #d1d5db', borderRadius: '0.5rem', padding: '0.5rem 0.75rem', fontSize: '0.875rem' }}
+                        >
+                          <option value="image">Image Only</option>
+                          <option value="pdf">PDF</option>
+                          <option value="document">Document</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>
+                        Description
+                      </label>
+                      <textarea
+                        value={newRequirement.description}
+                        onChange={(e) => setNewRequirement({...newRequirement, description: e.target.value})}
+                        style={{ width: '100%', border: '1px solid #d1d5db', borderRadius: '0.5rem', padding: '0.5rem 0.75rem', fontSize: '0.875rem', minHeight: '100px' }}
+                        rows="3"
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>
+                        Sample Image (Reference for Users)
+                      </label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleSampleImageChange}
+                        style={{ width: '100%', border: '1px solid #d1d5db', borderRadius: '0.5rem', padding: '0.5rem 0.75rem', fontSize: '0.875rem' }}
+                      />
+                      <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.5rem' }}>
+                        Upload a sample image showing users what format their document should look like
+                      </p>
+                      {sampleImagePreview && (
+                        <div style={{ marginTop: '1rem' }}>
+                          <p style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>Preview:</p>
+                          <img 
+                            src={sampleImagePreview} 
+                            alt="Sample preview" 
+                            style={{ maxWidth: '200px', maxHeight: '200px', border: '1px solid #d1d5db', borderRadius: '0.5rem', objectFit: 'contain' }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </form>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="px-6 py-2.5 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    onClick={handleCreateRequirement}
+                    className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                  >
+                    {editingRequirement ? 'Update' : 'Create'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {loading ? (
+            <TableSkeleton rows={5} columns={4} />
+          ) : (
+            <>
+              <StatsCards stats={[
+                { label: 'Total Requirements', value: requirements.length },
+                { label: 'Image Only', value: requirements.filter(r => r.file_type === 'image').length },
+                { label: 'PDF', value: requirements.filter(r => r.file_type === 'pdf').length },
+                { label: 'Document', value: requirements.filter(r => r.file_type === 'document').length }
+              ]} />
+
+              <div className="mb-6">
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  padding: '0.75rem 1rem',
+                  backgroundColor: '#ffffff',
+                  transition: 'all 0.2s ease'
+                }}>
+                  <input
+                    type="text"
+                    placeholder="Search by requirement name or type..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{
+                      flex: 1,
+                      border: 'none',
+                      backgroundColor: 'transparent',
+                      outline: 'none',
+                      fontSize: '0.875rem',
+                      color: '#374151'
+                    }}
+                  />
+                  <svg style={{ width: '20px', height: '20px', color: '#6b7280', marginLeft: '0.5rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+            <div className="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Sample</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {requirements.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" style={{ textAlign: 'center', padding: '2rem', color: '#6b7280', fontStyle: 'italic' }}>
+                        No data available
+                      </td>
+                    </tr>
+                  ) : (
+                    requirements.filter((requirement) => {
+                      const query = searchQuery.toLowerCase();
+                      return (
+                        requirement.name.toLowerCase().includes(query) ||
+                        requirement.description.toLowerCase().includes(query) ||
+                        requirement.file_type.toLowerCase().includes(query)
+                      );
+                    }).map((requirement) => (
+                      <tr key={requirement.id}>
+                        <td>
+                          <div>
+                            <div className="font-bold">{requirement.name}</div>
+                            <div className="text-sm text-gray-500">{requirement.description}</div>
+                          </div>
+                        </td>
+                        <td className="text-center">
+                          <span className={`status-badge ${
+                            requirement.file_type === 'image' 
+                              ? 'info' 
+                              : requirement.file_type === 'pdf'
+                              ? 'warning'
+                              : 'info'
+                          }`}>
+                            {requirement.file_type === 'image' ? 'Image Only' : requirement.file_type.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="text-center">
+                          {requirement.sample_image_path ? (
+                            <span className="status-badge completed">Has Sample</span>
+                          ) : (
+                            <span className="status-badge inactive">No Sample</span>
+                          )}
+                        </td>
+                        <td className="text-center">
+                          <div className="flex gap-2 justify-center">
+                            <button
+                              onClick={() => canManageRequirements && handleEditRequirement(requirement)}
+                              disabled={!canManageRequirements}
+                              className={`action-btn primary ${!canManageRequirements ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              title={!canManageRequirements ? 'You do not have permission to edit requirements' : ''}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteRequirement(requirement.id)}
+                              disabled={!canManageRequirements}
+                              className={`action-btn danger ${!canManageRequirements ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              title={!canManageRequirements ? 'You do not have permission to delete requirements' : ''}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            </>
+          )}
+
+          {/* Add New Requirement Button */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem', paddingBottom: '1rem' }}>
             <button
               onClick={() => canManageRequirements && setShowAddForm(true)}
               disabled={!canManageRequirements}
@@ -525,197 +788,32 @@ export default function RequirementManagement() {
               Add New Requirement
             </button>
           </div>
-
-          {showAddForm && (
-            <div style={{ marginBottom: '2rem', padding: '1.5rem', border: '1px solid #e5e7eb', borderRadius: '0.75rem', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '1.5rem' }}>
-                {editingRequirement ? 'Edit Requirement' : 'Create New Requirement'}
-              </h4>
-              <form onSubmit={handleCreateRequirement} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>
-                      Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={newRequirement.name}
-                      onChange={(e) => setNewRequirement({...newRequirement, name: e.target.value})}
-                      style={{ width: '100%', border: '1px solid #d1d5db', borderRadius: '0.5rem', padding: '0.5rem 0.75rem', fontSize: '0.875rem' }}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>
-                      File Type
-                    </label>
-                    <select
-                      value={newRequirement.file_type}
-                      onChange={(e) => setNewRequirement({...newRequirement, file_type: e.target.value})}
-                      style={{ width: '100%', border: '1px solid #d1d5db', borderRadius: '0.5rem', padding: '0.5rem 0.75rem', fontSize: '0.875rem' }}
-                    >
-                      <option value="image">Image Only</option>
-                      <option value="pdf">PDF</option>
-                      <option value="document">Document</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>
-                    Description
-                  </label>
-                  <textarea
-                    value={newRequirement.description}
-                    onChange={(e) => setNewRequirement({...newRequirement, description: e.target.value})}
-                    style={{ width: '100%', border: '1px solid #d1d5db', borderRadius: '0.5rem', padding: '0.5rem 0.75rem', fontSize: '0.875rem', minHeight: '100px' }}
-                    rows="3"
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>
-                    Sample Image (Reference for Users)
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleSampleImageChange}
-                    style={{ width: '100%', border: '1px solid #d1d5db', borderRadius: '0.5rem', padding: '0.5rem 0.75rem', fontSize: '0.875rem' }}
-                  />
-                  <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.5rem' }}>
-                    Upload a sample image showing users what format their document should look like
-                  </p>
-                  {sampleImagePreview && (
-                    <div style={{ marginTop: '1rem' }}>
-                      <p style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>Preview:</p>
-                      <img 
-                        src={sampleImagePreview} 
-                        alt="Sample preview" 
-                        style={{ maxWidth: '200px', maxHeight: '200px', border: '1px solid #d1d5db', borderRadius: '0.5rem', objectFit: 'contain' }}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button
-                    type="submit"
-                    style={{
-                      background: '#2563eb',
-                      color: 'white',
-                      padding: '0.5rem 1rem',
-                      borderRadius: '0.5rem',
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontWeight: '600',
-                      fontSize: '0.875rem'
-                    }}
-                  >
-                    {editingRequirement ? 'Update' : 'Create'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCancelEdit}
-                    style={{
-                      background: '#6b7280',
-                      color: 'white',
-                      padding: '0.5rem 1rem',
-                      borderRadius: '0.5rem',
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontWeight: '600',
-                      fontSize: '0.875rem'
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-
-          <div className="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Type</th>
-                  <th>Sample</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requirements.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-                      <div style={{ fontSize: '1rem', fontWeight: '500' }}>
-                        📋 No requirements found
-                      </div>
-                      <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.5rem' }}>
-                        Create your first requirement to get started
-                      </p>
-                    </td>
-                  </tr>
-                ) : (
-                  requirements.map((requirement) => (
-                    <tr key={requirement.id}>
-                      <td>
-                        <div>
-                          <div className="font-bold">{requirement.name}</div>
-                          <div className="text-sm text-gray-500">{requirement.description}</div>
-                        </div>
-                      </td>
-                      <td className="text-center">
-                        <span className={`status-badge ${
-                          requirement.file_type === 'image' 
-                            ? 'info' 
-                            : requirement.file_type === 'pdf'
-                            ? 'warning'
-                            : 'info'
-                        }`}>
-                          {requirement.file_type === 'image' ? 'Image Only' : requirement.file_type.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="text-center">
-                        {requirement.sample_image_path ? (
-                          <span className="status-badge completed">✓ Has Sample</span>
-                        ) : (
-                          <span className="status-badge inactive">No Sample</span>
-                        )}
-                      </td>
-                      <td className="text-center">
-                        <div className="flex gap-2 justify-center">
-                          <button
-                            onClick={() => canManageRequirements && handleEditRequirement(requirement)}
-                            disabled={!canManageRequirements}
-                            className={`action-btn primary ${!canManageRequirements ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            title={!canManageRequirements ? 'You do not have permission to edit requirements' : ''}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteRequirement(requirement.id)}
-                            disabled={!canManageRequirements}
-                            className={`action-btn danger ${!canManageRequirements ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            title={!canManageRequirements ? 'You do not have permission to delete requirements' : ''}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
         </div>
       )}
 
       {/* Review Tab */}
       {activeTab === 'review' && (
         <div>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '2rem' }}>Review Requirement Submissions</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', backgroundColor: 'white', padding: '1rem', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: '600', margin: '0' }}>Review Requirement Submissions</h3>
+            <button
+              onClick={fetchSubmissions}
+              disabled={loading}
+              style={{
+                background: '#2563eb',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontWeight: '600',
+                fontSize: '0.875rem',
+                opacity: loading ? 0.6 : 1
+              }}
+            >
+              {loading ? 'Loading...' : 'Refresh'}
+            </button>
+          </div>
           {loading ? (
             <p>Loading submissions...</p>
           ) : submissions.length === 0 ? (
@@ -734,6 +832,16 @@ export default function RequirementManagement() {
           )}
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        show={showDeleteConfirmModal}
+        itemName="this requirement"
+        onConfirm={confirmDeleteRequirement}
+        onCancel={closeDeleteConfirmModal}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
+

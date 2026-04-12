@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from "react";
 import settingsIcon from "../assets/icons/Settings.png";
+import AlertModal from "./AlertModal";
 
 export default function Settings() {
   const [settings, setSettings] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('homepage');
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [alertModal, setAlertModal] = useState({ show: false, type: 'info', title: '', message: '' });
 
   const tabs = [
-    { id: 'homepage', label: 'Homepage', icon: '🏠' },
-    { id: 'about', label: 'About', icon: 'ℹ️' },
-    { id: 'services', label: 'Services', icon: '🛠️' },
-    { id: 'contact', label: 'Contact', icon: '📞' },
-    { id: 'footer', label: 'Footer', icon: '📄' },
-    { id: 'social', label: 'Social Media', icon: '📱' },
-    { id: 'navigation', label: 'Navigation', icon: '🧭' },
-    { id: 'general', label: 'General', icon: '⚙️' }
+    { id: 'homepage', label: 'Homepage' },
+    { id: 'about', label: 'About' },
+    { id: 'services', label: 'Services' },
+    { id: 'contact', label: 'Contact' },
+    { id: 'footer', label: 'Footer' },
+    { id: 'social', label: 'Social Media' },
+    { id: 'navigation', label: 'Navigation' },
+    { id: 'general', label: 'General' }
   ];
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export default function Settings() {
       }
     } catch (error) {
       console.error('Error fetching settings:', error);
-      setMessage({ type: 'error', text: 'Failed to load settings' });
+      setAlertModal({ show: true, type: 'error', title: 'Error', message: 'Failed to load settings' });
     } finally {
       setLoading(false);
     }
@@ -104,16 +105,17 @@ export default function Settings() {
       });
 
       if (response.ok) {
-        setMessage({ type: 'success', text: 'Settings saved successfully!' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+        setAlertModal({ show: true, type: 'success', title: 'Success', message: 'Settings saved successfully! Changes will appear on the client website immediately.' });
+        // Refetch to ensure we have the latest data
+        fetchSettings();
       } else {
         const errorData = await response.text();
         console.error('Settings save error:', response.status, errorData);
-        setMessage({ type: 'error', text: `Failed to save settings: ${response.status} ${response.statusText}` });
+        setAlertModal({ show: true, type: 'error', title: 'Error', message: `Failed to save settings: ${response.status} ${response.statusText}` });
       }
     } catch (error) {
       console.error('Error saving settings:', error);
-      setMessage({ type: 'error', text: `Failed to save settings: ${error.message}` });
+      setAlertModal({ show: true, type: 'error', title: 'Error', message: `Failed to save settings: ${error.message}` });
     } finally {
       setSaving(false);
     }
@@ -136,14 +138,13 @@ export default function Settings() {
       if (response.ok) {
         const data = await response.json();
         handleInputChange(key, data.path);
-        setMessage({ type: 'success', text: 'Image uploaded successfully!' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+        setAlertModal({ show: true, type: 'success', title: 'Success', message: 'Image uploaded successfully!' });
       } else {
-        setMessage({ type: 'error', text: 'Failed to upload image' });
+        setAlertModal({ show: true, type: 'error', title: 'Error', message: 'Failed to upload image' });
       }
     } catch (error) {
       console.error('Error uploading image:', error);
-      setMessage({ type: 'error', text: 'Failed to upload image' });
+      setAlertModal({ show: true, type: 'error', title: 'Error', message: 'Failed to upload image' });
     }
   };
 
@@ -180,6 +181,10 @@ export default function Settings() {
                   src={value.startsWith('http') ? value : `/storage/${value}`} 
                   alt="Preview" 
                   className="max-w-xs h-32 object-cover rounded-md border"
+                  onError={(e) => {
+                    console.error('Image failed to load:', value);
+                    e.target.style.display = 'none';
+                  }}
                 />
               </div>
             )}
@@ -222,8 +227,8 @@ export default function Settings() {
   }
 
   return (
-    <div className="bg-white min-h-screen">
-      <div className="px-8 pt-8">
+    <div className="bg-white min-h-screen flex flex-col">
+      <div className="px-8 pt-8 flex-grow">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center">
@@ -233,24 +238,11 @@ export default function Settings() {
               <p className="text-gray-600 mt-1">Manage all content displayed on the client website</p>
             </div>
           </div>
-          
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
-              saving 
-                ? 'bg-gray-400 text-gray-700 cursor-not-allowed' 
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-            }`}
-          >
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
         </div>
 
         {/* Info Box */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex items-start">
-            <span className="text-blue-600 text-xl mr-3">ℹ️</span>
             <div>
               <h4 className="font-semibold text-blue-900">How to use Site Settings</h4>
               <p className="text-blue-800 text-sm mt-1">
@@ -259,17 +251,6 @@ export default function Settings() {
             </div>
           </div>
         </div>
-
-        {/* Message */}
-        {message.text && (
-          <div className={`mb-6 p-4 rounded-lg ${
-            message.type === 'success' 
-              ? 'bg-green-100 text-green-700 border border-green-200' 
-              : 'bg-red-100 text-red-700 border border-red-200'
-          }`}>
-            {message.text}
-          </div>
-        )}
 
         {/* Tabs */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-100">
@@ -285,7 +266,6 @@ export default function Settings() {
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  <span className="mr-2">{tab.icon}</span>
                   {tab.label}
                 </button>
               ))}
@@ -319,7 +299,6 @@ export default function Settings() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <div className="text-gray-400 text-4xl mb-4">⚙️</div>
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">No settings available</h3>
                 <p className="text-gray-500">Settings for this category will appear here.</p>
               </div>
@@ -327,6 +306,30 @@ export default function Settings() {
           </div>
         </div>
       </div>
+
+      {/* Footer with Save Button */}
+      <div className="px-8 py-6 border-t border-gray-200 flex justify-end">
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+            saving 
+              ? 'bg-gray-400 text-gray-700 cursor-not-allowed' 
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+          }`}
+        >
+          {saving ? 'Saving...' : 'Save Changes'}
+        </button>
+      </div>
+
+      {alertModal.show && (
+        <AlertModal
+          type={alertModal.type}
+          title={alertModal.title}
+          message={alertModal.message}
+          onClose={() => setAlertModal({ show: false, type: 'info', title: '', message: '' })}
+        />
+      )}
     </div>
   );
 }

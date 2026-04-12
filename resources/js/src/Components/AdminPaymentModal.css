@@ -10,6 +10,10 @@
   padding: 20px;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 .payment-modal-container {
   background: white;
   border-radius: 16px;

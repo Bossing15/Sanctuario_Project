@@ -7,6 +7,7 @@ import PaymentAnalytics from './PaymentAnalytics';
 import AdminPaymentModal from './AdminPaymentModal';
 import { formatDate } from '../utils/dateFormatter';
 import usePermissions from '../utils/usePermissions';
+import StatsCards from './StatsCards';
 
 const Billing = () => {
   const { canPerformActions } = usePermissions();
@@ -119,7 +120,7 @@ const Billing = () => {
     });
 
   return (
-    <div className="flex flex-col bg-white min-h-screen">
+    <div className="flex flex-col bg-gray-50 min-h-screen">
       <div className="p-8 flex-grow">
         {/* Header */}
         <div className="mb-8">
@@ -164,6 +165,14 @@ const Billing = () => {
         {activeTab === 'management' && (
           <>
         
+        {/* Stats Cards */}
+        <StatsCards stats={[
+          { label: 'Total Payments', value: payments.length },
+          { label: 'Unpaid', value: payments.filter(p => (p.status || '').toLowerCase() === 'unpaid' || (p.status || '').toLowerCase() === 'pending').length },
+          { label: 'Overdue', value: payments.filter(p => (p.status || '').toLowerCase() === 'overdue').length },
+          { label: 'Completed', value: payments.filter(p => (p.status || '').toLowerCase() === 'completed' || (p.status || '').toLowerCase() === 'paid').length }
+        ]} />
+
         {/* Filter and Search */}
         <div className="flex justify-between items-center mb-6">
           {/* Status Filter */}
@@ -192,17 +201,33 @@ const Billing = () => {
           
           {/* Search */}
           <div className="flex justify-end">
-          <div className="flex border border-gray-300 rounded-lg overflow-hidden max-w-xs shadow-sm bg-white">
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            border: '1px solid #d1d5db',
+            borderRadius: '0.5rem',
+            padding: '0.75rem 1rem',
+            backgroundColor: '#ffffff',
+            transition: 'all 0.2s ease',
+            minWidth: '300px'
+          }}>
             <input
               type="text"
               placeholder="Search by customer name"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 px-3 py-2 text-sm outline-none"
+              style={{
+                flex: 1,
+                border: 'none',
+                backgroundColor: 'transparent',
+                outline: 'none',
+                fontSize: '0.875rem',
+                color: '#374151'
+              }}
             />
-            <button className="bg-gray-50 hover:bg-gray-100 px-3 transition-colors">
-              <img src={search} alt="Search" className="w-5 h-5" />
-            </button>
+            <svg style={{ width: '20px', height: '20px', color: '#6b7280', marginLeft: '0.5rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </div>
           </div>
         </div>
@@ -224,11 +249,13 @@ const Billing = () => {
                 <tr>
                   <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
                     <div style={{ fontSize: '1rem', fontWeight: '500' }}>
-                      💳 No payments found
+                      No payments found
                     </div>
-                    <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.5rem' }}>
-                      No billing records match your search criteria
-                    </p>
+                    {searchQuery && (
+                      <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.5rem' }}>
+                        No billing records match your search criteria
+                      </p>
+                    )}
                   </td>
                 </tr>
               ) : (
@@ -540,3 +567,5 @@ const Billing = () => {
 };
 
 export default Billing;
+
+

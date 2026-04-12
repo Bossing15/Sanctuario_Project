@@ -26,7 +26,7 @@ const Profile = () => {
     billing: "Billing & Payments",
     graves: "Graves",
     requirements: "Requirements",
-    inquiries: "Inquiries",
+    inquiries: "Products",
     messages: "Messages",
     admin: "Admin Management",
   }), []);

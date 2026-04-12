@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { formatDate } from '../utils/dateFormatter';
+import StatsCards from './StatsCards';
 
 const PaymentManagement = ({ canManageBilling = true }) => {
   const [payments, setPayments] = useState([]);
@@ -117,32 +118,45 @@ const PaymentManagement = ({ canManageBilling = true }) => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Payment History</h2>
-        <div className="flex gap-4">
-          <button
-            onClick={fetchPayments}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            disabled={loading}
-          >
-            {loading ? 'Refreshing...' : 'Refresh'}
-          </button>
-        </div>
       </div>
+
+      {/* Stats Cards */}
+      <StatsCards stats={[
+        { label: 'Total Payments', value: payments.length },
+        { label: 'Completed', value: payments.filter(p => (p.status || '').toLowerCase() === 'completed' || (p.status || '').toLowerCase() === 'paid').length },
+        { label: 'Pending', value: payments.filter(p => (p.status || '').toLowerCase() === 'pending' || (p.status || '').toLowerCase() === 'unpaid').length },
+        { label: 'Total Amount', value: `₱${payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0).toFixed(2)}` }
+      ]} />
 
       {/* Search Bar */}
       <div className="mb-6 flex justify-end">
-        <div className="flex border border-gray-300 rounded-lg overflow-hidden w-80 shadow-sm bg-white">
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          border: '1px solid #d1d5db',
+          borderRadius: '0.5rem',
+          padding: '0.75rem 1rem',
+          backgroundColor: '#ffffff',
+          transition: 'all 0.2s ease',
+          minWidth: '300px'
+        }}>
           <input
             type="text"
             placeholder="Search by customer name or reference"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 px-4 py-2 text-sm outline-none"
+            style={{
+              flex: 1,
+              border: 'none',
+              backgroundColor: 'transparent',
+              outline: 'none',
+              fontSize: '0.875rem',
+              color: '#374151'
+            }}
           />
-          <button className="bg-gray-50 hover:bg-gray-100 px-4 transition-colors">
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
+          <svg style={{ width: '20px', height: '20px', color: '#6b7280', marginLeft: '0.5rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
         </div>
       </div>
 
@@ -217,8 +231,8 @@ const PaymentManagement = ({ canManageBilling = true }) => {
                 );
               }) : (
                 <tr>
-                  <td colSpan="7" className="px-3 py-4 text-center text-gray-500 text-xs">
-                    No payments found
+                  <td colSpan="7" className="px-3 py-4 text-center text-gray-500 text-xs" style={{ fontStyle: 'italic' }}>
+                    No data available
                   </td>
                 </tr>
               )}
@@ -346,8 +360,8 @@ const PaymentManagement = ({ canManageBilling = true }) => {
             {/* Modal Footer */}
             <div className="modal-footer">
               <button
+                className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-semibold shadow-md transition-all"
                 onClick={handlePrint}
-                className="modal-btn secondary"
               >
                 🖨️ Print
               </button>
@@ -355,7 +369,10 @@ const PaymentManagement = ({ canManageBilling = true }) => {
                 onClick={handleDownloadPDF}
                 className="modal-btn primary"
               >
-                📥 Download PDF
+                <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download PDF
               </button>
             </div>
           </div>

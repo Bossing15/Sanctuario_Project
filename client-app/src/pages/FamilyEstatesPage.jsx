@@ -11,49 +11,6 @@ import cremationImg from '../assets/images/cremation.jpg';
 function FamilyEstatesPage() {
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(familyEstateImg);
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    productInterest: 'Family Estates',
-    message: '',
-    consent: false,
-  });
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch('http://localhost:8000/api/inquiries/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-          full_name: formData.fullName,
-          email: formData.email,
-          phone: formData.phone,
-          product_interest: formData.productInterest,
-          message: formData.message,
-        }),
-      });
-      const data = await response.json();
-      if (response.ok && data.success) {
-        setSubmitted(true);
-        setTimeout(() => {
-          setSubmitted(false);
-          setFormData({ fullName: '', email: '', phone: '', productInterest: 'Family Estates', message: '', consent: false });
-        }, 3000);
-      } else {
-        alert(`Failed to submit inquiry: ${data.message || 'Please try again.'}`);
-      }
-    } catch (error) {
-      alert(`An error occurred: ${error.message}`);
-    }
-  };
 
   return (
     <div className="internment-page">
@@ -80,33 +37,28 @@ function FamilyEstatesPage() {
         </div>
       </div>
       <div className="internment-inquiry">
-        <h2>Inquire Now</h2>
-        <p className="inquiry-subtitle">Send us a message and we will get back to you as soon as possible.</p>
-        <form className="inquiry-form" onSubmit={handleSubmit}>
-          <div className="form-row">
-            <input type="text" name="fullName" placeholder="Full Name *" value={formData.fullName} onChange={handleInputChange} required />
+        <h2>Purchase Family Estates Package</h2>
+        <p className="inquiry-subtitle">Select your family estates package and proceed to payment.</p>
+        <div className="buy-section">
+          <div className="package-info">
+            <h3>Family Estates Package</h3>
+            <p>Spacious family burial grounds for your loved ones</p>
+            <p className="package-price">Price will be calculated at checkout</p>
           </div>
-          <div className="form-row two-cols">
-            <input type="email" name="email" placeholder="Email *" value={formData.email} onChange={handleInputChange} required />
-            <input type="tel" name="phone" placeholder="Contact Number *" value={formData.phone} onChange={handleInputChange} required />
-          </div>
-          <div className="form-row product-service-row">
-            <label className="form-label">Product/Service <span className="required">(REQUIRED)</span></label>
-            <input type="text" name="productInterest" value="Family Estates" disabled readOnly />
-          </div>
-          <div className="form-row">
-            <textarea name="message" placeholder="Leave a Message... *" rows="6" value={formData.message} onChange={handleInputChange} required></textarea>
-          </div>
-          <p className="form-note">Note: We will reply to you via Gmail or text/call as soon as we see your inquiry. Thank you!</p>
-          <div className="form-consent">
-            <label className="consent-label"><span className="consent-title">Consent <span className="required">(REQUIRED)</span></span></label>
-            <label className="consent-checkbox">
-              <input type="checkbox" name="consent" checked={formData.consent} onChange={handleInputChange} required />
-              <span>By accepting this, you have agreed and understood our <a href="/privacy-policy">privacy policy</a> with regards to your personal information.</span>
-            </label>
-          </div>
-          <button type="submit" className="submit-btn">{submitted ? 'Submitted!' : 'Submit'}</button>
-        </form>
+          <button 
+            className="submit-btn"
+            onClick={() => navigate('/payment', { 
+              state: { 
+                amount: 75000,
+                description: 'Family Estates Package',
+                serviceType: 'family_estates',
+                serviceName: 'Family Estates'
+              } 
+            })}
+          >
+            Buy Now
+          </button>
+        </div>
       </div>
       <div className="other-products">
         <h2>Other Products and Services</h2>

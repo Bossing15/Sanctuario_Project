@@ -1,0 +1,94 @@
+/* Dashboard Component Styles */
+
+/* Stat Cards - Desktop */
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.stat-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: scale(1.05);
+}
+
+/* Tablet View */
+@media (max-width: 1024px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .stat-card {
+    padding: 1.25rem;
+  }
+}
+
+/* Mobile View */
+@media (max-width: 768px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+  }
+
+  .stat-card h6 {
+    font-size: 0.65rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .stat-card h5 {
+    font-size: 1rem !important;
+  }
+
+  .stat-card img {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .stat-card > div {
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+/* Small Mobile View */
+@media (max-width: 480px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .stat-card {
+    padding: 0.75rem;
+  }
+
+  .stat-card h6 {
+    font-size: 0.6rem !important;
+  }
+
+  .stat-card h5 {
+    font-size: 0.9rem !important;
+  }
+
+  .stat-card img {
+    width: 20px !important;
+    height: 20px !important;
+  }
+}

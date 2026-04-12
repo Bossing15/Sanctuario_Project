@@ -48,7 +48,7 @@ const Navbar = ({ collapsed }) => {
 
       if (response.ok) {
         const data = await response.json();
-        if (data.user.profile_picture_url) {
+        if (data && data.user && data.user.profile_picture_url) {
           const fullUrl = `http://localhost:8000${data.user.profile_picture_url}`;
           setProfilePicture(fullUrl);
           localStorage.setItem('adminProfilePictureUrl', data.user.profile_picture_url);
@@ -138,7 +138,7 @@ const Navbar = ({ collapsed }) => {
                 />
               </div>
             )}
-            <div className="hidden sm:flex flex-col items-start">
+            <div className="flex sm:flex flex-col items-start">
               <strong className="text-sm font-semibold text-gray-800">{user?.name || 'User'}</strong>
               <small className="text-xs text-gray-500">
                 {user?.access_level ? user.access_level.charAt(0).toUpperCase() + user.access_level.slice(1) : 'Staff'}
@@ -190,7 +190,7 @@ const Navbar = ({ collapsed }) => {
                     handleLogout();
                     setShowProfileMenu(false);
                   }}
-                  className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm hover:bg-red-50 transition-colors text-red-600 font-medium border-t border-gray-100"
+                  className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm hover:bg-red-50 text-red-600 font-medium border-t border-gray-100"
                 >
                   <img src={logoutIcon} alt="Logout" className="w-5 h-5 object-contain" />
                   Logout

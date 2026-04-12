@@ -40,4 +40,13 @@ return [
         'password' => env('ITEXMO_PASSWORD'),
     ],
 
+    'paymongo' => [
+        'public_key' => env('PAYMONGO_PUBLIC_KEY'),
+        'secret_key' => env('PAYMONGO_SECRET_KEY'),
+        'test_public_key' => env('PAYMONGO_TEST_PUBLIC_KEY'),
+        'test_secret_key' => env('PAYMONGO_TEST_SECRET_KEY'),
+        'environment' => env('PAYMONGO_ENVIRONMENT', 'test'),
+        'webhook_secret' => env('PAYMONGO_WEBHOOK_SECRET'),
+    ],
+
 ];

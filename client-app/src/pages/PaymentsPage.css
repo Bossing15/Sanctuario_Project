@@ -298,6 +298,10 @@
   overflow-y: auto;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 .balances-modal {
   background: white;
   border-radius: 16px;

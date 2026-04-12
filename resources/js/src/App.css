@@ -10,7 +10,7 @@
   width: 280px;
   background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
   color: white;
-  padding: 1.5rem 0;
+  padding: 0;
   overflow-y: auto;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   z-index: 100;
@@ -30,9 +30,10 @@
   align-items: center !important;
   justify-content: flex-start !important;
   gap: 1rem !important;
-  margin-bottom: 2rem !important;
-  padding: 0 1rem 1.5rem 1rem !important;
+  height: 70px !important;
+  padding: 0 1rem !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  margin-bottom: 0 !important;
 }
 
 .sidebar-logo {
@@ -76,8 +77,10 @@
 }
 
 .sidebar-toggle:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.5rem !important;
+  color: white !important;
+  transition: all 0.2s ease !important;
 }
 
 .sidebar-menu {
@@ -85,7 +88,7 @@
   flex-direction: column;
   gap: 0.5rem;
   margin-bottom: 2rem;
-  padding: 0 1rem;
+  padding: 1.5rem 1rem;
 }
 
 .sidebar-item {
@@ -188,6 +191,8 @@ main {
   margin-left: 280px;
   padding: 0;
   margin-bottom: 0;
+  background-color: var(--bg-primary) !important;
+  background-attachment: fixed;
   transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -208,6 +213,10 @@ main.collapsed {
   width: auto;
   object-fit: contain;
   display: none;
+}
+
+.navbar.collapsed .navbar-logo {
+  display: block;
 }
 
 .graves-container {

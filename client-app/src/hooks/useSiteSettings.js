@@ -30,7 +30,12 @@ export const useSiteSettings = () => {
         if (data.settings) {
           // The API returns settings as an object where each key contains the full setting object
           Object.entries(data.settings).forEach(([key, setting]) => {
-            settingsObj[key] = setting.value;
+            // Handle both old format (direct value) and new format (object with value property)
+            if (typeof setting === 'object' && setting.value !== undefined) {
+              settingsObj[key] = setting.value;
+            } else {
+              settingsObj[key] = setting;
+            }
           });
         }
         
@@ -52,7 +57,11 @@ export const useSiteSettings = () => {
           const settingsObj = {};
           if (data.settings) {
             Object.entries(data.settings).forEach(([key, setting]) => {
-              settingsObj[key] = setting.value;
+              if (typeof setting === 'object' && setting.value !== undefined) {
+                settingsObj[key] = setting.value;
+              } else {
+                settingsObj[key] = setting;
+              }
             });
           }
           

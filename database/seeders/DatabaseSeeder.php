@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
         // Seed clients for testing
         $this->call([
             ClientSeeder::class,
+            ProductSeeder::class,
         ]);
     }
 }

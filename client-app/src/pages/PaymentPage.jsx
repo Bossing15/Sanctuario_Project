@@ -13,39 +13,82 @@ function PaymentPage() {
   
   // Payment details from navigation state or default values
   const paymentDetails = {
-    amount: location.state?.amount || 5000,
+    amount: location.state?.amount || 50000,
     description: location.state?.description || 'Memorial Service Payment',
-    serviceType: location.state?.serviceType || 'general'
+    serviceType: location.state?.serviceType || 'general',
+    serviceName: location.state?.serviceName || 'Service'
   };
 
-  const [cardDetails, setCardDetails] = useState({
-    cardNumber: '',
-    expiryMonth: '',
-    expiryYear: '',
-    cvc: '',
-    cardholderName: ''
-  });
-
   useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setError('Please log in to proceed with payment');
+      // Redirect to login after 2 seconds
+      const timer = setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+    
     fetchPaymentMethods();
-  }, []);
+  }, [navigate]);
 
   const fetchPaymentMethods = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('/api/payments/methods', {
+      if (!token) {
+        console.log('No auth token found');
+        setError('Please log in to proceed with payment');
+        return;
+      }
+
+      console.log('Fetching payment methods with token:', token.substring(0, 20) + '...');
+
+      const response = await fetch('http://localhost:8000/api/payments/methods', {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        }
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        mode: 'cors',
+        credentials: 'include'
       });
       
-      if (response.ok) {
-        const data = await response.json();
+      console.log('Payment methods response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Payment methods error response:', errorText);
+        
+        if (response.status === 401) {
+          setError('Your session has expired. Please log in again.');
+          localStorage.removeItem('authToken');
+          setTimeout(() => navigate('/login'), 2000);
+        } else if (response.status === 403) {
+          setError('You do not have permission to access payment methods.');
+        } else {
+          setError(`Failed to load payment methods (${response.status}). Please try again.`);
+        }
+        return;
+      }
+
+      const data = await response.json();
+      console.log('Payment methods response:', data);
+
+      if (data.payment_methods && Array.isArray(data.payment_methods) && data.payment_methods.length > 0) {
         setPaymentMethods(data.payment_methods);
+        // Auto-select first method
+        setSelectedMethod(data.payment_methods[0].type);
+        console.log('Payment methods loaded successfully:', data.payment_methods.length);
+      } else {
+        console.error('Invalid payment methods format or empty array:', data);
+        setError('No payment methods available. Please try again later.');
       }
     } catch (error) {
       console.error('Error fetching payment methods:', error);
+      setError('Error loading payment methods: ' + error.message);
     }
   };
 
@@ -60,15 +103,16 @@ function PaymentPage() {
 
     try {
       const token = localStorage.getItem('authToken');
-      const clientId = localStorage.getItem('userId') || 1; // Get from localStorage or user context
-
-      if (selectedMethod === 'card') {
-        // Handle card payment with Payment Intent
-        await handleCardPayment(token, clientId);
-      } else {
-        // Handle e-wallet/online banking with Checkout Session
-        await handleCheckoutPayment(token, clientId);
+      if (!token) {
+        setError('Please log in to proceed with payment');
+        setLoading(false);
+        return;
       }
+
+      const clientId = localStorage.getItem('userId') || 1;
+
+      // All payment methods use the same checkout flow
+      await handleCheckoutPayment(token, clientId);
     } catch (error) {
       console.error('Payment error:', error);
       setError('Payment failed. Please try again.');
@@ -77,66 +121,57 @@ function PaymentPage() {
     }
   };
 
-  const handleCardPayment = async (token, clientId) => {
-    const response = await fetch('/api/payments/create-intent', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        amount: paymentDetails.amount,
-        description: paymentDetails.description,
-        payment_method: 'card',
-        client_id: clientId,
-        service_type: paymentDetails.serviceType
-      })
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      // In a real implementation, you would use PayMongo's JavaScript SDK
-      // to handle the card payment with the client_secret
-      alert('Card payment integration requires PayMongo JS SDK. Redirecting to success page...');
-      navigate('/payment/success', { 
-        state: { 
-          amount: paymentDetails.amount, 
-          method: 'card',
-          reference: data.payment_intent.id 
-        } 
-      });
-    } else {
-      throw new Error('Payment intent creation failed');
-    }
-  };
-
   const handleCheckoutPayment = async (token, clientId) => {
-    const customerName = localStorage.getItem('userName') || 'Guest';
-    
-    const response = await fetch('/api/payments/create-checkout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
+    try {
+      const customerName = localStorage.getItem('userName') || 'Guest';
+      
+      const requestBody = {
         amount: paymentDetails.amount,
         description: paymentDetails.description,
         payment_method: selectedMethod,
         client_id: clientId,
         customer_name: customerName,
         service_type: paymentDetails.serviceType
-      })
-    });
+      };
 
-    if (response.ok) {
-      const data = await response.json();
-      // Redirect to PayMongo checkout page
-      window.location.href = data.checkout_url;
-    } else {
-      throw new Error('Checkout session creation failed');
+      console.log('Creating checkout session with:', requestBody);
+
+      const response = await fetch('http://localhost:8000/api/payments/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      console.log('Checkout response status:', response.status);
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Checkout success:', data);
+        
+        // Store payment info in sessionStorage
+        sessionStorage.setItem('paymentInfo', JSON.stringify({
+          amount: paymentDetails.amount,
+          method: selectedMethod,
+          description: paymentDetails.description,
+          sessionId: data.session_id
+        }));
+        
+        // For now, redirect to success page with payment info
+        const successUrl = `http://localhost:3002/payment/success?session_id=${data.session_id}&amount=${paymentDetails.amount}&method=${encodeURIComponent(selectedMethod)}`;
+        window.location.href = successUrl;
+      } else {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        console.error('Checkout error response:', errorData);
+        const errorMessage = errorData.message || errorData.error || 'Failed to create checkout session';
+        setError(errorMessage);
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      setError('Payment failed: ' + error.message);
     }
   };
 
@@ -177,6 +212,10 @@ function PaymentPage() {
             <h2>Payment Summary</h2>
             <div className="summary-item">
               <span>Service:</span>
+              <span>{paymentDetails.serviceName}</span>
+            </div>
+            <div className="summary-item">
+              <span>Description:</span>
               <span>{paymentDetails.description}</span>
             </div>
             <div className="summary-item total">
@@ -189,6 +228,12 @@ function PaymentPage() {
           <div className="payment-methods">
             <h2>Select Payment Method</h2>
             {error && <div className="error-message">{error}</div>}
+            
+            {paymentMethods.length === 0 && !error && (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                Loading payment methods...
+              </div>
+            )}
             
             <div className="methods-grid">
               {paymentMethods.map((method) => (
@@ -211,77 +256,6 @@ function PaymentPage() {
               ))}
             </div>
           </div>
-
-          {/* Card Details Form (shown only for card payments) */}
-          {selectedMethod === 'card' && (
-            <div className="card-details">
-              <h2>Card Details</h2>
-              <div className="card-form">
-                <div className="form-group">
-                  <label>Cardholder Name</label>
-                  <input
-                    type="text"
-                    value={cardDetails.cardholderName}
-                    onChange={(e) => setCardDetails({...cardDetails, cardholderName: e.target.value})}
-                    placeholder="John Doe"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Card Number</label>
-                  <input
-                    type="text"
-                    value={cardDetails.cardNumber}
-                    onChange={(e) => setCardDetails({...cardDetails, cardNumber: e.target.value})}
-                    placeholder="1234 5678 9012 3456"
-                    maxLength="19"
-                  />
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Expiry Month</label>
-                    <select
-                      value={cardDetails.expiryMonth}
-                      onChange={(e) => setCardDetails({...cardDetails, expiryMonth: e.target.value})}
-                    >
-                      <option value="">MM</option>
-                      {Array.from({length: 12}, (_, i) => (
-                        <option key={i + 1} value={String(i + 1).padStart(2, '0')}>
-                          {String(i + 1).padStart(2, '0')}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Expiry Year</label>
-                    <select
-                      value={cardDetails.expiryYear}
-                      onChange={(e) => setCardDetails({...cardDetails, expiryYear: e.target.value})}
-                    >
-                      <option value="">YYYY</option>
-                      {Array.from({length: 10}, (_, i) => {
-                        const year = new Date().getFullYear() + i;
-                        return (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>CVC</label>
-                    <input
-                      type="text"
-                      value={cardDetails.cvc}
-                      onChange={(e) => setCardDetails({...cardDetails, cvc: e.target.value})}
-                      placeholder="123"
-                      maxLength="4"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Payment Button */}
           <div className="payment-actions">
