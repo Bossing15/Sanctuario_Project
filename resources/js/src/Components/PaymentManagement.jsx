@@ -33,8 +33,8 @@ const PaymentManagement = ({ canManageBilling = true }) => {
       // Add cache-busting parameter to force fresh data
       const cacheBuster = `?_=${new Date().getTime()}`;
       
-      // Use /api/payments/all to get all payments (not filtered by user)
-      const response = await fetch(`/api/payments/all${cacheBuster}`, {
+      // Use /api/payments/admin/all to get all payments (not filtered by user)
+      const response = await fetch(`/api/payments/admin/all${cacheBuster}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
@@ -55,21 +55,13 @@ const PaymentManagement = ({ canManageBilling = true }) => {
         
         // Check for Laravel pagination structure
         if (data.data && Array.isArray(data.data)) {
-          // Paginated response from Laravel: { data: [...], current_page, last_page, etc }
+          // Paginated response from Laravel: { data: [...], pagination: {...} }
           paymentsData = data.data;
           console.log('Paginated response detected - using data.data');
-        } else if (Array.isArray(data.data)) {
-          // Sometimes data.data exists but isn't an array
-          paymentsData = data.data;
-          console.log('Using data.data');
         } else if (Array.isArray(data)) {
           // Direct array response
           paymentsData = data;
           console.log('Direct array response detected');
-        } else if (data.payments && Array.isArray(data.payments)) {
-          // Alternative structure
-          paymentsData = data.payments;
-          console.log('Using data.payments');
         } else {
           // Last resort - try to extract any array
           const possibleArrays = Object.values(data).filter(v => Array.isArray(v));
@@ -117,19 +109,25 @@ const PaymentManagement = ({ canManageBilling = true }) => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Payment History</h2>
+        <h2 className="text-2xl font-bold text-gray-800">Unpaid Bills</h2>
       </div>
 
       {/* Stats Cards */}
       <StatsCards stats={[
-        { label: 'Total Payments', value: payments.length },
-        { label: 'Completed', value: payments.filter(p => (p.status || '').toLowerCase() === 'completed' || (p.status || '').toLowerCase() === 'paid').length },
+        { label: 'Total Unpaid Bills', value: payments.filter(p => (p.status || '').toLowerCase() !== 'completed' && (p.status || '').toLowerCase() !== 'paid').length },
         { label: 'Pending', value: payments.filter(p => (p.status || '').toLowerCase() === 'pending' || (p.status || '').toLowerCase() === 'unpaid').length },
-        { label: 'Total Amount', value: `₱${payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0).toFixed(2)}` }
+        { label: 'Overdue', value: payments.filter(p => (p.status || '').toLowerCase() === 'overdue').length },
+        { label: 'Total Outstanding', value: `₱${payments.filter(p => (p.status || '').toLowerCase() !== 'completed' && (p.status || '').toLowerCase() !== 'paid').reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0).toFixed(2)}` }
       ]} />
 
-      {/* Search Bar */}
-      <div className="mb-6 flex justify-end">
+      {/* Search Bar and Refresh */}
+      <div className="mb-6 flex justify-between items-center">
+        <button 
+          onClick={fetchPayments}
+          className="refresh-btn"
+        >
+          Refresh
+        </button>
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -177,17 +175,18 @@ const PaymentManagement = ({ canManageBilling = true }) => {
                 <th>Product/Service</th>
                 <th>Amount</th>
                 <th>Method</th>
-                <th>Date_Paid</th>
-                <th>Actions</th>
+                <th>Due_Date</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {payments.length > 0 ? payments
                 .filter((payment) => {
-                  if (payment.status !== 'completed') {
-                    return false;
-                  }
-                  
+                  const status = (payment.status || '').toLowerCase();
+                  // Only show completed/paid payments in Payment History
+                  return status === 'completed' || status === 'paid';
+                })
+                .filter((payment) => {
                   const customerName = payment.customer_name || payment.client?.name || 'Guest';
                   const reference = payment.payment_reference || '';
                   const query = searchQuery.toLowerCase();
@@ -213,26 +212,19 @@ const PaymentManagement = ({ canManageBilling = true }) => {
                       </span>
                     )}
                   </td>
-                  <td>{payment.payment_method}</td>
+                  <td>{payment.payment_method || 'N/A'}</td>
                   <td className="date-cell">{payment.paid_date ? formatDate(payment.paid_date) : 'N/A'}</td>
                   <td className="text-center">
-                    <div className="flex gap-1 justify-center">
-                      {payment.status === 'completed' && (
-                        <button
-                          onClick={() => handleGenerateReceipt(payment)}
-                          className="table-action-btn primary"
-                        >
-                          Receipt
-                        </button>
-                      )}
-                    </div>
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                      ✓ Paid
+                    </span>
                   </td>
                 </tr>
                 );
               }) : (
                 <tr>
                   <td colSpan="7" className="px-3 py-4 text-center text-gray-500 text-xs" style={{ fontStyle: 'italic' }}>
-                    No data available
+                    No completed payments available
                   </td>
                 </tr>
               )}

@@ -27,10 +27,13 @@ function MyServicesPage() {
       
       // First get the current user info to get the user ID
       const userResponse = await fetch('http://localhost:8000/api/user', {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
 
       if (!userResponse.ok) {
@@ -42,10 +45,13 @@ function MyServicesPage() {
 
       // Fetch bookings
       const bookingsResponse = await fetch(`http://localhost:8000/api/bookings/user/${userId}`, {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
 
       let bookingsArray = [];
@@ -58,10 +64,13 @@ function MyServicesPage() {
 
       // Fetch maintenance inquiries
       const inquiriesResponse = await fetch('http://localhost:8000/api/inquiries/user', {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
 
       if (inquiriesResponse.ok) {
@@ -175,8 +184,8 @@ function MyServicesPage() {
                     <div className="bookings-list">
                       {bookings.map((booking) => (
                         <div key={booking.id} className="booking-card">
-                          <div className="card-header">
-                            <h3>{booking.service?.name || 'Service Booking'}</h3>
+                      <div className="card-header">
+                            <h3>{booking.product?.name || booking.service?.name || 'Service Booking'}</h3>
                             <span className={`status-badge ${getStatusBadgeClass(booking.status)}`}>
                               {getStatusLabel(booking.status)}
                             </span>

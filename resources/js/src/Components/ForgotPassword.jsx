@@ -20,12 +20,14 @@ const ForgotPassword = () => {
     }
 
     try {
-      const response = await fetch('/api/forgot-password', {
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/forgot-password`;
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ email }),
       });
 

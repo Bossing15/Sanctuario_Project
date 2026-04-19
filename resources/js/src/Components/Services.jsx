@@ -1,5 +1,4 @@
 ﻿import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import maintenanceIcon from "../assets/icons/Maintenance.png";
 import { TableSkeleton } from "./SkeletonLoader";
 import usePermissions from "../utils/usePermissions";
@@ -12,11 +11,8 @@ import StatsCards from "./StatsCards";
 import "./MaintenanceHeader.css";
 
 const Services = () => {
-  const navigate = useNavigate();
   const { canPerformActions } = usePermissions();
   const canManageServices = canPerformActions("graves");
-  
-  const [activeTab, setActiveTab] = useState("Maintenance");
   const [viewMode, setViewMode] = useState("Table");
   const [activeServiceTab, setActiveServiceTab] = useState("Maintenance");
   const [services, setServices] = useState([]);
@@ -165,25 +161,6 @@ const Services = () => {
     setServiceToDelete(null);
   };
 
-  const getFilteredServices = () => {
-    const query = serviceSearchQuery.toLowerCase();
-    const filtered = services.filter((service) => {
-      const matchesSearch = 
-        service.id.toString().includes(query) ||
-        service.title.toLowerCase().includes(query) ||
-        service.category.toLowerCase().includes(query) ||
-        service.status.toLowerCase().includes(query);
-      
-      if (activeTab === "Maintenance") {
-        return matchesSearch && service.category === "Grave Maintenance";
-      } else if (activeTab === "Services") {
-        return matchesSearch && service.category === "Services";
-      }
-      return matchesSearch;
-    });
-    return filtered;
-  };
-
   const getCardViewServices = () => {
     const query = serviceSearchQuery.toLowerCase();
     
@@ -239,28 +216,32 @@ const Services = () => {
         />
       )}
 
-      {(!editingService && (activeServiceTab === "Interment" || activeServiceTab === "Cremation")) || (editingService && (editingService.title?.toLowerCase().includes('interment') || editingService.title?.toLowerCase().includes('cremation'))) ? (
-        <InlineServiceEditor
-          service={editingService}
-          isOpen={showServiceEditor}
-          onClose={() => {
-            setShowServiceEditor(false);
-            setEditingService(null);
-          }}
-          onSave={handleSaveService}
-          canManageServices={canManageServices}
-        />
-      ) : (
-        <ServiceEditor
-          service={editingService}
-          isOpen={showServiceEditor}
-          onClose={() => {
-            setShowServiceEditor(false);
-            setEditingService(null);
-          }}
-          onSave={handleSaveService}
-          canManageServices={canManageServices}
-        />
+      {showServiceEditor && (
+        <>
+          {(activeServiceTab === "Interment" || activeServiceTab === "Cremation" || (editingService && (editingService.title?.toLowerCase().includes('interment') || editingService.title?.toLowerCase().includes('cremation')))) ? (
+            <InlineServiceEditor
+              service={editingService}
+              isOpen={showServiceEditor}
+              onClose={() => {
+                setShowServiceEditor(false);
+                setEditingService(null);
+              }}
+              onSave={handleSaveService}
+              canManageServices={canManageServices}
+            />
+          ) : (
+            <ServiceEditor
+              service={editingService}
+              isOpen={showServiceEditor}
+              onClose={() => {
+                setShowServiceEditor(false);
+                setEditingService(null);
+              }}
+              onSave={handleSaveService}
+              canManageServices={canManageServices}
+            />
+          )}
+        </>
       )}
 
       <div className="flex items-center mb-8">
@@ -280,7 +261,7 @@ const Services = () => {
               className={`px-6 py-3 rounded-xl text-sm font-semibold transition-colors duration-150 cursor-pointer
                 ${
                   viewMode === tab
-                    ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md"
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
                     : "bg-white text-gray-700 hover:bg-gray-50 shadow-sm border border-gray-200"
                 }`}
               onClick={() => setViewMode(tab)}
@@ -304,6 +285,18 @@ const Services = () => {
                 { label: 'Inactive', value: services.filter(s => s.status !== 'Active').length },
                 { label: 'Interment', value: services.filter(s => s.title.toLowerCase().includes('interment')).length }
               ]} />
+
+              <div className="flex items-center justify-between mb-6">
+                <h5 className="text-xl font-semibold text-gray-800">Services List</h5>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={fetchServices}
+                    className="refresh-btn"
+                  >
+                    Refresh
+                  </button>
+                </div>
+              </div>
 
               <div className="mb-6">
                 <div style={{
@@ -332,18 +325,6 @@ const Services = () => {
                   <svg style={{ width: '20px', height: '20px', color: '#6b7280', marginLeft: '0.5rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between mb-6">
-                <h5 className="text-xl font-semibold text-gray-800">Services List</h5>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={fetchServices}
-                    className="refresh-btn"
-                  >
-                    Refresh
-                  </button>
                 </div>
               </div>
 
@@ -388,9 +369,15 @@ const Services = () => {
                           <td>{service.price_quarterly || "N/A"}</td>
                           <td>{service.price_yearly || "N/A"}</td>
                           <td className="text-center">
-                            <span className={`status-badge ${service.status === "Active" ? "active" : "inactive"}`}>
-                              {service.status}
-                            </span>
+                            {service.status === "Active" ? (
+                              <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                                ✅ Active
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
+                                ❌ Inactive
+                              </span>
+                            )}
                           </td>
                           <td>
                             <div className="flex gap-2">
@@ -459,7 +446,7 @@ const Services = () => {
                       className={`px-6 py-3 rounded-xl text-sm font-semibold transition-colors duration-150 cursor-pointer
                         ${
                           activeServiceTab === tab
-                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
+                            ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md"
                             : "bg-white text-gray-700 hover:bg-gray-50 shadow-sm border border-gray-200"
                         }`}
                       onClick={() => setActiveServiceTab(tab)}
@@ -472,14 +459,6 @@ const Services = () => {
 
               <div className="flex items-center justify-between mb-6">
                 <h5 className="text-xl font-semibold text-gray-800">Services</h5>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={fetchServices}
-                    className="refresh-btn"
-                  >
-                    Refresh
-                  </button>
-                </div>
               </div>
 
               {/* Interment/Cremation Detail View - Show editor inline */}

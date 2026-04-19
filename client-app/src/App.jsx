@@ -28,6 +28,9 @@ import CremationPage from './pages/CremationPage';
 import PaymentsPage from './pages/PaymentsPage';
 import BillingPage from './pages/BillingPage';
 import NotificationsPage from './pages/NotificationsPage';
+import SearchPage from './pages/SearchPage';
+import TermsPage from './pages/TermsPage';
+import AccessibilityPage from './pages/AccessibilityPage';
 import ScrollToTop from './components/ScrollToTop';
 import './styles/responsive.css';
 import './styles/modals.css';
@@ -64,6 +67,8 @@ function Layout() {
         {/* Fixed route to match navbar links */}
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/accessibility" element={<AccessibilityPage />} />
         <Route path="/login" element={<LoginPage onLogin={() => navigate('/home')} />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/user" element={<UserPage />} />
@@ -71,6 +76,7 @@ function Layout() {
         <Route path="/my-services" element={<MyServicesPage />} />
         <Route path="/my-maintenance-requests" element={<MyMaintenanceRequestsPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/search" element={<SearchPage />} />
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/cancel" element={<PaymentCancel />} />

@@ -17,7 +17,7 @@ const Billing = () => {
   const [activeTab, setActiveTab] = useState('management');
   const [searchQuery, setSearchQuery] = useState('');
   const [payments, setPayments] = useState([]);
-  const [statusFilter, setStatusFilter] = useState('all'); // Default to unpaid for management tab
+  const [statusFilter, setStatusFilter] = useState('all');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const pollingRef = useRef(null);
 
@@ -33,8 +33,10 @@ const Billing = () => {
     try {
       // Add cache-busting parameter to force fresh data
       const cacheBuster = `?_=${new Date().getTime()}`;
-      const res = await fetch(`/api/payments/all${cacheBuster}`, {
+      const token = localStorage.getItem('authToken');
+      const res = await fetch(`/api/payments/admin/all${cacheBuster}`, {
         headers: { 
+          'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
@@ -43,10 +45,14 @@ const Billing = () => {
       });
       if (!res.ok) throw new Error('Failed to fetch payments');
       const data = await res.json();
-      // Expecting array of payments from backend
-      const paymentsData = Array.isArray(data) ? data : (data?.data || []);
+      // Expecting paginated response with data key
+      const paymentsData = data?.data || (Array.isArray(data) ? data : []);
       console.log('Billing - Fetched payments:', paymentsData.length);
-      console.log('Billing - Completed payments:', paymentsData.filter(p => p.status === 'completed').length);
+      console.log('Billing - Payment statuses:', paymentsData.map(p => ({ id: p.id, status: p.status, customer: p.customer_name || p.client?.name })));
+      console.log('Billing - Unpaid payments:', paymentsData.filter(p => {
+        const status = (p.status || '').toLowerCase();
+        return status !== 'completed' && status !== 'paid';
+      }).length);
       setPayments(paymentsData);
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -119,8 +125,19 @@ const Billing = () => {
       return customerName.toLowerCase().includes(searchQuery.toLowerCase());
     });
 
+  // Debug logging for Payment Management tab
+  useEffect(() => {
+    if (activeTab === 'management') {
+      console.log('=== Payment Management Tab Debug ===');
+      console.log('Total payments:', payments.length);
+      console.log('All payment statuses:', payments.map(p => ({ id: p.id, status: p.status, customer: p.customer_name || p.client?.name })));
+      console.log('Unpaid payments (filtered):', filteredPaymentData.length);
+      console.log('Unpaid payments data:', filteredPaymentData);
+    }
+  }, [activeTab, payments, filteredPaymentData]);
+
   return (
-    <div className="flex flex-col bg-gray-50 min-h-screen">
+    <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="p-8 flex-grow">
         {/* Header */}
         <div className="mb-8">
@@ -174,33 +191,43 @@ const Billing = () => {
         ]} />
 
         {/* Filter and Search */}
-        <div className="flex justify-between items-center mb-6">
-          {/* Status Filter */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setStatusFilter('all')}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                statusFilter === 'all'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-              }`}
+        <div className="mb-6">
+          {/* Status Filter and Refresh */}
+          <div className="flex justify-between items-center mb-4">
+            {/* Status Filter */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setStatusFilter('all')}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  statusFilter === 'all'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                Unpaid
+              </button>
+              <button
+                onClick={() => setStatusFilter('overdue')}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  statusFilter === 'overdue'
+                    ? 'bg-red-600 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                Overdue
+              </button>
+            </div>
+            
+            {/* Refresh Button */}
+            <button 
+              onClick={fetchPayments}
+              className="refresh-btn"
             >
-              Unpaid
-            </button>
-            <button
-              onClick={() => setStatusFilter('overdue')}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                statusFilter === 'overdue'
-                  ? 'bg-red-600 text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Overdue
+              Refresh
             </button>
           </div>
           
           {/* Search */}
-          <div className="flex justify-end">
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -208,8 +235,7 @@ const Billing = () => {
             borderRadius: '0.5rem',
             padding: '0.75rem 1rem',
             backgroundColor: '#ffffff',
-            transition: 'all 0.2s ease',
-            minWidth: '300px'
+            transition: 'all 0.2s ease'
           }}>
             <input
               type="text"
@@ -228,7 +254,6 @@ const Billing = () => {
             <svg style={{ width: '20px', height: '20px', color: '#6b7280', marginLeft: '0.5rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-          </div>
           </div>
         </div>
         {/* Table */}
@@ -282,14 +307,23 @@ const Billing = () => {
                       <td className="date-cell">{formatDate(date)}</td>
                       <td className="currency">{Number(amount).toLocaleString()}</td>
                       <td className="text-center">
-                        <span className={`status-badge ${
-                          status.toLowerCase() === 'paid' || status.toLowerCase() === 'completed' ? 'completed' :
-                          status.toLowerCase() === 'overdue' ? 'overdue' :
-                          status.toLowerCase() === 'pending' || status.toLowerCase() === 'unpaid' ? 'pending' :
-                          'info'
-                        }`}>
-                          {status.toLowerCase() === 'unpaid' ? 'Unpaid' : status}
-                        </span>
+                        {status.toLowerCase() === 'paid' || status.toLowerCase() === 'completed' ? (
+                          <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                            ✅ Paid
+                          </span>
+                        ) : status.toLowerCase() === 'overdue' ? (
+                          <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
+                            ❌ Overdue
+                          </span>
+                        ) : status.toLowerCase() === 'pending' || status.toLowerCase() === 'unpaid' ? (
+                          <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
+                            ⏳ Unpaid
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                            ℹ️ {status}
+                          </span>
+                        )}
                       </td>
                     </tr>
                   );

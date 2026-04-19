@@ -26,6 +26,7 @@ function LoginPage({ onLogin }) {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
+        credentials: 'omit',
         body: JSON.stringify({
           email,
           password,
@@ -41,11 +42,6 @@ function LoginPage({ onLogin }) {
         localStorage.setItem('userId', data.user.id);
         localStorage.setItem('userName', data.user.name);
         localStorage.setItem('userEmail', data.user.email);
-        
-        // Store profile picture URL if available
-        if (data.user.profile_picture_url) {
-          localStorage.setItem('profilePictureUrl', data.user.profile_picture_url);
-        }
         
         console.log('Stored user ID:', data.user.id); // Debug log
         console.log('Stored email:', data.user.email); // Debug log

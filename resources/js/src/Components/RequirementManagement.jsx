@@ -468,7 +468,7 @@ export default function RequirementManagement() {
   };
 
   return (
-    <div style={{ padding: '2rem', backgroundColor: '#ffffff', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
       {/* FRESH REBUILD - Component Version 2.0 */}
       {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
@@ -528,26 +528,6 @@ export default function RequirementManagement() {
       {/* Requirements Tab */}
       {activeTab === 'requirements' && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: '600', margin: '0' }}>Requirement Definitions</h3>
-            <button
-              onClick={fetchRequirements}
-              disabled={loading}
-              style={{
-                background: '#2563eb',
-                color: 'white',
-                padding: '0.5rem 1rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontWeight: '600',
-                fontSize: '0.875rem',
-                opacity: loading ? 0.6 : 1
-              }}
-            >
-              {loading ? 'Loading...' : 'Refresh'}
-            </button>
-          </div>
 
           {showAddForm && (
             <div className="modal-overlay" onClick={handleCancelEdit}>
@@ -658,6 +638,16 @@ export default function RequirementManagement() {
                 { label: 'Document', value: requirements.filter(r => r.file_type === 'document').length }
               ]} />
 
+              <div className="flex items-center justify-between mb-6">
+                <h5 className="text-xl font-semibold text-gray-800">Requirements List</h5>
+                <button 
+                  onClick={fetchRequirements}
+                  className="refresh-btn"
+                >
+                  Refresh
+                </button>
+              </div>
+
               <div className="mb-6">
                 <div style={{
                   display: 'flex',
@@ -721,21 +711,29 @@ export default function RequirementManagement() {
                           </div>
                         </td>
                         <td className="text-center">
-                          <span className={`status-badge ${
-                            requirement.file_type === 'image' 
-                              ? 'info' 
-                              : requirement.file_type === 'pdf'
-                              ? 'warning'
-                              : 'info'
-                          }`}>
-                            {requirement.file_type === 'image' ? 'Image Only' : requirement.file_type.toUpperCase()}
-                          </span>
+                          {requirement.file_type === 'image' ? (
+                            <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                              🖼️ Image
+                            </span>
+                          ) : requirement.file_type === 'pdf' ? (
+                            <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-700 rounded-lg shadow-sm">
+                              📄 PDF
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                              ℹ️ {requirement.file_type.toUpperCase()}
+                            </span>
+                          )}
                         </td>
                         <td className="text-center">
                           {requirement.sample_image_path ? (
-                            <span className="status-badge completed">Has Sample</span>
+                            <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                              ✅ Has Sample
+                            </span>
                           ) : (
-                            <span className="status-badge inactive">No Sample</span>
+                            <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
+                              ❌ No Sample
+                            </span>
                           )}
                         </td>
                         <td className="text-center">
@@ -794,26 +792,6 @@ export default function RequirementManagement() {
       {/* Review Tab */}
       {activeTab === 'review' && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', backgroundColor: 'white', padding: '1rem', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: '600', margin: '0' }}>Review Requirement Submissions</h3>
-            <button
-              onClick={fetchSubmissions}
-              disabled={loading}
-              style={{
-                background: '#2563eb',
-                color: 'white',
-                padding: '0.5rem 1rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontWeight: '600',
-                fontSize: '0.875rem',
-                opacity: loading ? 0.6 : 1
-              }}
-            >
-              {loading ? 'Loading...' : 'Refresh'}
-            </button>
-          </div>
           {loading ? (
             <p>Loading submissions...</p>
           ) : submissions.length === 0 ? (

@@ -608,9 +608,9 @@ body.modal-open {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--neutral-200);
-  background: linear-gradient(135deg, var(--primary-50) 0%, var(--neutral-50) 100%);
+  padding: 2rem;
+  border-bottom: 2px solid #f3f4f6;
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
   border-radius: 1.5rem 1.5rem 0 0;
 }
 
@@ -618,44 +618,103 @@ body.modal-open {
   display: flex;
   align-items: center;
   gap: 1rem;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 700;
-  color: var(--neutral-900);
+  color: #1f2937;
+  letter-spacing: 0.3px;
 }
 
-.modal-close {
-  background: none;
-  border: none;
+.modal-header-icon {
   font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--neutral-500);
-  transition: all 0.2s ease;
-  padding: 0;
-  width: 32px;
-  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.modal-close:hover {
-  color: var(--neutral-900);
-  background-color: var(--neutral-100);
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s ease;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 0.5rem;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: #1f2937;
+  background-color: #e5e7eb;
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 2rem;
   overflow-y: auto;
   flex: 1;
+  background: white;
+}
+
+/* Improve readability of modal content */
+.modal-body label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.3px;
+}
+
+.modal-body p {
+  font-size: 0.95rem;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.modal-body input,
+.modal-body textarea,
+.modal-body select {
+  font-size: 0.95rem;
+  color: #1f2937;
+}
+
+/* Section dividers in modals */
+.modal-body > div:not(:first-child) {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #f3f4f6;
+}
+
+.modal-body h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 1.25rem 0;
+  letter-spacing: 0.5px;
+}
+
+.modal-body .grid {
+  gap: 1.5rem;
+}
+
+.modal-body .grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .modal-footer {
   display: flex;
   gap: 1rem;
-  padding: 1.5rem;
-  border-top: 1px solid var(--neutral-200);
-  background-color: var(--neutral-50);
+  padding: 1.5rem 2rem;
+  border-top: 2px solid #f3f4f6;
+  background-color: #f9fafb;
   justify-content: flex-end;
   border-radius: 0 0 1.5rem 1.5rem;
 }

@@ -32,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'access.level' => \App\Http\Middleware\CheckAccessLevel::class,
             'billing.permission' => \App\Http\Middleware\CheckBillingPermission::class,
             'requirements.permission' => \App\Http\Middleware\CheckRequirementsPermission::class,
+            'auth.multiple' => \App\Http\Middleware\AuthenticateWithMultipleModels::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

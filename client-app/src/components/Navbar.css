@@ -70,7 +70,7 @@
 }
 
 .nav-links a {
-  color: #ffffff;
+  color: #ffffff !important;
   text-decoration: none;
   font-size: 0.7rem;
   font-weight: 600;
@@ -86,8 +86,8 @@
 
 /* Change text color to black when scrolled */
 .navbar.scrolled .nav-links a {
-  color: #2c3e50;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  color: #000000 !important;
+  text-shadow: none;
 }
 
 .nav-links a:hover,
@@ -134,7 +134,7 @@
 }
 
 .nav-dropdown-btn {
-  color: #ffffff;
+  color: #ffffff !important;
   background: none;
   border: none;
   font-size: 0.75rem;
@@ -153,8 +153,8 @@
 
 /* Change dropdown button color to dark when scrolled */
 .navbar.scrolled .nav-dropdown-btn {
-  color: #2c3e50;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  color: #000000 !important;
+  text-shadow: none;
 }
 
 .nav-dropdown-btn {
@@ -900,7 +900,7 @@
 
 /* Change profile button color to black when scrolled */
 .navbar.scrolled .profile-btn {
-  color: #2c3e50;
+  color: #000000 !important;
   text-shadow: none;
 }
 
@@ -1119,9 +1119,9 @@ name display and auth buttons */
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Change user name color to green when scrolled */
+/* Change user name color to black when scrolled */
 .navbar.scrolled .user-name-display {
-  color: #006400;
+  color: #000000 !important;
   text-shadow: none;
 }
 
@@ -1234,8 +1234,8 @@ name display and auth buttons */
 }
 
 .navbar.scrolled .notification-icon-btn {
-  color: #2c3e50;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  color: #000000 !important;
+  text-shadow: none;
 }
 
 .notification-icon-btn:hover {
@@ -1266,8 +1266,8 @@ name display and auth buttons */
 }
 
 .navbar.scrolled .profile-btn {
-  color: #2c3e50;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  color: #000000 !important;
+  text-shadow: none;
 }
 
 .profile-btn:hover {
@@ -1466,3 +1466,4 @@ name display and auth buttons */
   object-fit: cover;
   border: 2px solid currentColor;
 }
+

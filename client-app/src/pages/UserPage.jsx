@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FaArrowLeft, FaUserCircle, FaUser, FaCreditCard, FaShoppingBag, FaCamera, FaSignOutAlt as FaLogout } from 'react-icons/fa';
+import { FaArrowLeft, FaUserCircle, FaUser, FaCreditCard, FaShoppingBag, FaSignOutAlt as FaLogout } from 'react-icons/fa';
 import PaymentModal from '../components/PaymentModal';
 import AlertModal from '../components/AlertModal';
 import './UserPage.css';
@@ -8,7 +8,6 @@ import './UserPage.css';
 function UserPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const fileInputRef = useRef(null);
   
   // Check authentication on component mount
   useEffect(() => {
@@ -31,8 +30,6 @@ function UserPage() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [alertModal, setAlertModal] = useState({ show: false, type: 'info', message: '' });
-  const [profilePicture, setProfilePicture] = useState(null);
-  const [isUploadingPicture, setIsUploadingPicture] = useState(false);
   const [userInfo, setUserInfo] = useState({
     name: localStorage.getItem('userName') || 'User',
     email: localStorage.getItem('userEmail') || 'No email available'
@@ -51,140 +48,13 @@ function UserPage() {
     }
   }, [activeTab]);
 
-  // Fetch profile picture on mount
+  // Fetch user info on mount
   useEffect(() => {
-    fetchProfilePicture();
+    setUserInfo({
+      name: localStorage.getItem('userName') || 'User',
+      email: localStorage.getItem('userEmail') || 'No email available'
+    });
   }, []);
-
-  const fetchProfilePicture = async () => {
-    try {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        console.log('No auth token found, redirecting to login');
-        navigate('/login');
-        return;
-      }
-
-      // First check localStorage for cached profile picture
-      const cachedProfilePicture = localStorage.getItem('profilePictureUrl');
-      if (cachedProfilePicture) {
-        setProfilePicture(`http://localhost:8000${cachedProfilePicture}`);
-      }
-
-      const response = await fetch('http://localhost:8000/api/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-        },
-      });
-
-      if (response.status === 401) {
-        console.log('Token expired or invalid, redirecting to login');
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userRole');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('profilePictureUrl');
-        navigate('/login');
-        return;
-      }
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.user.profile_picture_url) {
-          const fullUrl = `http://localhost:8000${data.user.profile_picture_url}`;
-          setProfilePicture(fullUrl);
-          localStorage.setItem('profilePictureUrl', data.user.profile_picture_url);
-        } else {
-          localStorage.removeItem('profilePictureUrl');
-          setProfilePicture(null);
-        }
-        
-        // Update user info
-        setUserInfo({
-          name: data.user.name || localStorage.getItem('userName') || 'User',
-          email: data.user.email || localStorage.getItem('userEmail') || 'No email available'
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching profile picture:', error);
-    }
-  };
-
-  const handleProfilePictureChange = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setAlertModal({
-        show: true,
-        type: 'error',
-        message: 'Please select an image file'
-      });
-      return;
-    }
-
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      setAlertModal({
-        show: true,
-        type: 'error',
-        message: 'Image size must be less than 5MB'
-      });
-      return;
-    }
-
-    setIsUploadingPicture(true);
-
-    try {
-      const formData = new FormData();
-      formData.append('profile_picture', file);
-
-      const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:8000/api/profile/upload-picture', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        const fullUrl = `http://localhost:8000${data.profile_picture_url}`;
-        setProfilePicture(fullUrl);
-        localStorage.setItem('profilePictureUrl', data.profile_picture_url);
-        setAlertModal({
-          show: true,
-          type: 'success',
-          message: 'Profile picture updated successfully!'
-        });
-      } else {
-        setAlertModal({
-          show: true,
-          type: 'error',
-          message: data.message || 'Failed to upload profile picture'
-        });
-      }
-    } catch (error) {
-      console.error('Error uploading profile picture:', error);
-      setAlertModal({
-        show: true,
-        type: 'error',
-        message: 'Failed to upload profile picture'
-      });
-    } finally {
-      setIsUploadingPicture(false);
-    }
-  };
-
-  const handleProfilePictureClick = () => {
-    fileInputRef.current?.click();
-  };
 
   const fetchPendingPayments = async () => {
     const token = localStorage.getItem('authToken');
@@ -195,10 +65,13 @@ function UserPage() {
     try {
       setLoading(true);
       const response = await fetch('http://localhost:8000/api/payments', {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -275,28 +148,9 @@ function UserPage() {
             <div className="profile-hero-bg"></div>
             <div className="profile-hero-content">
               <div className="user-avatar-container">
-                {profilePicture ? (
-                  <img src={profilePicture} alt="Profile" className="user-avatar-img" />
-                ) : (
-                  <div className="user-avatar-placeholder">
-                    <FaUserCircle className="user-avatar" />
-                  </div>
-                )}
-                <button 
-                  className="user-avatar-upload-btn"
-                  onClick={handleProfilePictureClick}
-                  disabled={isUploadingPicture}
-                  title="Change profile picture"
-                >
-                  <FaCamera />
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleProfilePictureChange}
-                  style={{ display: 'none' }}
-                />
+                <div className="user-avatar-placeholder">
+                  <FaUserCircle className="user-avatar" />
+                </div>
               </div>
               <div className="user-info-display">
                 <h1 className="user-name">{userInfo.name}</h1>
@@ -579,6 +433,7 @@ function UserPage() {
             setSelectedPayment(null);
             fetchPendingPayments();
           }}
+          isLawnLotProduct={false}
         />
       )}
       

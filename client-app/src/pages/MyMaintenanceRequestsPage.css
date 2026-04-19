@@ -464,3 +464,108 @@
   font-weight: 700;
   font-size: 0.95em;
 }
+
+
+/* Section Headers */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 2rem 0 1.5rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.section-icon {
+  font-size: 1.5rem;
+  color: #3b82f6;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+/* Purchase Card Specific Styles */
+.purchase-card {
+  border-left: 4px solid #10b981;
+}
+
+.purchase-card .request-header {
+  background: linear-gradient(135deg, #f0fdf4 0%, #f0fdf4 100%);
+}
+
+.purchase-card .amount {
+  color: #059669;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.purchase-card .status-badge {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.purchase-card .status-icon {
+  color: #10b981;
+}
+
+/* Payment Status Badge */
+.purchase-status-badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.payment-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.payment-status-badge.paid {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.payment-status-badge.unpaid {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.payment-status-icon {
+  font-size: 16px;
+}
+
+.payment-status-icon.paid {
+  color: #198754;
+}
+
+.payment-status-icon.unpaid {
+  color: #ffc107;
+}
+
+/* Payment Status Description */
+.payment-status-description {
+  margin: 10px 0 0 0;
+  color: #856404;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 10px;
+  background: #fff3cd;
+  border-radius: 6px;
+  border-left: 4px solid #ffc107;
+}
+
+.payment-status-description.paid {
+  color: #0f5132;
+  background: #d1e7dd;
+  border-left-color: #198754;
+}

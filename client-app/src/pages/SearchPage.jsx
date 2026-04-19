@@ -111,6 +111,7 @@ function SearchPage() {
             </div>
           ))}
         </div>
+      </div>
       
       {/* Global search modal */}
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />

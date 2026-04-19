@@ -13,14 +13,12 @@ export const useSiteSettings = () => {
     try {
       setLoading(true);
       
-      // Try relative URL first (works with dev server proxy)
-      let response = await fetch('/api/site-settings');
-      
-      // If relative URL fails, try absolute URL (for built/production version)
-      if (!response.ok && response.status === 404) {
-        console.log('Relative URL failed, trying absolute URL...');
-        response = await fetch('http://localhost:8000/api/site-settings');
-      }
+      // Use absolute URL directly to avoid proxy issues
+      const response = await fetch('http://localhost:8000/api/site-settings', {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
       
       if (response.ok) {
         const data = await response.json();
@@ -45,34 +43,7 @@ export const useSiteSettings = () => {
       }
     } catch (err) {
       console.error('Error fetching site settings:', err);
-      
-      // Try absolute URL as fallback
-      try {
-        console.log('Fetch failed, trying absolute URL as fallback...');
-        const response = await fetch('http://localhost:8000/api/site-settings');
-        
-        if (response.ok) {
-          const data = await response.json();
-          
-          const settingsObj = {};
-          if (data.settings) {
-            Object.entries(data.settings).forEach(([key, setting]) => {
-              if (typeof setting === 'object' && setting.value !== undefined) {
-                settingsObj[key] = setting.value;
-              } else {
-                settingsObj[key] = setting;
-              }
-            });
-          }
-          
-          setSettings(settingsObj);
-        } else {
-          setError('Failed to load site settings');
-        }
-      } catch (fallbackErr) {
-        console.error('Fallback fetch also failed:', fallbackErr);
-        setError('Failed to load site settings');
-      }
+      setError('Failed to load site settings');
     } finally {
       setLoading(false);
     }

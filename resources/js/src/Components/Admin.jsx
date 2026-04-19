@@ -182,7 +182,7 @@ const Admin = () => {
   }
 
   return (
-    <div className="w-full bg-gray-50 min-h-screen">
+    <div className="w-full min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div style={{ paddingLeft: '2rem', paddingRight: '2rem', paddingTop: '2rem', paddingBottom: '1rem' }}>
         <div className="flex items-center">
           <img src={adminIcon} alt="Admin Icon" className="w-10 h-10 object-contain mr-4" />
@@ -316,9 +316,15 @@ const Admin = () => {
                           <td>{a.contact || a.phone || 'N/A'}</td>
                           <td>{a.role}</td>
                           <td className="text-center">
-                            <span className={`status-badge ${a.status === "Active" ? 'active' : 'inactive'}`}>
-                              {a.status}
-                            </span>
+                            {a.status === "Active" ? (
+                              <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                                ✅ Active
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
+                                ❌ Inactive
+                              </span>
+                            )}
                           </td>
                           <td className="date-cell">{formatDate(a.created_at)}</td>
                           <td className="text-center">

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AlertModal from './AlertModal';
 
 const PaymentAnalytics = () => {
+  const [payments, setPayments] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [alertModal, setAlertModal] = useState({ show: false, type: 'info', message: '' });
@@ -13,31 +14,102 @@ const PaymentAnalytics = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchAnalytics();
+    fetchPayments();
   }, [dateRange]);
 
-  const fetchAnalytics = async () => {
+  const fetchPayments = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('authToken');
-      const url = `/api/payments/analytics?start_date=${dateRange.start_date}&end_date=${dateRange.end_date}`;
+      const cacheBuster = `?_=${new Date().getTime()}`;
       
-      const response = await fetch(url, {
+      const response = await fetch(`/api/payments/admin/all${cacheBuster}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         },
       });
 
       if (response.ok) {
         const data = await response.json();
-        setAnalytics(data);
+        const paymentsData = data?.data || [];
+        setPayments(paymentsData);
+        calculateAnalytics(paymentsData);
       }
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      console.error('Error fetching payments:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const calculateAnalytics = (paymentsData) => {
+    // Filter payments by date range
+    const startDate = new Date(dateRange.start_date);
+    const endDate = new Date(dateRange.end_date);
+    endDate.setHours(23, 59, 59, 999);
+
+    const filteredPayments = paymentsData.filter(payment => {
+      const paymentDate = new Date(payment.created_at);
+      return paymentDate >= startDate && paymentDate <= endDate;
+    });
+
+    // Calculate totals
+    const completed = filteredPayments.filter(p => p.status === 'completed' || p.status === 'paid');
+    const pending = filteredPayments.filter(p => p.status === 'pending' || p.status === 'unpaid');
+    const overdue = filteredPayments.filter(p => p.status === 'overdue');
+
+    const totalRevenue = completed.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+    const pendingAmount = pending.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+    const overdueAmount = overdue.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+
+    // Group by payment method
+    const paymentMethods = {};
+    filteredPayments.forEach(payment => {
+      const method = payment.payment_method || 'N/A';
+      if (!paymentMethods[method]) {
+        paymentMethods[method] = { count: 0, total: 0 };
+      }
+      paymentMethods[method].count += 1;
+      paymentMethods[method].total += parseFloat(payment.amount) || 0;
+    });
+
+    // Group by month for trend
+    const monthlyRevenue = {};
+    completed.forEach(payment => {
+      const date = new Date(payment.paid_date || payment.created_at);
+      const monthKey = date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+      if (!monthlyRevenue[monthKey]) {
+        monthlyRevenue[monthKey] = 0;
+      }
+      monthlyRevenue[monthKey] += parseFloat(payment.amount) || 0;
+    });
+
+    setAnalytics({
+      total_revenue: totalRevenue,
+      pending_amount: pendingAmount,
+      overdue_amount: overdueAmount,
+      total_payments: filteredPayments.length,
+      completed_payments: completed.length,
+      pending_payments: pending.length,
+      overdue_payments: overdue.length,
+      payment_methods: Object.entries(paymentMethods).map(([method, data]) => ({
+        payment_method: method,
+        count: data.count,
+        total: data.total
+      })),
+      monthly_revenue: Object.entries(monthlyRevenue).map(([month, revenue]) => ({
+        month,
+        revenue
+      })),
+      revenue_trend: 0,
+      pending_trend: 0,
+      overdue_trend: 0,
+      payment_count_trend: 0
+    });
   };
 
   const sendReminders = async () => {
@@ -87,7 +159,7 @@ const PaymentAnalytics = () => {
           type: 'success',
           message: `Overdue payments updated: ${data.count}`
         });
-        fetchAnalytics();
+        fetchPayments();
       }
     } catch (error) {
       console.error('Error checking overdue:', error);
@@ -122,7 +194,7 @@ const PaymentAnalytics = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Payment Analytics</h2>
+        <h2 className="text-2xl font-bold text-gray-800">Payment Reports</h2>
       </div>
 
       {/* Date Range Filter */}
@@ -147,7 +219,7 @@ const PaymentAnalytics = () => {
             />
           </div>
           <button
-            onClick={fetchAnalytics}
+            onClick={fetchPayments}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Apply
@@ -224,21 +296,25 @@ const PaymentAnalytics = () => {
         <div className="col-span-2 bg-white rounded-xl p-6 shadow-lg">
           <h3 className="text-lg font-bold mb-4">Monthly Revenue Trend</h3>
           <div className="space-y-3">
-            {analytics?.monthly_revenue?.map((month) => (
-              <div key={month.month} className="flex items-center gap-4">
-                <div className="w-20 text-sm font-semibold text-gray-700">{month.month}</div>
-                <div className="flex-1 bg-gray-200 rounded-full h-6 relative">
-                  <div
-                    className="bg-green-500 h-6 rounded-full flex items-center justify-end pr-3 text-white text-xs font-semibold"
-                    style={{
-                      width: `${Math.min((month.revenue / Math.max(...(analytics?.monthly_revenue?.map(m => m.revenue) || [1]))) * 100, 100)}%`
-                    }}
-                  >
-                    ₱{parseFloat(month.revenue).toLocaleString('en-US', {minimumFractionDigits: 0})}
+            {analytics?.monthly_revenue && analytics.monthly_revenue.length > 0 ? (
+              analytics.monthly_revenue.map((month) => (
+                <div key={month.month} className="flex items-center gap-4">
+                  <div className="w-20 text-sm font-semibold text-gray-700">{month.month}</div>
+                  <div className="flex-1 bg-gray-200 rounded-full h-6 relative">
+                    <div
+                      className="bg-green-500 h-6 rounded-full flex items-center justify-end pr-3 text-white text-xs font-semibold"
+                      style={{
+                        width: `${Math.min((month.revenue / Math.max(...(analytics?.monthly_revenue?.map(m => m.revenue) || [1]))) * 100, 100)}%`
+                      }}
+                    >
+                      ₱{parseFloat(month.revenue).toLocaleString('en-US', {minimumFractionDigits: 0})}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="text-center text-gray-500">No data available</div>
+            )}
           </div>
         </div>
 
@@ -268,13 +344,12 @@ const PaymentAnalytics = () => {
         </div>
       </div>
 
-      {/* Payment Methods & Top Services */}
-      <div className="grid grid-cols-2 gap-6 mb-6">
-        {/* Payment Methods */}
-        <div className="bg-white rounded-xl p-6 shadow-lg">
-          <h3 className="text-lg font-bold mb-4">Payment Methods</h3>
-          <div className="space-y-3">
-            {analytics?.payment_methods?.map((method) => (
+      {/* Payment Methods */}
+      <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
+        <h3 className="text-lg font-bold mb-4">Payment Methods</h3>
+        <div className="space-y-3">
+          {analytics?.payment_methods && analytics.payment_methods.length > 0 ? (
+            analytics.payment_methods.map((method) => (
               <div key={method.payment_method} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
                   <div className="font-semibold text-gray-900">{method.payment_method}</div>
@@ -284,26 +359,10 @@ const PaymentAnalytics = () => {
                   <div className="font-bold text-blue-600">₱{parseFloat(method.total).toLocaleString('en-US', {minimumFractionDigits: 0})}</div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Top Services */}
-        <div className="bg-white rounded-xl p-6 shadow-lg">
-          <h3 className="text-lg font-bold mb-4">Top Services by Revenue</h3>
-          <div className="space-y-3">
-            {analytics?.top_services?.map((service, idx) => (
-              <div key={service.service_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <div className="font-semibold text-gray-900">#{idx + 1} {service.service?.title || 'N/A'}</div>
-                  <div className="text-xs text-gray-500">{service.count} transactions</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold text-green-600">₱{parseFloat(service.revenue).toLocaleString('en-US', {minimumFractionDigits: 0})}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+            ))
+          ) : (
+            <div className="text-center text-gray-500">No payment methods data</div>
+          )}
         </div>
       </div>
 

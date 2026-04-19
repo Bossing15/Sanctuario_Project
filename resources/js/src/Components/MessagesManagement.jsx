@@ -19,6 +19,7 @@ const MessagesManagement = () => {
   const [confirmModal, setConfirmModal] = useState({ show: false, message: '', onConfirm: null });
   const [filterStatus, setFilterStatus] = useState('All');
   const [activeTab, setActiveTab] = useState('messages');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchMessages();
@@ -171,9 +172,19 @@ const MessagesManagement = () => {
     }
   };
 
-  const filteredMessages = filterStatus === 'All' 
+  const filteredMessages = (filterStatus === 'All' 
     ? messages 
-    : messages.filter(msg => msg.status === filterStatus);
+    : messages.filter(msg => msg.status === filterStatus))
+    .filter(msg => {
+      const query = searchQuery.toLowerCase();
+      return (
+        msg.first_name.toLowerCase().includes(query) ||
+        msg.last_name.toLowerCase().includes(query) ||
+        msg.email.toLowerCase().includes(query) ||
+        msg.phone?.toLowerCase().includes(query) ||
+        msg.message.toLowerCase().includes(query)
+      );
+    });
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString('en-US', {
@@ -353,6 +364,37 @@ const MessagesManagement = () => {
             </button>
           </div>
 
+          {/* Search Bar */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              padding: '0.75rem 1rem',
+              backgroundColor: '#ffffff',
+              transition: 'all 0.2s ease'
+            }}>
+              <input
+                type="text"
+                placeholder="Search by name, email, phone..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  flex: 1,
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                  outline: 'none',
+                  fontSize: '0.875rem',
+                  color: '#374151'
+                }}
+              />
+              <svg style={{ width: '20px', height: '20px', color: '#6b7280', marginLeft: '0.5rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+
           {/* Stats Cards */}
           <div className="messages-stats">
             <div className="stat-card">
@@ -406,13 +448,19 @@ const MessagesManagement = () => {
                     {message.message.length > 50 ? '...' : ''}
                   </td>
                   <td className="text-center">
-                    <span className={`status-badge ${
-                      message.status === 'New' ? 'pending' :
-                      message.status === 'Responded' ? 'completed' :
-                      'info'
-                    }`}>
-                      {message.status}
-                    </span>
+                    {message.status === 'New' ? (
+                      <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
+                        ⏳ New
+                      </span>
+                    ) : message.status === 'Responded' ? (
+                      <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                        ✅ Responded
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                        ℹ️ {message.status}
+                      </span>
+                    )}
                   </td>
                   <td className="text-center">
                     <button 

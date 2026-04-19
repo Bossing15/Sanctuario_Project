@@ -3,33 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\ContactMessage;
+use App\Traits\FormSubmissionTrait;
 use Illuminate\Http\Request;
 
 class ContactMessageController extends Controller
 {
+    use FormSubmissionTrait;
+
     public function submit(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'name' => 'required|string',
-                'email' => 'required|email',
-                'phone' => 'nullable|string',
-                'subject' => 'required|string',
-                'message' => 'required|string',
-            ]);
-
-            $message = ContactMessage::create($validated);
-
-            return response()->json([
-                'message' => 'Message submitted successfully',
-                'data' => $message
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to submit message',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return $this->handleSubmit($request, ContactMessage::class, [
+            'name' => 'required|string',
+            'email' => 'required|email',
+            'phone' => 'nullable|string',
+            'subject' => 'required|string',
+            'message' => 'required|string',
+        ]);
     }
 
     public function index()
@@ -51,17 +40,8 @@ class ContactMessageController extends Controller
     public function updateStatus($id, Request $request)
     {
         try {
-            $validated = $request->validate([
-                'status' => 'required|string',
-            ]);
-
             $message = ContactMessage::findOrFail($id);
-            $message->update($validated);
-
-            return response()->json([
-                'message' => 'Status updated successfully',
-                'data' => $message
-            ]);
+            return $this->handleStatusUpdate($request, $message);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to update status',
@@ -74,11 +54,7 @@ class ContactMessageController extends Controller
     {
         try {
             $message = ContactMessage::findOrFail($id);
-            $message->delete();
-
-            return response()->json([
-                'message' => 'Message deleted successfully'
-            ]);
+            return $this->handleDelete($message);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to delete message',

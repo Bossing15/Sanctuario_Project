@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaDownload, FaPrint, FaEye } from 'react-icons/fa';
 import PaymentModal from '../components/PaymentModal';
 import AlertModal from '../components/AlertModal';
 import './BillingPage.css';
@@ -14,9 +15,34 @@ function BillingPage() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [alertModal, setAlertModal] = useState({ show: false, type: 'info', message: '' });
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [selectedReceiptPayment, setSelectedReceiptPayment] = useState(null);
 
   useEffect(() => {
     fetchPendingPayments();
+    
+    // Check if a payment was just completed
+    const checkPaymentCompletion = () => {
+      const paymentCompleted = sessionStorage.getItem('paymentCompleted');
+      if (paymentCompleted) {
+        try {
+          const completedPayment = JSON.parse(paymentCompleted);
+          console.log('Payment was just completed, refreshing data:', completedPayment);
+          
+          // Refresh payments after a short delay to ensure backend has updated
+          setTimeout(() => {
+            fetchPendingPayments();
+          }, 1000);
+          
+          // Clear the flag
+          sessionStorage.removeItem('paymentCompleted');
+        } catch (e) {
+          console.error('Error parsing payment completion info:', e);
+        }
+      }
+    };
+    
+    checkPaymentCompletion();
     
     // Cleanup function to reset state when component unmounts
     return () => {
@@ -37,18 +63,21 @@ function BillingPage() {
       // Add cache-busting parameter
       const cacheBuster = `?_=${new Date().getTime()}`;
       const response = await fetch(`http://localhost:8000/api/payments${cacheBuster}`, {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0'
         },
+        credentials: 'include',
       });
 
       if (response.ok) {
         const data = await response.json();
-        const allPayments = data.data || data;
+        let allPayments = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : (Array.isArray(data.payments) ? data.payments : []));
         
         console.log('All payments fetched:', allPayments);
         console.log('Payment statuses:', allPayments.map(p => ({ id: p.id, status: p.status, paid_date: p.paid_date })));
@@ -68,6 +97,18 @@ function BillingPage() {
         setCompletedPayments(completed);
       } else {
         console.warn('Failed to fetch payments:', response.status);
+        
+        // If 401, clear token and redirect to login
+        if (response.status === 401) {
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('userId');
+          localStorage.removeItem('userName');
+          localStorage.removeItem('userEmail');
+          localStorage.removeItem('userRole');
+          navigate('/login');
+          return;
+        }
+        
         setPendingPayments([]);
         setCompletedPayments([]);
       }
@@ -104,6 +145,194 @@ function BillingPage() {
     return pendingPayments.reduce((total, payment) => {
       return total + parseFloat(payment.amount);
     }, 0);
+  };
+
+  const generateReceiptHTML = (payment) => {
+    const userName = localStorage.getItem('userName') || 'Guest';
+    const userEmail = localStorage.getItem('userEmail') || 'N/A';
+    const receiptNumber = `SANC-${payment.id}-${new Date(payment.paid_date || payment.created_at).getTime().toString().slice(-6)}`;
+    const transactionDate = new Date(payment.paid_date || payment.created_at);
+    const isPaid = payment.status === 'completed';
+    
+    // Get lawn lot information if available
+    const lawnLotInfo = payment.grave_location ? `
+      <div class="section">
+        <div class="section-title">Lawn Lot Information</div>
+        <div class="detail-row">
+          <span class="label">Lot Number:</span>
+          <span class="value">${payment.plot_number || 'N/A'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Location:</span>
+          <span class="value">${payment.grave_location || 'N/A'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Section:</span>
+          <span class="value">${payment.section || 'N/A'}</span>
+        </div>
+      </div>
+    ` : '';
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${isPaid ? 'Receipt' : 'Invoice'} - ${receiptNumber}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+          .receipt-container { max-width: 600px; margin: 0 auto; background-color: white; border: 1px solid #ddd; padding: 30px; border-radius: 8px; }
+          .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+          .header h1 { margin: 0; color: #333; font-size: 24px; }
+          .header p { margin: 5px 0; color: #666; font-size: 14px; }
+          .section { margin: 25px 0; }
+          .section-title { font-weight: bold; font-size: 14px; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 8px; color: #333; }
+          .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+          .detail-row .label { font-weight: 500; color: #555; }
+          .detail-row .value { text-align: right; color: #333; }
+          .amount-row { font-size: 16px; font-weight: bold; color: #27ae60; border-bottom: 2px solid #27ae60; padding: 15px 0; }
+          .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #333; color: #666; font-size: 12px; }
+          .status { text-align: center; font-weight: bold; font-size: 18px; margin: 20px 0; padding: 10px; border-radius: 4px; }
+          .status.paid { color: #27ae60; background-color: #d4edda; }
+          .status.pending { color: #ff9800; background-color: #fff3cd; }
+          .status.overdue { color: #dc3545; background-color: #f8d7da; }
+          @media print {
+            body { background-color: white; }
+            .receipt-container { box-shadow: none; border: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="receipt-container">
+          <div class="header">
+            <h1>Sanctuario De Carmona</h1>
+            <p>Memorial Park</p>
+            <p>${isPaid ? 'Payment Receipt' : 'Invoice'}</p>
+          </div>
+          
+          <div class="status ${isPaid ? 'paid' : payment.status === 'overdue' ? 'overdue' : 'pending'}">
+            ${isPaid ? '✓ PAYMENT SUCCESSFUL' : payment.status === 'overdue' ? '⚠️ PAYMENT OVERDUE' : '⏳ PAYMENT PENDING'}
+          </div>
+          
+          <div class="section">
+            <div class="section-title">${isPaid ? 'Receipt' : 'Invoice'} Information</div>
+            <div class="detail-row">
+              <span class="label">${isPaid ? 'Receipt' : 'Invoice'} Number:</span>
+              <span class="value">${receiptNumber}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Date & Time:</span>
+              <span class="value">${transactionDate.toLocaleString('en-PH')}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Transaction ID:</span>
+              <span class="value">${payment.paymongo_intent_id || payment.payment_reference || 'N/A'}</span>
+            </div>
+            ${!isPaid ? `
+            <div class="detail-row">
+              <span class="label">Due Date:</span>
+              <span class="value">${new Date(payment.due_date).toLocaleString('en-PH')}</span>
+            </div>
+            ` : ''}
+          </div>
+          
+          <div class="section">
+            <div class="section-title">Customer Information</div>
+            <div class="detail-row">
+              <span class="label">Name:</span>
+              <span class="value">${userName}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Email:</span>
+              <span class="value">${userEmail}</span>
+            </div>
+          </div>
+          
+          <div class="section">
+            <div class="section-title">Payment Details</div>
+            <div class="detail-row">
+              <span class="label">Description:</span>
+              <span class="value">${payment.description || 'Service Payment'}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Payment Method:</span>
+              <span class="value">${payment.payment_method || 'Pending'}</span>
+            </div>
+            <div class="detail-row amount-row">
+              <span class="label">Amount:</span>
+              <span class="value">${formatCurrency(payment.amount)}</span>
+            </div>
+          </div>
+          
+          ${lawnLotInfo}
+          
+          <div class="section">
+            <div class="section-title">Status</div>
+            <div class="detail-row">
+              <span class="label">Payment Status:</span>
+              <span class="value" style="font-weight: bold; ${isPaid ? 'color: #27ae60;' : payment.status === 'overdue' ? 'color: #dc3545;' : 'color: #ff9800;'}">${isPaid ? 'COMPLETED' : payment.status === 'overdue' ? 'OVERDUE' : 'PENDING'}</span>
+            </div>
+          </div>
+          
+          <div class="footer">
+            <p>Thank you for your business!</p>
+            <p>For inquiries, please contact us at info@sanctuario.com or call 1-888-881-6131</p>
+            <p>This is an automated ${isPaid ? 'receipt' : 'invoice'}. Please keep this for your records.</p>
+            <p style="margin-top: 20px;">Generated on ${transactionDate.toLocaleString('en-PH')}</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  };
+
+  const handleViewReceipt = (payment) => {
+    setSelectedReceiptPayment(payment);
+    setShowReceiptModal(true);
+  };
+
+  const handleDownloadReceipt = (payment) => {
+    try {
+      const receiptHTML = generateReceiptHTML(payment);
+      const blob = new Blob([receiptHTML], { type: 'text/html' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Receipt-${payment.id}-${new Date(payment.paid_date).getTime().toString().slice(-6)}.html`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      setAlertModal({ 
+        show: true, 
+        type: 'success', 
+        message: 'Receipt downloaded successfully!' 
+      });
+    } catch (error) {
+      console.error('Error downloading receipt:', error);
+      setAlertModal({ 
+        show: true, 
+        type: 'error', 
+        message: 'Failed to download receipt. Please try again.' 
+      });
+    }
+  };
+
+  const handlePrintReceipt = (payment) => {
+    try {
+      const receiptHTML = generateReceiptHTML(payment);
+      const printWindow = window.open('', '', 'height=600,width=800');
+      printWindow.document.write(receiptHTML);
+      printWindow.document.close();
+      printWindow.print();
+    } catch (error) {
+      console.error('Error printing receipt:', error);
+      setAlertModal({ 
+        show: true, 
+        type: 'error', 
+        message: 'Failed to print receipt. Please try again.' 
+      });
+    }
   };
 
   // Force re-render when component mounts
@@ -179,12 +408,37 @@ function BillingPage() {
                     </div>
                     <div className="payment-action">
                       <div className="payment-amount">{formatCurrency(payment.amount)}</div>
-                      <button 
-                        className="pay-now-btn"
-                        onClick={() => handlePayNow(payment)}
-                      >
-                        Pay Now
-                      </button>
+                      <div className="payment-action-buttons">
+                        <div className="receipt-actions">
+                          <button 
+                            className="receipt-btn view-btn"
+                            onClick={() => handleViewReceipt(payment)}
+                            title="View Invoice"
+                          >
+                            <FaEye /> View
+                          </button>
+                          <button 
+                            className="receipt-btn download-btn"
+                            onClick={() => handleDownloadReceipt(payment)}
+                            title="Download Invoice"
+                          >
+                            <FaDownload /> Download
+                          </button>
+                          <button 
+                            className="receipt-btn print-btn"
+                            onClick={() => handlePrintReceipt(payment)}
+                            title="Print Invoice"
+                          >
+                            <FaPrint /> Print
+                          </button>
+                        </div>
+                        <button 
+                          className="pay-now-btn"
+                          onClick={() => handlePayNow(payment)}
+                        >
+                          Pay Now
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -226,6 +480,29 @@ function BillingPage() {
                     </div>
                     <div className="payment-action">
                       <div className="payment-amount">{formatCurrency(payment.amount)}</div>
+                      <div className="receipt-actions">
+                        <button 
+                          className="receipt-btn view-btn"
+                          onClick={() => handleViewReceipt(payment)}
+                          title="View Receipt"
+                        >
+                          <FaEye /> View
+                        </button>
+                        <button 
+                          className="receipt-btn download-btn"
+                          onClick={() => handleDownloadReceipt(payment)}
+                          title="Download Receipt"
+                        >
+                          <FaDownload /> Download
+                        </button>
+                        <button 
+                          className="receipt-btn print-btn"
+                          onClick={() => handlePrintReceipt(payment)}
+                          title="Print Receipt"
+                        >
+                          <FaPrint /> Print
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -242,13 +519,13 @@ function BillingPage() {
           service={{ title: selectedPayment.description || 'Payment', slug: 'payment' }}
           planType={selectedPayment.payment_type}
           amount={selectedPayment.amount}
-          bookingId={selectedPayment.booking_id}
           paymentId={selectedPayment.id}
           onClose={() => {
             setShowPaymentModal(false);
             setSelectedPayment(null);
             fetchPendingPayments();
           }}
+          isLawnLotProduct={false}
         />
       )}
 
@@ -259,6 +536,52 @@ function BillingPage() {
           message={alertModal.message}
           onClose={() => setAlertModal({ show: false, type: 'info', message: '' })}
         />
+      )}
+
+      {/* Receipt Modal */}
+      {showReceiptModal && selectedReceiptPayment && (
+        <div className="receipt-modal-overlay" onClick={() => setShowReceiptModal(false)}>
+          <div className="receipt-modal-container" onClick={(e) => e.stopPropagation()}>
+            <div className="receipt-modal-header">
+              <h2>Payment Receipt</h2>
+              <button 
+                className="receipt-modal-close"
+                onClick={() => setShowReceiptModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="receipt-modal-content">
+              <div dangerouslySetInnerHTML={{ __html: generateReceiptHTML(selectedReceiptPayment) }} />
+            </div>
+            <div className="receipt-modal-footer">
+              <button 
+                className="receipt-action-btn download"
+                onClick={() => {
+                  handleDownloadReceipt(selectedReceiptPayment);
+                  setShowReceiptModal(false);
+                }}
+              >
+                <FaDownload /> Download
+              </button>
+              <button 
+                className="receipt-action-btn print"
+                onClick={() => {
+                  handlePrintReceipt(selectedReceiptPayment);
+                  setShowReceiptModal(false);
+                }}
+              >
+                <FaPrint /> Print
+              </button>
+              <button 
+                className="receipt-action-btn close"
+                onClick={() => setShowReceiptModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

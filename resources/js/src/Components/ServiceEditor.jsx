@@ -4,7 +4,6 @@ import './ServiceEditor.css';
 const ServiceEditor = ({ service, isOpen, onClose, onSave, canManageServices }) => {
   const [formData, setFormData] = useState({
     title: service?.title || '',
-    category: service?.category || 'Grave Maintenance',
     description: service?.description || '',
     price_monthly: service?.price_monthly || '',
     price_quarterly: service?.price_quarterly || '',
@@ -23,7 +22,6 @@ const ServiceEditor = ({ service, isOpen, onClose, onSave, canManageServices }) 
     if (service) {
       setFormData({
         title: service.title || '',
-        category: service.category || 'Grave Maintenance',
         description: service.description || '',
         price_monthly: service.price_monthly || '',
         price_quarterly: service.price_quarterly || '',
@@ -36,8 +34,6 @@ const ServiceEditor = ({ service, isOpen, onClose, onSave, canManageServices }) 
       setImageFile(null);
     }
   }, [service, isOpen]);
-
-  const serviceCategories = ['Grave Maintenance', 'Services'];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -116,20 +112,6 @@ const ServiceEditor = ({ service, isOpen, onClose, onSave, canManageServices }) 
                   required
                   className="form-input"
                 />
-              </div>
-
-              <div className="form-group">
-                <label>Category *</label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  className="form-input"
-                >
-                  {serviceCategories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
               </div>
 
               <div className="form-group">

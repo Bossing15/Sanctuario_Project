@@ -25,10 +25,13 @@ function MyPurchasesPage() {
       }
 
       const response = await fetch(`http://localhost:8000/api/payments?client_id=${userId}`, {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
 
       if (response.ok) {

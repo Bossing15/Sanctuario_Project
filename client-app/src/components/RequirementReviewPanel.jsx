@@ -17,7 +17,7 @@ function RequirementReviewPanel({ bookingId, onReviewComplete }) {
     try {
       setLoading(true);
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`/api/requirements/booking/${bookingId}/submissions`, {
+      const response = await fetch(`http://localhost:8000/api/requirements/booking/${bookingId}/submissions`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
@@ -41,7 +41,7 @@ function RequirementReviewPanel({ bookingId, onReviewComplete }) {
       setReviewing(submissionId);
       const token = localStorage.getItem('authToken');
       
-      const response = await fetch(`/api/requirements/submission/${submissionId}/review`, {
+      const response = await fetch(`http://localhost:8000/api/requirements/submission/${submissionId}/review`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

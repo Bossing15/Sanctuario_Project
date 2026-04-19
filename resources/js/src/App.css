@@ -166,8 +166,8 @@
   right: 0;
   left: 280px;
   height: 70px;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
+  background: #1a1f3a;
+  border-bottom: 1px solid #0f1419;
   padding: 0 2rem;
   display: flex;
   align-items: center;
@@ -175,7 +175,7 @@
   z-index: 99;
   transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   margin: 0;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
 }
 
 .navbar.no-transition {
@@ -494,5 +494,57 @@ main.collapsed {
 
   .mobile-nav-item span {
     font-size: 0.6rem;
+  }
+}
+
+/* ============================================
+   RESPONSIVE SEARCH BAR STYLES
+   ============================================ */
+
+/* Search bar container - responsive */
+@media (max-width: 1024px) {
+  div[style*="display: flex"][style*="alignItems: center"][style*="border: 1px solid"] {
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  div[style*="display: flex"][style*="alignItems: center"][style*="border: 1px solid"] input {
+    font-size: 0.8rem !important;
+  }
+
+  div[style*="display: flex"][style*="alignItems: center"][style*="border: 1px solid"] svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  div[style*="display: flex"][style*="alignItems: center"][style*="border: 1px solid"] {
+    padding: 0.5rem 0.5rem !important;
+    border-radius: 0.375rem !important;
+  }
+
+  div[style*="display: flex"][style*="alignItems: center"][style*="border: 1px solid"] input {
+    font-size: 0.75rem !important;
+  }
+
+  div[style*="display: flex"][style*="alignItems: center"][style*="border: 1px solid"] svg {
+    width: 16px !important;
+    height: 16px !important;
+    margin-left: 0.25rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  div[style*="display: flex"][style*="alignItems: center"][style*="border: 1px solid"] {
+    padding: 0.4rem 0.4rem !important;
+  }
+
+  div[style*="display: flex"][style*="alignItems: center"][style*="border: 1px solid"] input {
+    font-size: 0.7rem !important;
+  }
+
+  div[style*="display: flex"][style*="alignItems: center"][style*="border: 1px solid"] svg {
+    width: 14px !important;
+    height: 14px !important;
   }
 }

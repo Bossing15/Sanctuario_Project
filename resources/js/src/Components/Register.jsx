@@ -106,12 +106,14 @@ const Register = () => {
         submitData.access_level = formData.access_level;
       }
 
-      const response = await fetch('/api/register', {
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/register`;
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(submitData),
       });
 

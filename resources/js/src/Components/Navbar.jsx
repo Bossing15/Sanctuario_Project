@@ -10,7 +10,6 @@ const Navbar = ({ collapsed }) => {
   const [user, setUser] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [profilePicture, setProfilePicture] = useState(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -26,41 +25,7 @@ const Navbar = ({ collapsed }) => {
     if (userData) {
       setUser(JSON.parse(userData));
     }
-    fetchProfilePicture();
   }, []);
-
-  const fetchProfilePicture = async () => {
-    try {
-      const cachedProfilePicture = localStorage.getItem('adminProfilePictureUrl');
-      if (cachedProfilePicture) {
-        setProfilePicture(`http://localhost:8000${cachedProfilePicture}`);
-      }
-
-      const token = localStorage.getItem('authToken');
-      if (!token) return;
-
-      const response = await fetch('/api/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data && data.user && data.user.profile_picture_url) {
-          const fullUrl = `http://localhost:8000${data.user.profile_picture_url}`;
-          setProfilePicture(fullUrl);
-          localStorage.setItem('adminProfilePictureUrl', data.user.profile_picture_url);
-        } else {
-          localStorage.removeItem('adminProfilePictureUrl');
-          setProfilePicture(null);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching profile picture:', error);
-    }
-  };
 
   const handleLogout = async () => {
     try {
@@ -84,14 +49,14 @@ const Navbar = ({ collapsed }) => {
   };
 
   return (
-    <div className={`navbar ${collapsed ? "collapsed" : ""} ${mounted ? "no-transition" : ""}`}>
+    <div className={`navbar ${collapsed ? "collapsed" : ""} ${mounted ? "no-transition" : ""}`} style={{ background: '#1a1f3a' }}>
       <div className="flex items-center">
         <img
           src={logo}
           alt="Sanctuario Logo"
           className="navbar-logo"
           onError={(e) => {
-            e.target.outerHTML = '<div class="text-gray-800 font-bold text-lg">SANCTUARIO</div>';
+            e.target.outerHTML = '<div class="text-white font-bold text-lg">SANCTUARIO</div>';
           }}
         />
       </div>
@@ -99,7 +64,7 @@ const Navbar = ({ collapsed }) => {
       <div className="flex items-center gap-4 ml-auto">
         <button 
           onClick={() => setShowNotifications(!showNotifications)}
-          className="relative p-2 hover:bg-gray-100 rounded-lg transition-all text-gray-600 pointer-events-auto"
+          className="relative p-2 hover:bg-gray-700 rounded-lg transition-all text-gray-300 pointer-events-auto"
           title="Notifications"
         >
           <svg
@@ -121,30 +86,22 @@ const Navbar = ({ collapsed }) => {
         <div className="relative pointer-events-auto">
           <button 
             onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="flex items-center gap-2 hover:bg-gray-50 px-3 py-2 rounded-lg transition-all"
+            className="flex items-center gap-2 hover:bg-gray-700 px-3 py-2 rounded-lg transition-all"
           >
-            {profilePicture ? (
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
               <img
-                src={profilePicture}
-                alt="Profile"
-                className="w-8 h-8 rounded-full object-cover border-2 border-green-500"
+                src={adminIcon}
+                alt="Admin Icon"
+                className="w-5 h-5 object-contain"
               />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                <img
-                  src={adminIcon}
-                  alt="Admin Icon"
-                  className="w-5 h-5 object-contain"
-                />
-              </div>
-            )}
+            </div>
             <div className="flex sm:flex flex-col items-start">
-              <strong className="text-sm font-semibold text-gray-800">{user?.name || 'User'}</strong>
-              <small className="text-xs text-gray-500">
+              <strong className="text-sm font-semibold text-white">{user?.name || 'User'}</strong>
+              <small className="text-xs text-gray-400">
                 {user?.access_level ? user.access_level.charAt(0).toUpperCase() + user.access_level.slice(1) : 'Staff'}
               </small>
             </div>
-            <svg className={`w-4 h-4 text-gray-600 transition-all duration-200 transform ${showProfileMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+            <svg className={`w-4 h-4 text-gray-300 transition-all duration-200 transform ${showProfileMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M7 10l5 5 5-5" />
             </svg>
           </button>
@@ -153,17 +110,9 @@ const Navbar = ({ collapsed }) => {
             <ul className="absolute right-0 mt-2 w-56 bg-white text-gray-800 rounded-xl shadow-xl border border-gray-100 overflow-hidden z-[9999]">
               <li className="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-transparent">
                 <div className="flex items-center gap-3">
-                  {profilePicture ? (
-                    <img 
-                      src={profilePicture} 
-                      alt="Profile" 
-                      className="w-10 h-10 rounded-full object-cover border-2 border-green-500" 
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                      <img src={adminIcon} alt="Profile" className="w-6 h-6" />
-                    </div>
-                  )}
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                    <img src={adminIcon} alt="Profile" className="w-6 h-6" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-gray-900 truncate">{user?.name || 'User'}</p>
                     <p className="text-xs text-gray-500">

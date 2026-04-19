@@ -17,9 +17,6 @@ const Profile = () => {
     confirmPassword: '',
   });
   const [showPasswordSection, setShowPasswordSection] = useState(false);
-  const [profilePicture, setProfilePicture] = useState(null);
-  const [isUploadingPicture, setIsUploadingPicture] = useState(false);
-  const fileInputRef = useRef(null);
 
   const permissionLabels = useMemo(() => ({
     customers: "Customers",
@@ -33,7 +30,6 @@ const Profile = () => {
 
   useEffect(() => {
     fetchUserData();
-    fetchProfilePicture();
   }, []);
 
   const fetchUserData = async () => {
@@ -75,90 +71,7 @@ const Profile = () => {
     }
   };
 
-  const fetchProfilePicture = async () => {
-    try {
-      const cachedProfilePicture = localStorage.getItem('adminProfilePictureUrl');
-      if (cachedProfilePicture) {
-        setProfilePicture(`http://localhost:8000${cachedProfilePicture}`);
-      }
 
-      const token = localStorage.getItem('authToken');
-      if (!token) return;
-
-      const response = await fetch('/api/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.user.profile_picture_url) {
-          const fullUrl = `http://localhost:8000${data.user.profile_picture_url}`;
-          setProfilePicture(fullUrl);
-          localStorage.setItem('adminProfilePictureUrl', data.user.profile_picture_url);
-        } else {
-          localStorage.removeItem('adminProfilePictureUrl');
-          setProfilePicture(null);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching profile picture:', error);
-    }
-  };
-
-  const handleProfilePictureChange = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image size must be less than 5MB');
-      return;
-    }
-
-    setIsUploadingPicture(true);
-
-    try {
-      const formData = new FormData();
-      formData.append('profile_picture', file);
-
-      const token = localStorage.getItem('authToken');
-      const response = await fetch('/api/profile/upload-picture', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        const fullUrl = `http://localhost:8000${data.profile_picture_url}`;
-        setProfilePicture(fullUrl);
-        localStorage.setItem('adminProfilePictureUrl', data.profile_picture_url);
-        alert('Profile picture updated successfully!');
-      } else {
-        alert(data.message || 'Failed to upload profile picture');
-      }
-    } catch (error) {
-      console.error('Error uploading profile picture:', error);
-      alert('Failed to upload profile picture');
-    } finally {
-      setIsUploadingPicture(false);
-    }
-  };
-
-  const handleProfilePictureClick = () => {
-    fileInputRef.current?.click();
-  };
 
   const handleSaveProfile = async () => {
     try {
@@ -253,7 +166,7 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="bg-white min-h-screen p-8">
+      <div className="min-h-screen p-8" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-12 text-center">
           <p className="text-gray-600">Loading profile...</p>
         </div>
@@ -262,7 +175,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="bg-white min-h-screen p-8">
+    <div className="min-h-screen p-8" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="flex items-center mb-8">
         <img src={adminIcon} alt="Profile Icon" className="w-10 h-10 object-contain mr-4" />
         <h3 className="text-3xl font-bold text-gray-800">My Profile</h3>
@@ -271,35 +184,10 @@ const Profile = () => {
       <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
         {/* Profile Header */}
         <div className="flex items-center mb-8 pb-6 border-b border-gray-200">
-          <div className="relative mr-4">
-            {profilePicture ? (
-              <img 
-                src={profilePicture} 
-                alt="Profile" 
-                className="w-20 h-20 rounded-full object-cover border-4 border-blue-600"
-              />
-            ) : (
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-2xl font-bold">
-                  {user?.name?.charAt(0).toUpperCase() || 'U'}
-                </span>
-              </div>
-            )}
-            <button 
-              onClick={handleProfilePictureClick}
-              disabled={isUploadingPicture}
-              className="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center border-2 border-white cursor-pointer transition-all disabled:opacity-50"
-              title="Change profile picture"
-            >
-              📷
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleProfilePictureChange}
-              style={{ display: 'none' }}
-            />
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mr-4">
+            <span className="text-white text-2xl font-bold">
+              {user?.name?.charAt(0).toUpperCase() || 'U'}
+            </span>
           </div>
           <div>
             <h4 className="text-xl font-bold text-gray-800">

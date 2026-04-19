@@ -12,7 +12,11 @@ const useSettings = () => {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/site-settings');
+      const response = await fetch('http://localhost:8000/api/site-settings', {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
       
       if (!response.ok) {
         throw new Error('Failed to fetch settings');

@@ -121,7 +121,8 @@ function HomePage() {
       observer.disconnect();
     };
   }, []);
-        return (
+
+  return (
     <div className="home-page">
       <div className="home-hero">
         <div className="hero-content">

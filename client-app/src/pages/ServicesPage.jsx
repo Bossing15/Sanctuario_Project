@@ -19,7 +19,7 @@ function ServicesPage() {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch('/api/public/services', {
+        const response = await fetch('http://localhost:8000/api/public/services', {
           headers: { 'Accept': 'application/json' },
         });
         if (!response.ok) throw new Error(`Failed to load services (${response.status})`);

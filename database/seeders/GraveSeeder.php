@@ -26,6 +26,7 @@ class GraveSeeder extends Seeder
                 'deceased_name' => 'Mia',
                 'section' => 'A',
                 'plot_number' => '12',
+                'grave_location' => 'Section A, Plot 12',
                 'client_id' => $clients[0]->id, // Maria Dela Cruz
                 'relationship_to_deceased' => 'Wife',
                 'status' => 'Active',
@@ -36,6 +37,7 @@ class GraveSeeder extends Seeder
                 'deceased_name' => 'Zane',
                 'section' => 'B',
                 'plot_number' => '13',
+                'grave_location' => 'Section B, Plot 13',
                 'client_id' => $clients[1]->id, // Robert Reyes
                 'relationship_to_deceased' => 'Son',
                 'status' => 'Active',
@@ -46,6 +48,7 @@ class GraveSeeder extends Seeder
                 'deceased_name' => 'Leo',
                 'section' => 'C',
                 'plot_number' => '14',
+                'grave_location' => 'Section C, Plot 14',
                 'client_id' => $clients[2]->id, // Angelica Gomez
                 'relationship_to_deceased' => 'Daughter',
                 'status' => 'Active',
@@ -56,6 +59,7 @@ class GraveSeeder extends Seeder
                 'deceased_name' => 'Ava',
                 'section' => 'D',
                 'plot_number' => '15',
+                'grave_location' => 'Section D, Plot 15',
                 'client_id' => $clients[3]->id, // Daniel Ortega
                 'relationship_to_deceased' => 'Husband',
                 'status' => 'Active',
@@ -66,6 +70,7 @@ class GraveSeeder extends Seeder
                 'deceased_name' => 'Max',
                 'section' => 'E',
                 'plot_number' => '16',
+                'grave_location' => 'Section E, Plot 16',
                 'client_id' => $clients[4]->id, // Kristine Santos
                 'relationship_to_deceased' => 'Mother',
                 'status' => 'Active',
@@ -80,6 +85,7 @@ class GraveSeeder extends Seeder
                 'deceased_name' => 'Ivy',
                 'section' => 'A',
                 'plot_number' => '17',
+                'grave_location' => 'Section A, Plot 17',
                 'client_id' => $clients[0]->id, // Can have multiple graves
                 'relationship_to_deceased' => 'Father',
                 'status' => 'Inactive',
@@ -90,6 +96,7 @@ class GraveSeeder extends Seeder
                 'deceased_name' => 'Zoe',
                 'section' => 'B',
                 'plot_number' => '18',
+                'grave_location' => 'Section B, Plot 18',
                 'client_id' => $clients[1]->id,
                 'relationship_to_deceased' => 'Sister',
                 'status' => 'Inactive',
@@ -100,6 +107,7 @@ class GraveSeeder extends Seeder
                 'deceased_name' => 'Kai',
                 'section' => 'C',
                 'plot_number' => '20',
+                'grave_location' => 'Section C, Plot 20',
                 'client_id' => $clients[2]->id,
                 'relationship_to_deceased' => 'Brother',
                 'status' => 'Inactive',
@@ -110,6 +118,7 @@ class GraveSeeder extends Seeder
                 'deceased_name' => 'Liv',
                 'section' => 'D',
                 'plot_number' => '21',
+                'grave_location' => 'Section D, Plot 21',
                 'client_id' => $clients[3]->id,
                 'relationship_to_deceased' => 'Daughter',
                 'status' => 'Inactive',
@@ -120,6 +129,7 @@ class GraveSeeder extends Seeder
                 'deceased_name' => 'Mat',
                 'section' => 'E',
                 'plot_number' => '22',
+                'grave_location' => 'Section E, Plot 22',
                 'client_id' => $clients[4]->id,
                 'relationship_to_deceased' => 'Son',
                 'status' => 'Inactive',

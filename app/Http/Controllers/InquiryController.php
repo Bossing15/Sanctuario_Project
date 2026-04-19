@@ -3,39 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Models\Inquiry;
+use App\Traits\FormSubmissionTrait;
 use Illuminate\Http\Request;
 
 class InquiryController extends Controller
 {
+    use FormSubmissionTrait;
+
     public function submit(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'name' => 'required|string',
-                'email' => 'required|email',
-                'phone' => 'nullable|string',
-                'service_type' => 'required|string',
-                'message' => 'required|string',
-            ]);
-
-            $inquiry = Inquiry::create($validated);
-
-            return response()->json([
-                'message' => 'Inquiry submitted successfully',
-                'inquiry' => $inquiry
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to submit inquiry',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return $this->handleSubmit($request, Inquiry::class, [
+            'name' => 'required|string',
+            'email' => 'required|email',
+            'phone' => 'nullable|string',
+            'service_type' => 'required|string',
+            'message' => 'required|string',
+        ]);
     }
 
     public function getUserInquiries(Request $request)
     {
         try {
-            $inquiries = Inquiry::where('user_id', $request->user()->id)->get();
+            $userEmail = $request->user()->email;
+            $inquiries = Inquiry::where('email', $userEmail)->get();
             return response()->json([
                 'inquiries' => $inquiries,
                 'count' => $inquiries->count()
@@ -67,17 +57,8 @@ class InquiryController extends Controller
     public function updateStatus($id, Request $request)
     {
         try {
-            $validated = $request->validate([
-                'status' => 'required|string',
-            ]);
-
             $inquiry = Inquiry::findOrFail($id);
-            $inquiry->update($validated);
-
-            return response()->json([
-                'message' => 'Status updated successfully',
-                'inquiry' => $inquiry
-            ]);
+            return $this->handleStatusUpdate($request, $inquiry);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to update status',
@@ -121,11 +102,7 @@ class InquiryController extends Controller
     {
         try {
             $inquiry = Inquiry::findOrFail($id);
-            $inquiry->delete();
-
-            return response()->json([
-                'message' => 'Inquiry deleted successfully'
-            ]);
+            return $this->handleDelete($inquiry);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to delete inquiry',

@@ -17,7 +17,8 @@ return new class extends Migration
         Schema::dropIfExists('failed_jobs');
         Schema::dropIfExists('cache');
         Schema::dropIfExists('cache_locks');
-        Schema::dropIfExists('sessions');
+        // Don't drop sessions - we need it for database session storage
+        // Schema::dropIfExists('sessions');
         Schema::dropIfExists('password_reset_tokens');
 
         // Clean up users table - remove unnecessary columns

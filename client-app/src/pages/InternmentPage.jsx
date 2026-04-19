@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './InternmentPage.css';
+import LoginPromptModal from '../components/LoginPromptModal';
+import PaymentModal from '../components/PaymentModal';
 import heroBg from '../assets/images/Sanctuario3_1.jpg';
 import lawnLotsImg from '../assets/images/lawn_lots.jpg';
 import familyEstateImg from '../assets/images/familt_estate.jpg';
@@ -10,7 +12,62 @@ import cremationImg from '../assets/images/cremation.jpg';
 
 function InternmentPage() {
   const navigate = useNavigate();
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [selectedImage, setSelectedImage] = useState(intermentImg);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showPricingModal, setShowPricingModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+
+  useEffect(() => {
+    fetchProduct();
+  }, []);
+
+  const fetchProduct = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/public/products', {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const interment = data.products?.find(p => p.title === 'Interment') || data.find(p => p.title === 'Interment');
+        setProduct(interment);
+      }
+    } catch (error) {
+      console.error('Error fetching product:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBuyNow = () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    
+    if (product) {
+      setShowPricingModal(true);
+    }
+  };
+
+  const handleSelectPlan = (planType, amount) => {
+    setSelectedPlan({ planType, amount });
+    setShowPricingModal(false);
+    setShowPaymentModal(true);
+  };
+
+  const handleClosePaymentModal = () => {
+    setShowPaymentModal(false);
+    setSelectedPlan(null);
+  };
+
+
 
   return (
     <div className="internment-page">
@@ -81,19 +138,37 @@ function InternmentPage() {
           <div className="package-info">
             <h3>Interment Package</h3>
             <p>Complete interment services for your loved one</p>
-            <p className="package-price">Price will be calculated at checkout</p>
+            {loading ? (
+              <p className="package-price">Loading pricing...</p>
+            ) : product ? (
+              <div className="pricing-options">
+                {product.price_monthly && (
+                  <div className="price-row">
+                    <span>Monthly Price (₱)</span>
+                    <span className="price-value">₱{parseFloat(product.price_monthly).toFixed(2)}</span>
+                  </div>
+                )}
+                {product.price_quarterly && (
+                  <div className="price-row">
+                    <span>Quarterly Price (₱)</span>
+                    <span className="price-value">₱{parseFloat(product.price_quarterly).toFixed(2)}</span>
+                  </div>
+                )}
+                {product.price_yearly && (
+                  <div className="price-row">
+                    <span>Yearly Price (₱)</span>
+                    <span className="price-value">₱{parseFloat(product.price_yearly).toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="package-price">Price will be calculated at checkout</p>
+            )}
           </div>
           
           <button 
             className="submit-btn"
-            onClick={() => navigate('/payment', { 
-              state: { 
-                amount: 55000,
-                description: 'Interment Package',
-                serviceType: 'interment',
-                serviceName: 'Interment'
-              } 
-            })}
+            onClick={handleBuyNow}
           >
             Buy Now
           </button>
@@ -142,6 +217,64 @@ function InternmentPage() {
           </div>
         </div>
       </div>
+
+      {/* Login Prompt Modal */}
+      {showLoginPrompt && (
+        <LoginPromptModal onClose={() => setShowLoginPrompt(false)} />
+      )}
+
+      {/* Pricing Selection Modal */}
+      {showPricingModal && product && (
+        <div className="modal-overlay" onClick={() => setShowPricingModal(false)}>
+          <div className="pricing-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Select Payment Plan</h2>
+              <button className="modal-close" onClick={() => setShowPricingModal(false)}>✕</button>
+            </div>
+            <div className="modal-content">
+              <p className="modal-subtitle">Choose your preferred payment plan for {product.title}</p>
+              <div className="plan-options">
+                {product.price_monthly && (
+                  <div className="plan-card">
+                    <h3>Monthly Plan</h3>
+                    <p className="plan-price">₱{parseFloat(product.price_monthly).toFixed(2)}</p>
+                    <p className="plan-description">Pay monthly for flexibility</p>
+                    <button className="plan-btn" onClick={() => handleSelectPlan('Monthly', product.price_monthly)} style={{ marginTop: '15px', backgroundColor: '#10b981' }}>Select Plan</button>
+                  </div>
+                )}
+                {product.price_quarterly && (
+                  <div className="plan-card">
+                    <h3>Quarterly Plan</h3>
+                    <p className="plan-price">₱{parseFloat(product.price_quarterly).toFixed(2)}</p>
+                    <p className="plan-description">Pay every 3 months</p>
+                    <button className="plan-btn" onClick={() => handleSelectPlan('Quarterly', product.price_quarterly)} style={{ marginTop: '15px', backgroundColor: '#10b981' }}>Select Plan</button>
+                  </div>
+                )}
+                {product.price_yearly && (
+                  <div className="plan-card">
+                    <h3>Yearly Plan</h3>
+                    <p className="plan-price">₱{parseFloat(product.price_yearly).toFixed(2)}</p>
+                    <p className="plan-description">Best value - pay annually</p>
+                    <button className="plan-btn" onClick={() => handleSelectPlan('Yearly', product.price_yearly)} style={{ marginTop: '15px', backgroundColor: '#10b981' }}>Select Plan</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Modal with Lot Selector */}
+      {showPaymentModal && selectedPlan && (
+        <PaymentModal
+          service={product}
+          planType={selectedPlan.planType}
+          amount={selectedPlan.amount}
+          onClose={handleClosePaymentModal}
+          isLawnLotProduct={true}
+          productSlug="interment"
+        />
+      )}
     </div>
   );
 }

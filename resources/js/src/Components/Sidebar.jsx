@@ -9,7 +9,7 @@ import graveIcon from "../assets/icons/Graves.png";
 import settingsIcon from "../assets/icons/Settings.png";
 import messageIcon from "../assets/icons/icons8-message-50.png";
 import menuIcon from "../assets/icons/icons8-hamburger-menu-50.png";
-import productsIcon from "../assets/icons/Products.png";
+import productsIcon from "../assets/icons/icons8-services-50.png";
 import maintenanceIcon from "../assets/icons/Maintenance.png";
 import requirementIcon from "../assets/icons/Requirements.png";
 

@@ -7,6 +7,7 @@ import pending from "../assets/icons/icons8-pending-50.png";
 import dashboardIcon from "../assets/icons/Dashboard.png";
 import usePermissions from '../utils/usePermissions';
 import { TableSkeleton } from './SkeletonLoader';
+import AuthorizationModal from './AuthorizationModal';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -25,23 +26,38 @@ const Dashboard = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadedPhotos, setUploadedPhotos] = useState([]);
   const [dashboardSearchQuery, setDashboardSearchQuery] = useState("");
+  const [purchases, setPurchases] = useState([]);
+  const [loadingPurchases, setLoadingPurchases] = useState(true);
+  const [showAuthorizationModal, setShowAuthorizationModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
   useEffect(() => {
-    fetchDashboardData();
-    fetchBookings();
-    fetchMaintenanceRequests();
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      fetchDashboardData();
+      fetchBookings();
+      fetchMaintenanceRequests();
+      fetchPurchases();
+    }
   }, []);
 
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem('authToken');
       
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      
       // Fetch total customers
-      const customersResponse = await fetch('/api/clients', {
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/clients`;
+      const customersResponse = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
-        }
+        },
+        credentials: 'include'
       });
       
       if (customersResponse.ok) {
@@ -53,11 +69,13 @@ const Dashboard = () => {
       const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
       const endDate = now.toISOString().split('T')[0];
       
-      const analyticsResponse = await fetch(`/api/payments/analytics?start_date=${startDate}&end_date=${endDate}`, {
+      const analyticsUrl = `${window.location.protocol}//${window.location.host}/api/payments/analytics?start_date=${startDate}&end_date=${endDate}`;
+      const analyticsResponse = await fetch(analyticsUrl, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
-        }
+        },
+        credentials: 'include'
       });
       
       if (analyticsResponse.ok) {
@@ -74,11 +92,19 @@ const Dashboard = () => {
   const fetchBookings = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('/api/bookings', {
+      
+      if (!token) {
+        setLoadingBookings(false);
+        return;
+      }
+      
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/bookings`;
+      const response = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
-        }
+        },
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -100,11 +126,19 @@ const Dashboard = () => {
   const fetchMaintenanceRequests = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('/api/admin/inquiries', {
+      
+      if (!token) {
+        setLoadingMaintenance(false);
+        return;
+      }
+      
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/admin/inquiries`;
+      const response = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
-        }
+        },
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -127,10 +161,185 @@ const Dashboard = () => {
     }
   };
 
+  const fetchPurchases = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        setLoadingPurchases(false);
+        return;
+      }
+      
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/bookings`;
+      const response = await fetch(apiUrl, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const bookingsData = data.bookings || data.data || data;
+        
+        console.log('Fetched bookings:', bookingsData);
+        
+        // Enrich bookings with client details
+        const enrichedBookings = (Array.isArray(bookingsData) ? bookingsData : []).map((booking) => {
+          // Extract service/product names from relationships
+          const serviceName = booking.service?.title || booking.service?.name || booking.service_name || '';
+          const productName = booking.product?.title || booking.product?.name || booking.product_name || '';
+          
+          // Get client info from user relationship (bookings use user_id for customer)
+          const clientName = booking.user?.name || booking.client?.name || booking.customer_name || 'N/A';
+          const clientPhone = booking.user?.phone || booking.client?.phone || '';
+          const deceasedName = booking.user?.deceased_name || booking.deceased_name || 'N/A';
+          
+          return {
+            ...booking,
+            service_name: serviceName,
+            product_name: productName,
+            customer_name: clientName,
+            deceased_name: deceasedName,
+            client: booking.user || booking.client || { name: clientName, phone: clientPhone }
+          };
+        });
+
+        console.log('Enriched bookings:', enrichedBookings);
+        setPurchases(enrichedBookings);
+      } else {
+        console.warn('Failed to fetch purchases:', response.status);
+        setPurchases([]);
+      }
+    } catch (error) {
+      console.error('Error fetching purchases:', error);
+      setPurchases([]);
+    } finally {
+      setLoadingPurchases(false);
+    }
+  };
+
+  const handleApproveService = async (bookingId) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(
+        `${window.location.protocol}//${window.location.host}/api/bookings/authorization/${bookingId}/approve`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          credentials: 'include'
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setPurchases(purchases.map(p => p.id === bookingId ? data.booking : p));
+        alert('Service application approved successfully!');
+      } else {
+        const errorData = await response.json();
+        alert('Failed to approve: ' + (errorData.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error approving service:', error);
+      alert('Error approving service: ' + error.message);
+    }
+  };
+
+  const handleDisapproveService = async (bookingId) => {
+    const reason = prompt('Enter reason for disapproval:');
+    if (!reason) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(
+        `${window.location.protocol}//${window.location.host}/api/bookings/authorization/${bookingId}/reject`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({ reason })
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setPurchases(purchases.map(p => p.id === bookingId ? data.booking : p));
+        alert('Service application disapproved successfully!');
+      } else {
+        const errorData = await response.json();
+        alert('Failed to disapprove: ' + (errorData.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error disapproving service:', error);
+      alert('Error disapproving service: ' + error.message);
+    }
+  };
+
+  const fetchAuthorizationRequests = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        setLoadingAuthRequests(false);
+        return;
+      }
+
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/bookings/authorization/pending`;
+      const response = await fetch(apiUrl, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAuthorizationRequests(data.requests || []);
+      } else {
+        console.warn('Failed to fetch authorization requests:', response.status);
+        setAuthorizationRequests([]);
+      }
+
+      // Fetch stats
+      const statsUrl = `${window.location.protocol}//${window.location.host}/api/bookings/authorization/stats`;
+      const statsResponse = await fetch(statsUrl, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        setAuthStats(statsData.stats || {});
+      }
+    } catch (error) {
+      console.error('Error fetching authorization requests:', error);
+      setAuthorizationRequests([]);
+    } finally {
+      setLoadingAuthRequests(false);
+    }
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
+
+  const formatCurrency = (amount) => {
+    return `₱${parseFloat(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
   };
 
   const getStatusLabel = (status) => {
@@ -144,6 +353,39 @@ const Dashboard = () => {
       'Rejected': 'Unfinished'
     };
     return statusMap[status] || status;
+  };
+
+  const getPurchaseStatusBadge = (status) => {
+    const statusConfig = {
+      'ReadyForPayment': { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pending Payment' },
+      'Paid': { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid' },
+      'Completed': { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Completed' },
+      'Cancelled': { bg: 'bg-red-100', text: 'text-red-700', label: 'Cancelled' }
+    };
+    
+    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-700', label: status };
+    
+    return (
+      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.text}`}>
+        {config.label}
+      </span>
+    );
+  };
+
+  const getPaymentStatusBadge = (status) => {
+    const statusConfig = {
+      'completed': { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid', icon: '✓' },
+      'pending': { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Unpaid', icon: '⏳' }
+    };
+    
+    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-700', label: status, icon: '•' };
+    
+    return (
+      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.text}`}>
+        <span>{config.icon}</span>
+        {config.label}
+      </span>
+    );
   };
 
   const renderStatusBadge = (status) => {
@@ -171,7 +413,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-8 min-h-screen" style={{ backgroundColor: '#f8f9fa' }}>
+    <div className="p-8 min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Quick Stats */}
       <div className="mb-8">
         <div className="flex items-center mb-8">
@@ -237,14 +479,17 @@ const Dashboard = () => {
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-bold text-2xl text-gray-800">Upcoming Tasks</h4>
           <button 
-            onClick={fetchMaintenanceRequests}
-            disabled={loadingMaintenance}
+            onClick={() => {
+              fetchMaintenanceRequests();
+              fetchPurchases();
+            }}
+            disabled={loadingMaintenance || loadingPurchases}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loadingMaintenance ? 'Loading...' : 'Refresh'}
+            {loadingMaintenance || loadingPurchases ? 'Loading...' : 'Refresh'}
           </button>
         </div>
-        {loadingMaintenance ? (
+        {loadingMaintenance || loadingPurchases ? (
           <TableSkeleton rows={5} columns={8} />
         ) : (
           <>
@@ -260,7 +505,7 @@ const Dashboard = () => {
               }}>
                 <input
                   type="text"
-                  placeholder="Search by customer name, location, or status..."
+                  placeholder="Search by customer name, deceased name, date, contact, or status..."
                   value={dashboardSearchQuery}
                   onChange={(e) => setDashboardSearchQuery(e.target.value)}
                   style={{
@@ -283,102 +528,227 @@ const Dashboard = () => {
                 <tr>
                   <th>ID</th>
                   <th>Customer</th>
+                  <th>Deceased_Name</th>
                   <th>Date_Added</th>
                   <th>Contact</th>
-                  <th>Grave_Location</th>
-                  <th>Service_Type</th>
+                  <th>Product/Service</th>
+                  <th>Amount</th>
+                  <th>Authorization</th>
                   <th>Status</th>
                   <th>Actions</th>
+                  <th>Type</th>
                 </tr>
               </thead>
               <tbody>
-                {maintenanceRequests.length === 0 ? (
+                {maintenanceRequests.length === 0 && purchases.length === 0 ? (
                   <tr className="empty-row">
-                    <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: '#6b7280', fontStyle: 'italic' }}>
+                    <td colSpan="11" style={{ textAlign: 'center', padding: '2rem', color: '#6b7280', fontStyle: 'italic' }}>
                       No data available
                     </td>
                   </tr>
                 ) : (
-                  maintenanceRequests
-                    .filter((request) => {
-                      const query = dashboardSearchQuery.toLowerCase();
-                      return (
-                        request.id.toString().includes(query) ||
-                        (request.customer_name || '').toLowerCase().includes(query) ||
-                        (request.grave_location || '').toLowerCase().includes(query) ||
-                        (request.status || '').toLowerCase().includes(query)
-                      );
-                    })
-                    .sort((a, b) => {
-                      const statusPriority = {
-                        'New': 1,
-                        'In Progress': 2,
-                        'Responded': 3,
-                        'Closed': 4
-                      };
-                      const priorityA = statusPriority[a.status] || 5;
-                      const priorityB = statusPriority[b.status] || 5;
-                      
-                      if (priorityA !== priorityB) {
-                        return priorityA - priorityB;
-                      }
-                      return new Date(b.created_at) - new Date(a.created_at);
-                    })
-                    .slice(0, 10)
-                    .map((request) => (
-                      <tr key={`maint-${request.id}`}>
-                        <td className="font-mono">#{request.id}</td>
-                        <td className="font-bold">{request.full_name}</td>
-                        <td className="date-cell">{formatDate(request.created_at)}</td>
-                        <td>{request.phone}</td>
-                        <td>
-                          {request.grave_location || `${request.plot_number || 'N/A'} - ${request.section_number || 'N/A'}`}
-                        </td>
-                        <td>{request.product_interest}</td>
-                        <td className="text-center">
-                          <span className={`status-badge ${
-                            request.status === 'New' ? 'pending' :
-                            request.status === 'In Progress' ? 'processing' :
-                            request.status === 'Responded' ? 'completed' :
-                            request.status === 'Closed' ? 'completed' :
-                            'info'
-                          }`}>
-                            {request.status === 'New' ? 'Pending' :
-                             request.status === 'In Progress' ? 'In Progress' :
-                             request.status === 'Responded' ? 'Completed' :
-                             request.status === 'Closed' ? 'Closed' :
-                             request.status}
-                          </span>
-                        </td>
-                        <td className="text-center">
-                          <button 
-                            className="action-btn primary"
-                            onClick={() => {
-                              setSelectedRequest(request);
-                              setShowMaintenanceModal(true);
-                              if (request.maintenance_photos) {
-                                try {
-                                  const photos = JSON.parse(request.maintenance_photos);
-                                  const photoObjects = photos.map((url, index) => ({
-                                    id: Date.now() + index,
-                                    url: `http://localhost:8000/${url}`,
-                                    name: `Photo ${index + 1}`
-                                  }));
-                                  setUploadedPhotos(photoObjects);
-                                } catch (e) {
-                                  setUploadedPhotos([]);
-                                }
-                              } else {
-                                setUploadedPhotos([]);
-                              }
-                              setSelectedFiles([]);
-                            }}
-                          >
-                            View
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                  (() => {
+                    // Combine maintenance and purchase data
+                    const combinedData = [
+                      ...maintenanceRequests.map(req => ({
+                        ...req,
+                        type: 'Maintenance',
+                        sortDate: new Date(req.created_at)
+                      })),
+                      ...purchases.map(purchase => ({
+                        ...purchase,
+                        type: 'Purchase',
+                        sortDate: new Date(purchase.created_at || purchase.booking_date)
+                      }))
+                    ];
+
+                    return combinedData
+                      .filter((item) => {
+                        const query = dashboardSearchQuery.toLowerCase();
+                        const customerName = item.type === 'Maintenance' 
+                          ? (item.full_name || '').toLowerCase()
+                          : (item.client?.name || item.customer_name || '').toLowerCase();
+                        const contact = item.type === 'Maintenance'
+                          ? (item.phone || '').toLowerCase()
+                          : (item.client?.phone || '').toLowerCase();
+                        const productService = item.type === 'Maintenance'
+                          ? (item.product_interest || '').toLowerCase()
+                          : (item.service_name || item.product_name || '').toLowerCase();
+                        const status = item.type === 'Maintenance'
+                          ? (item.status || '').toLowerCase()
+                          : (item.status || '').toLowerCase();
+                        const authStatus = item.type === 'Purchase'
+                          ? (item.authorization_status || '').toLowerCase()
+                          : '';
+                        const deceasedName = item.type === 'Purchase'
+                          ? (item.deceased_name || '').toLowerCase()
+                          : '';
+
+                        return (
+                          item.id.toString().includes(query) ||
+                          customerName.includes(query) ||
+                          contact.includes(query) ||
+                          productService.includes(query) ||
+                          status.includes(query) ||
+                          authStatus.includes(query) ||
+                          deceasedName.includes(query) ||
+                          item.type.toLowerCase().includes(query)
+                        );
+                      })
+                      .sort((a, b) => {
+                        // Sort by date descending
+                        return b.sortDate - a.sortDate;
+                      })
+                      .slice(0, 10)
+                      .map((item) => {
+                        if (item.type === 'Maintenance') {
+                          return (
+                            <tr key={`maint-${item.id}`}>
+                              <td className="font-mono">#{item.id}</td>
+                              <td className="font-bold">{item.full_name}</td>
+                              <td className="date-cell">{formatDate(item.created_at)}</td>
+                              <td>{item.phone}</td>
+                              <td>{item.product_interest}</td>
+                              <td>-</td>
+                              <td className="text-center">
+                                <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg">
+                                  N/A
+                                </span>
+                              </td>
+                              <td className="text-center">
+                                {item.status === 'New' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
+                                    ⏳ Pending
+                                  </span>
+                                ) : item.status === 'In Progress' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                                    🔄 In Progress
+                                  </span>
+                                ) : item.status === 'Responded' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                                    ✅ Completed
+                                  </span>
+                                ) : item.status === 'Closed' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                                    ✅ Closed
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                                    ℹ️ {item.status}
+                                  </span>
+                                )}
+                              </td>
+                              <td className="text-center">
+                                <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-purple-100 text-purple-700 rounded-lg">
+                                  Maintenance
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        } else {
+                          // Purchase row
+                          const getAuthorizationBadge = (status) => {
+                            const statusConfig = {
+                              'PENDING_AUTHORIZATION': { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pending', icon: '⏳' },
+                              'AUTHORIZED': { bg: 'bg-green-100', text: 'text-green-700', label: 'Approved', icon: '✅' },
+                              'AUTO_APPROVED': { bg: 'bg-green-100', text: 'text-green-700', label: 'Auto Approved', icon: '✅' },
+                              'REJECTED': { bg: 'bg-red-100', text: 'text-red-700', label: 'Rejected', icon: '❌' }
+                            };
+                            const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-700', label: status || 'N/A', icon: '•' };
+                            return (
+                              <span className={`inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold ${config.bg} ${config.text} rounded-lg shadow-sm`}>
+                                {config.icon} {config.label}
+                              </span>
+                            );
+                          };
+
+                          return (
+                            <tr key={`purchase-${item.id}`}>
+                              <td className="font-mono">#{item.id}</td>
+                              <td className="font-bold">{item.client?.name || item.customer_name || 'N/A'}</td>
+                              <td className="font-semibold text-blue-600">{item.deceased_name || 'N/A'}</td>
+                              <td className="date-cell">{formatDate(item.created_at || item.booking_date)}</td>
+                              <td>{item.client?.phone || 'N/A'}</td>
+                              <td>
+                                <div className="flex flex-col gap-1">
+                                  <span className="font-semibold">{item.service_name || item.product_name || 'N/A'}</span>
+                                  <span className="text-xs text-gray-500">
+                                    {item.service?.category || item.product?.category || 'N/A'}
+                                  </span>
+                                </div>
+                              </td>
+                              <td>{formatCurrency(item.total_amount || item.amount || 0)}</td>
+                              <td className="text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  {getAuthorizationBadge(item.authorization_status)}
+                                  {item.authorization_status === 'PENDING_AUTHORIZATION' && (
+                                    <button
+                                      onClick={() => {
+                                        setSelectedBooking(item);
+                                        setShowAuthorizationModal(true);
+                                      }}
+                                      className="px-2 py-1 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                    >
+                                      Review
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="text-center">
+                                {item.status === 'ReadyForPayment' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
+                                    ⏳ Pending Payment
+                                  </span>
+                                ) : item.status === 'Paid' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                                    ✅ Paid
+                                  </span>
+                                ) : item.status === 'Completed' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                                    ✅ Completed
+                                  </span>
+                                ) : item.status === 'Cancelled' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
+                                    ❌ Cancelled
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg shadow-sm">
+                                    ℹ️ {item.status}
+                                  </span>
+                                )}
+                              </td>
+                              <td className="text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  {item.authorization_status === 'PENDING_AUTHORIZATION' && (
+                                    <>
+                                      <button
+                                        onClick={() => handleApproveService(item.id)}
+                                        className="px-3 py-1 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                                        title="Approve this service application"
+                                      >
+                                        ✓ Approve
+                                      </button>
+                                      <button
+                                        onClick={() => handleDisapproveService(item.id)}
+                                        className="px-3 py-1 text-xs font-semibold bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                                        title="Disapprove this service application"
+                                      >
+                                        ✕ Disapprove
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="text-center">
+                                <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg">
+                                  Purchase
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        }
+                      });
+                  })()
                 )}
               </tbody>
             </table>
@@ -394,7 +764,7 @@ const Dashboard = () => {
                 <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold bg-yellow-400 text-black rounded-lg">
                   Pending
                 </span>
-                <small className="text-gray-600">New maintenance request</small>
+                <small className="text-gray-600">New maintenance request or pending payment</small>
               </li>
               <li className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded-lg">
@@ -406,7 +776,7 @@ const Dashboard = () => {
                 <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold bg-green-600 text-white rounded-lg">
                   Completed
                 </span>
-                <small className="text-gray-600">Service has been completed</small>
+                <small className="text-gray-600">Service has been completed or paid</small>
               </li>
               <li className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold bg-gray-600 text-white rounded-lg">
@@ -432,6 +802,27 @@ const Dashboard = () => {
           onUpdate={() => {
             fetchMaintenanceRequests();
             fetchDashboardData();
+          }}
+        />
+      )}
+
+      {/* Booking Authorization Modal */}
+      {showAuthorizationModal && selectedBooking && (
+        <AuthorizationModal
+          request={selectedBooking}
+          onClose={() => {
+            setShowAuthorizationModal(false);
+            setSelectedBooking(null);
+          }}
+          onApprove={(updatedBooking) => {
+            setPurchases(purchases.map(p => p.id === updatedBooking.id ? updatedBooking : p));
+            setShowAuthorizationModal(false);
+            setSelectedBooking(null);
+          }}
+          onReject={(updatedBooking) => {
+            setPurchases(purchases.map(p => p.id === updatedBooking.id ? updatedBooking : p));
+            setShowAuthorizationModal(false);
+            setSelectedBooking(null);
           }}
         />
       )}

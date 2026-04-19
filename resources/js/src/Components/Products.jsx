@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import maintenanceIcon from "../assets/icons/Products.png";
+import maintenanceIcon from "../assets/icons/icons8-services-50.png";
 import { TableSkeleton } from "./SkeletonLoader";
 import usePermissions from "../utils/usePermissions";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
-import ServiceEditor from "./ServiceEditor";
+import ProductEditor from "./ProductEditor";
 import ServiceDetailEditorInline from "./ServiceDetailEditorInline";
 import StatsCards from "./StatsCards";
 import "./MaintenanceHeader.css";
@@ -64,8 +64,8 @@ const Products = () => {
   };
 
   const handleEditProduct = (product) => {
-    setViewMode("Cards");
-    setActiveProductTab(product.title);
+    setEditingProduct(product);
+    setShowProductEditor(true);
   };
 
   const handleSaveProduct = async (formData, imageFile) => {
@@ -204,8 +204,8 @@ const Products = () => {
       )}
 
       {(!editingProduct) ? (
-        <ServiceEditor
-          service={editingProduct}
+        <ProductEditor
+          product={editingProduct}
           isOpen={showProductEditor}
           onClose={() => {
             setShowProductEditor(false);
@@ -215,8 +215,8 @@ const Products = () => {
           canManageServices={canManageProducts}
         />
       ) : (
-        <ServiceEditor
-          service={editingProduct}
+        <ProductEditor
+          product={editingProduct}
           isOpen={showProductEditor}
           onClose={() => {
             setShowProductEditor(false);
@@ -244,7 +244,7 @@ const Products = () => {
               className={`px-6 py-3 rounded-xl text-sm font-semibold transition-colors duration-150 cursor-pointer
                 ${
                   viewMode === tab
-                    ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md"
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
                     : "bg-white text-gray-700 hover:bg-gray-50 shadow-sm border border-gray-200"
                 }`}
               onClick={() => setViewMode(tab)}
@@ -269,6 +269,18 @@ const Products = () => {
                 { label: 'Family Estates', value: products.filter(p => p.title === 'Family Estates').length },
                 { label: 'Columbariums', value: products.filter(p => p.title === 'Columbariums').length }
               ]} />
+
+              <div className="flex items-center justify-between mb-6">
+                <h5 className="text-xl font-semibold text-gray-800">Products List</h5>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={fetchProducts}
+                    className="refresh-btn"
+                  >
+                    Refresh
+                  </button>
+                </div>
+              </div>
 
               <div className="mb-6">
                 <div style={{
@@ -297,18 +309,6 @@ const Products = () => {
                   <svg style={{ width: '20px', height: '20px', color: '#6b7280', marginLeft: '0.5rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between mb-6">
-                <h5 className="text-xl font-semibold text-gray-800">Products List</h5>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={fetchProducts}
-                    className="refresh-btn"
-                  >
-                    Refresh
-                  </button>
                 </div>
               </div>
 
@@ -353,9 +353,15 @@ const Products = () => {
                           <td>{product.price_quarterly || "N/A"}</td>
                           <td>{product.price_yearly || "N/A"}</td>
                           <td className="text-center">
-                            <span className={`status-badge ${product.status === "Active" ? "active" : "inactive"}`}>
-                              {product.status}
-                            </span>
+                            {product.status === "Active" ? (
+                              <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                                ✅ Active
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
+                                ❌ Inactive
+                              </span>
+                            )}
                           </td>
                           <td>
                             <div className="flex gap-2">
@@ -424,7 +430,7 @@ const Products = () => {
                       className={`px-6 py-3 rounded-xl text-sm font-semibold transition-colors duration-150 cursor-pointer
                         ${
                           activeProductTab === tab
-                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
+                            ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md"
                             : "bg-white text-gray-700 hover:bg-gray-50 shadow-sm border border-gray-200"
                         }`}
                       onClick={() => setActiveProductTab(tab)}
@@ -437,14 +443,6 @@ const Products = () => {
 
               <div className="flex items-center justify-between mb-6">
                 <h5 className="text-xl font-semibold text-gray-800">Products</h5>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={fetchProducts}
-                    className="refresh-btn"
-                  >
-                    Refresh
-                  </button>
-                </div>
               </div>
 
               {/* Product Detail View - Show editor inline */}

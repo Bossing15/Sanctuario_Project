@@ -17,10 +17,13 @@ function NotificationsPage() {
       setLoading(true);
       const token = localStorage.getItem('authToken');
       const response = await fetch('http://localhost:8000/api/notifications', {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -37,12 +40,14 @@ function NotificationsPage() {
   const markAsRead = async (notificationId) => {
     try {
       const token = localStorage.getItem('authToken');
-      await fetch(`http://localhost:8000/api/notifications/${notificationId}/mark-read`, {
+      const response = await fetch(`http://localhost:8000/api/notifications/${notificationId}/mark-read`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
       fetchNotifications();
     } catch (error) {
@@ -58,7 +63,9 @@ function NotificationsPage() {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
       fetchNotifications();
     } catch (error) {

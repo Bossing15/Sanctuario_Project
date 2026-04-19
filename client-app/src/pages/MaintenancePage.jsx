@@ -65,10 +65,13 @@ function MaintenancePage() {
     try {
       // Get current user info
       const userResponse = await fetch('http://localhost:8000/api/user', {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
 
       if (!userResponse.ok) {

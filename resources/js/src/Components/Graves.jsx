@@ -9,8 +9,6 @@ import StatsCards from "./StatsCards";
 export default function Graves() {
   const { canPerformActions } = usePermissions();
   const canManageGraves = canPerformActions('graves');
-  
-  const [activeTab, setActiveTab] = useState("Graves");
 
   // Real data from database
   const [gravesData, setGravesData] = useState([]);
@@ -29,7 +27,10 @@ export default function Graves() {
 
   // Fetch graves on mount
   useEffect(() => {
-    fetchGraves();
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      fetchGraves();
+    }
   }, []);
 
   // Add blur effect to background when modals open
@@ -61,16 +62,21 @@ export default function Graves() {
         return;
       }
 
-      const response = await fetch('/api/graves', {
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/graves`;
+      
+      const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('API Error Response:', errorText);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
@@ -88,13 +94,16 @@ export default function Graves() {
     
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`/api/graves/${editGrave.id}`, {
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/graves/${editGrave.id}`;
+      
+      const response = await fetch(apiUrl, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           deceased_name: editGrave.deceased_name,
           burial_date: editGrave.burial_date,
@@ -128,12 +137,15 @@ export default function Graves() {
   const handleViewGrave = async (graveId) => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`/api/graves/${graveId}`, {
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/graves/${graveId}`;
+      
+      const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -374,43 +386,7 @@ export default function Graves() {
           <h3 className="text-3xl font-bold text-gray-800">Graves Management</h3>
         </div>
 
-        <nav className="mb-8">
-          <div className="flex space-x-3" role="tablist">
-            {["Graves"].map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                role="tab"
-                aria-selected={activeTab === tab}
-                className={`px-6 py-3 rounded-xl text-sm font-semibold transition-colors duration-150 cursor-pointer
-                  ${
-                    activeTab === tab
-                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
-                      : "bg-white text-gray-700 hover:bg-gray-50 shadow-sm border border-gray-200"
-                  }`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </nav>
-
-        {activeTab === "Graves" && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h5 className="text-xl font-semibold text-gray-800">Graves Management</h5>
-                <p className="text-gray-600 mt-1">Total Graves: {gravesData.length}</p>
-              </div>
-              <button 
-                onClick={fetchGraves}
-                className="refresh-btn"
-              >
-                Refresh
-              </button>
-            </div>
-
+        <div>
             {loading ? (
               <TableSkeleton rows={8} columns={8} />
             ) : error ? (
@@ -427,11 +403,28 @@ export default function Graves() {
             ) : gravesData.length === 0 ? (
               <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 text-center">
                 <div className="text-gray-400 text-6xl mb-4">⚰️</div>
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">No Graves Found</h3>
-                <p className="text-gray-500">No graves have been registered yet.</p>
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">No Purchased Graves Found</h3>
+                <p className="text-gray-500">No graves have been purchased yet.</p>
               </div>
             ) : (
               <>
+                <StatsCards stats={[
+                  { label: 'Purchased Graves', value: gravesData.length },
+                  { label: 'Active', value: gravesData.filter(g => g.status === 'Active').length },
+                  { label: 'Inactive', value: gravesData.filter(g => g.status === 'Inactive').length },
+                  { label: 'Occupied', value: gravesData.filter(g => g.status === 'Occupied').length }
+                ]} />
+
+                <div className="flex items-center justify-between mb-6">
+                  <h5 className="text-xl font-semibold text-gray-800">Purchased Graves List</h5>
+                  <button 
+                    onClick={fetchGraves}
+                    className="refresh-btn"
+                  >
+                    Refresh
+                  </button>
+                </div>
+
                 <div className="mb-6">
                   <div style={{
                     display: 'flex',
@@ -444,7 +437,7 @@ export default function Graves() {
                   }}>
                     <input
                       type="text"
-                      placeholder="Search graves by ID, deceased name, location, or customer..."
+                      placeholder="Search graves by ID, deceased name, location, customer, or product type..."
                       value={graveSearchQuery}
                       onChange={(e) => setGraveSearchQuery(e.target.value)}
                       style={{
@@ -462,13 +455,6 @@ export default function Graves() {
                   </div>
                 </div>
 
-                <StatsCards stats={[
-                  { label: 'Total Graves', value: gravesData.length },
-                  { label: 'Active', value: gravesData.filter(g => g.status === 'Active').length },
-                  { label: 'Occupied', value: gravesData.filter(g => g.status === 'Occupied').length },
-                  { label: 'Available', value: gravesData.filter(g => g.status === 'Available').length }
-                ]} />
-
                 <div className="table-wrapper" style={{ minHeight: 'auto' }}>
                   <table>
                     <thead>
@@ -477,6 +463,7 @@ export default function Graves() {
                         <th>Deceased_Name</th>
                         <th>Grave_Location</th>
                         <th>Customer</th>
+                        <th>Product_Type</th>
                         <th>Relationship_to_Deceased</th>
                         <th>Status</th>
                         <th>Date_Added</th>
@@ -494,7 +481,8 @@ export default function Graves() {
                           grave.id.toString().includes(query) ||
                           grave.deceased_name.toLowerCase().includes(query) ||
                           grave.grave_location.toLowerCase().includes(query) ||
-                          grave.customer.toLowerCase().includes(query)
+                          grave.customer.toLowerCase().includes(query) ||
+                          (grave.product_type && grave.product_type.toLowerCase().includes(query))
                         );
                       }).length > 0 ? (
                         [...gravesData].sort((a, b) => {
@@ -507,7 +495,8 @@ export default function Graves() {
                             grave.id.toString().includes(query) ||
                             grave.deceased_name.toLowerCase().includes(query) ||
                             grave.grave_location.toLowerCase().includes(query) ||
-                            grave.customer.toLowerCase().includes(query)
+                            grave.customer.toLowerCase().includes(query) ||
+                            (grave.product_type && grave.product_type.toLowerCase().includes(query))
                           );
                         }).map((grave) => (
                           <tr key={grave.id}>
@@ -515,11 +504,22 @@ export default function Graves() {
                             <td className="font-bold">{grave.deceased_name}</td>
                             <td>{grave.grave_location}</td>
                             <td>{grave.customer}</td>
+                            <td>
+                              <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg">
+                                {grave.product_type}
+                              </span>
+                            </td>
                             <td>{grave.relationship_to_deceased}</td>
                             <td className="text-center">
-                              <span className={`status-badge ${grave.status === "Active" ? 'active' : 'inactive'}`}>
-                                {grave.status}
-                              </span>
+                              {grave.status === "Active" ? (
+                                <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                                  ✅ Active
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
+                                  ❌ Inactive
+                                </span>
+                              )}
                             </td>
                             <td className="date-cell">{formatDate(grave.date_added)}</td>
                             <td className="text-center">
@@ -534,7 +534,7 @@ export default function Graves() {
                         ))
                       ) : (
                         <tr>
-                          <td colSpan="8" className="text-center py-8">
+                          <td colSpan="9" className="text-center py-8">
                             <div className="text-gray-400 text-lg">
                               {graveSearchQuery ? 'No graves match your search criteria' : 'No graves found'}
                             </div>
@@ -555,8 +555,7 @@ export default function Graves() {
                 </div>
               </>
             )}
-          </div>
-        )}
+        </div>
 
       </div>
     </div>

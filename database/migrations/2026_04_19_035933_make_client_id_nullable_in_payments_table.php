@@ -6,22 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::table('payments', function (Blueprint $table) {
-            // Make client_id nullable to support guest payments
-            $table->foreignId('client_id')->nullable()->change();
-            
-            // Add customer_name field to store name directly
-            $table->string('customer_name')->nullable()->after('client_id');
+            // Make client_id nullable
+            $table->unsignedBigInteger('client_id')->nullable()->change();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::table('payments', function (Blueprint $table) {
-            $table->dropColumn('customer_name');
-            $table->foreignId('client_id')->nullable(false)->change();
+            // Revert client_id to not nullable
+            $table->unsignedBigInteger('client_id')->nullable(false)->change();
         });
     }
 };

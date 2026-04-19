@@ -23,12 +23,14 @@ const Login = () => {
     }
 
     try {
-      const response = await fetch('/api/admin/login', {
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/admin/login`;
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           username,
           password,
@@ -42,11 +44,6 @@ const Login = () => {
         localStorage.setItem('authToken', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('userRole', 'admin');
-        
-        // Store profile picture URL if available
-        if (data.user.profile_picture_url) {
-          localStorage.setItem('adminProfilePictureUrl', data.user.profile_picture_url);
-        }
         
         // Redirect to admin dashboard
         navigate('/admin/dashboard');

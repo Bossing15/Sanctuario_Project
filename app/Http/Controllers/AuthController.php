@@ -222,7 +222,43 @@ class AuthController extends Controller
     public function getAllGraves()
     {
         try {
-            $graves = Grave::all();
+            // Get all graves that have been purchased (have bookings)
+            $graves = Grave::whereHas('bookings')
+                ->with(['bookings' => function($query) {
+                    $query->with(['product', 'service', 'user']);
+                }])
+                ->get()
+                ->map(function($grave) {
+                    // Get the first booking to determine product type
+                    $booking = $grave->bookings->first();
+                    $productType = 'Unknown';
+                    
+                    if ($booking) {
+                        if ($booking->product) {
+                            $productType = $booking->product->title ?? $booking->product->name ?? 'Product';
+                        } elseif ($booking->service) {
+                            $productType = $booking->service->title ?? $booking->service->name ?? 'Service';
+                        }
+                    }
+                    
+                    return [
+                        'id' => $grave->id,
+                        'plot_number' => $grave->plot_number,
+                        'grave_location' => $grave->grave_location,
+                        'status' => $grave->status,
+                        'deceased_name' => $grave->deceased_name,
+                        'burial_date' => $grave->burial_date,
+                        'section' => $grave->section,
+                        'relationship_to_deceased' => $grave->relationship_to_deceased,
+                        'notes' => $grave->notes,
+                        'customer' => $booking->user->name ?? 'N/A',
+                        'customer_email' => $booking->user->email ?? 'N/A',
+                        'customer_phone' => $booking->user->phone ?? 'N/A',
+                        'product_type' => $productType,
+                        'booking_id' => $booking->id,
+                        'date_added' => $grave->created_at,
+                    ];
+                });
             
             return response()->json([
                 'graves' => $graves,

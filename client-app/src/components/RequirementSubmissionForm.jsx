@@ -17,7 +17,7 @@ function RequirementSubmissionForm({ bookingId, onSubmitSuccess }) {
     try {
       setLoading(true);
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`/api/requirements/booking/${bookingId}/submissions`, {
+      const response = await fetch(`http://localhost:8000/api/requirements/booking/${bookingId}/submissions`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
@@ -71,7 +71,7 @@ function RequirementSubmissionForm({ bookingId, onSubmitSuccess }) {
         return;
       }
 
-      const response = await fetch(`/api/requirements/booking/${bookingId}/submit`, {
+      const response = await fetch(`http://localhost:8000/api/requirements/booking/${bookingId}/submit`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

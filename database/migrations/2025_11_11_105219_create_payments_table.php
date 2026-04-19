@@ -26,6 +26,11 @@ return new class extends Migration
             $table->boolean('reminder_sent')->default(false);
             $table->timestamp('reminder_sent_at')->nullable();
             $table->string('receipt_path')->nullable();
+            $table->string('paymongo_intent_id')->nullable();
+            $table->string('paymongo_client_key')->nullable();
+            $table->string('customer_name')->nullable();
+            $table->string('service_type')->nullable();
+            $table->timestamp('completed_at')->nullable();
             $table->timestamps();
             
             $table->index(['client_id', 'status']);

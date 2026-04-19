@@ -1,0 +1,83 @@
+.accessibility-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 40px 20px;
+}
+
+.accessibility-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 60px 40px;
+}
+
+.accessibility-container h1 {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+  text-align: center;
+  border-bottom: 3px solid #27ae60;
+  padding-bottom: 20px;
+}
+
+.accessibility-section {
+  margin-bottom: 40px;
+}
+
+.accessibility-section h2 {
+  color: #34495e;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  margin-top: 30px;
+}
+
+.accessibility-section p {
+  color: #555;
+  line-height: 1.8;
+  font-size: 1rem;
+  margin-bottom: 15px;
+}
+
+.accessibility-section ul {
+  list-style-position: inside;
+  margin-left: 20px;
+  margin-bottom: 15px;
+}
+
+.accessibility-section li {
+  color: #555;
+  line-height: 1.8;
+  margin-bottom: 10px;
+}
+
+.accessibility-section a {
+  color: #3498db;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.accessibility-section a:hover {
+  color: #2980b9;
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .accessibility-container {
+    padding: 30px 20px;
+  }
+
+  .accessibility-container h1 {
+    font-size: 1.8rem;
+  }
+
+  .accessibility-section h2 {
+    font-size: 1.2rem;
+  }
+
+  .accessibility-section p,
+  .accessibility-section li {
+    font-size: 0.95rem;
+  }
+}

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaUserCircle, FaChevronDown, FaClipboardList, FaCreditCard, FaBell, FaSignOutAlt, FaCamera, FaUser } from 'react-icons/fa';
+import { FaUserCircle, FaChevronDown, FaClipboardList, FaCreditCard, FaBell, FaSignOutAlt, FaUser } from 'react-icons/fa';
 import NotificationDropdown from './NotificationDropdown';
 import ProfileModal from './ProfileModal';
 import useSiteSettings from '../hooks/useSiteSettings';
@@ -15,116 +15,18 @@ function Navbar() {
   const [isOffersDropdownOpen, setIsOffersDropdownOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [profilePicture, setProfilePicture] = useState(null);
-  const [isUploadingPicture, setIsUploadingPicture] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const offersDropdownRef = useRef(null);
   const notificationRef = useRef(null);
-  const fileInputRef = useRef(null);
   
   // Check if user is logged in
   const isLoggedIn = !!localStorage.getItem('authToken');
   const userName = localStorage.getItem('userName') || 'User';
 
 
-
-  // Fetch profile picture on mount
-  useEffect(() => {
-    if (isLoggedIn) {
-      // First check localStorage for cached profile picture
-      const cachedProfilePicture = localStorage.getItem('profilePictureUrl');
-      if (cachedProfilePicture) {
-        setProfilePicture(`http://localhost:8000${cachedProfilePicture}`);
-      }
-      
-      // Then fetch the latest from API
-      fetchProfilePicture();
-    }
-  }, [isLoggedIn]);
-
-  const fetchProfilePicture = async () => {
-    try {
-      const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:8000/api/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.user.profile_picture_url) {
-          const fullUrl = `http://localhost:8000${data.user.profile_picture_url}`;
-          setProfilePicture(fullUrl);
-          localStorage.setItem('profilePictureUrl', data.user.profile_picture_url);
-        } else {
-          // Clear cached profile picture if none exists
-          localStorage.removeItem('profilePictureUrl');
-          setProfilePicture(null);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching profile picture:', error);
-    }
-  };
-
-  const handleProfilePictureChange = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
-      return;
-    }
-
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image size must be less than 5MB');
-      return;
-    }
-
-    setIsUploadingPicture(true);
-
-    try {
-      const formData = new FormData();
-      formData.append('profile_picture', file);
-
-      const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:8000/api/profile/upload-picture', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        const fullUrl = `http://localhost:8000${data.profile_picture_url}`;
-        setProfilePicture(fullUrl);
-        localStorage.setItem('profilePictureUrl', data.profile_picture_url);
-        alert('Profile picture updated successfully!');
-      } else {
-        alert(data.message || 'Failed to upload profile picture');
-      }
-    } catch (error) {
-      console.error('Error uploading profile picture:', error);
-      alert('Failed to upload profile picture');
-    } finally {
-      setIsUploadingPicture(false);
-    }
-  };
-
-  const handleProfilePictureClick = () => {
-    fileInputRef.current?.click();
-  };
 
   const handleNavClick = (path) => {
     navigate(path);
@@ -282,11 +184,7 @@ function Navbar() {
                     aria-label="Profile menu"
                     onClick={toggleProfileDropdown}
                   >
-                    {profilePicture ? (
-                      <img src={profilePicture} alt="Profile" className="profile-btn-avatar-img" />
-                    ) : (
-                      <FaUserCircle />
-                    )}
+                    <FaUserCircle />
                     <span className="user-name-display">{userName}</span>
                     <FaChevronDown className={`chevron-icon ${isProfileDropdownOpen ? 'open' : ''}`} />
                   </button>
@@ -295,26 +193,7 @@ function Navbar() {
                     <div className="profile-dropdown">
                       <div className="profile-dropdown-header">
                         <div className="profile-avatar-container">
-                          {profilePicture ? (
-                            <img src={profilePicture} alt="Profile" className="profile-avatar-img" />
-                          ) : (
-                            <FaUserCircle className="profile-avatar" />
-                          )}
-                          <button 
-                            className="profile-picture-upload-btn"
-                            onClick={handleProfilePictureClick}
-                            disabled={isUploadingPicture}
-                            title="Change profile picture"
-                          >
-                            <FaCamera />
-                          </button>
-                          <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            onChange={handleProfilePictureChange}
-                            style={{ display: 'none' }}
-                          />
+                          <FaUserCircle className="profile-avatar" />
                         </div>
                         <div className="profile-info">
                           <span className="profile-name">{userName}</span>
@@ -338,7 +217,7 @@ function Navbar() {
                       onClick={() => handleProfileMenuClick('maintenance-requests')}
                     >
                       <FaClipboardList className="menu-icon" />
-                      <span>{getSetting('profile_menu_maintenance', 'My Maintenance Requests')}</span>
+                      <span>{getSetting('profile_menu_maintenance', 'My Requests')}</span>
                     </button>
                     
                     <button 

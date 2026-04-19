@@ -159,9 +159,19 @@ const Maintenance = () => {
                         <td>{request.type}</td>
                         <td>{request.description}</td>
                         <td className="text-center">
-                          <span className={`status-badge ${request.status === 'completed' ? 'completed' : request.status === 'pending' ? 'pending' : 'active'}`}>
-                            {request.status}
-                          </span>
+                          {request.status === 'completed' ? (
+                            <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                              ✅ Completed
+                            </span>
+                          ) : request.status === 'pending' ? (
+                            <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
+                              ⏳ Pending
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                              🔄 Active
+                            </span>
+                          )}
                         </td>
                         <td className="date-cell">{new Date(request.created_at).toLocaleDateString()}</td>
                         <td className="text-center">

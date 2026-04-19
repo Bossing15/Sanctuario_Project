@@ -6,7 +6,7 @@ import './ProfileModal.css';
 function ProfileModal({ isOpen, onClose }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-  const [profilePicture, setProfilePicture] = useState(localStorage.getItem('profilePictureUrl') ? `http://localhost:8000${localStorage.getItem('profilePictureUrl')}` : null);
+  const [profilePicture, setProfilePicture] = useState(localStorage.getItem('profilePictureUrl') ? `/storage${localStorage.getItem('profilePictureUrl')}` : null);
   const [isUploadingPicture, setIsUploadingPicture] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState('');
@@ -57,7 +57,7 @@ function ProfileModal({ isOpen, onClose }) {
       const data = await response.json();
 
       if (response.ok) {
-        const fullUrl = `http://localhost:8000${data.profile_picture_url}`;
+        const fullUrl = `/storage${data.profile_picture_url}`;
         setProfilePicture(fullUrl);
         localStorage.setItem('profilePictureUrl', data.profile_picture_url);
         alert('Profile picture updated successfully!');

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './InquiriesManagement.css';
 import '../styles/tables.css';
-import inquiryIcon from "../assets/icons/Products.png";
+import inquiryIcon from "../assets/icons/icons8-services-50.png";
 import usePermissions from '../utils/usePermissions';
 import { TableSkeleton } from './SkeletonLoader';
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
@@ -208,7 +208,7 @@ function InquiriesManagement() {
   };
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+    <div className="p-8 min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center">

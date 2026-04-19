@@ -57,7 +57,7 @@ function NotificationDropdown({ isOpen, onClose, buttonRef }) {
   const markAsRead = async (notificationId) => {
     try {
       const token = localStorage.getItem('authToken');
-      await fetch(`http://localhost:8000/api/notifications/${notificationId}/mark-read`, {
+      const response = await fetch(`http://localhost:8000/api/notifications/${notificationId}/mark-read`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

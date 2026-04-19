@@ -217,7 +217,7 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <div className="bg-white min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading settings...</p>
@@ -227,7 +227,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="bg-white min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="px-8 pt-8 flex-grow">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

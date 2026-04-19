@@ -8,14 +8,22 @@ class Grave extends Model
 {
     protected $fillable = [
         'plot_number',
-        'location',
+        'grave_location',
         'status',
         'client_id',
         'deceased_name',
-        'date_of_burial',
+        'burial_date',
+        'section',
+        'relationship_to_deceased',
+        'notes',
     ];
 
     protected $casts = [
         'date_of_burial' => 'datetime',
     ];
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }

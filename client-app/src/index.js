@@ -10,15 +10,25 @@ root.render(
   </React.StrictMode>
 );
 
-// Register service worker for offline functionality
+// Unregister service worker - it's causing issues with payment routes
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
-        console.log('SW registered: ', registration);
-      })
-      .catch((registrationError) => {
-        console.log('SW registration failed: ', registrationError);
+    // Unregister all service workers
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister().catch((error) => {
+          console.log('Failed to unregister SW:', error);
+        });
+      }
+    });
+
+    // Clear all caches
+    if ('caches' in window) {
+      caches.keys().then((cacheNames) => {
+        cacheNames.forEach((cacheName) => {
+          caches.delete(cacheName).catch(() => {});
+        });
       });
+    }
   });
 } 

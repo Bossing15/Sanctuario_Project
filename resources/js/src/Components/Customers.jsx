@@ -27,7 +27,10 @@ const CustomersPage = () => {
 
   // Fetch customers from API
   useEffect(() => {
-    fetchCustomers();
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      fetchCustomers();
+    }
   }, []);
 
   // Add blur effect to background when modal opens
@@ -75,6 +78,7 @@ const CustomersPage = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -117,6 +121,7 @@ const CustomersPage = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -157,6 +162,7 @@ const CustomersPage = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
@@ -188,11 +194,18 @@ const CustomersPage = () => {
   };
 
   const renderStatusBadge = (status) => {
-    const isActive = status === "Active";
     return (
-      <span className={`status-badge ${isActive ? 'active' : 'inactive'}`}>
-        {status}
-      </span>
+      <>
+        {status === "Active" ? (
+          <span style={{ display: 'inline-flex !important', alignItems: 'center !important', flexDirection: 'row !important', gap: '0.25rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', fontWeight: '600', backgroundColor: '#d1fae5', color: '#065f46', borderRadius: '0.375rem', whiteSpace: 'nowrap' }}>
+            ✅ Active
+          </span>
+        ) : (
+          <span style={{ display: 'inline-flex !important', alignItems: 'center !important', flexDirection: 'row !important', gap: '0.25rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', fontWeight: '600', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '0.375rem', whiteSpace: 'nowrap' }}>
+            ❌ Inactive
+          </span>
+        )}
+      </>
     );
   };
 
@@ -537,16 +550,6 @@ const CustomersPage = () => {
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between mb-6">
-              <h5 className="text-xl font-semibold text-gray-800">Registered Customers</h5>
-              <button 
-                onClick={fetchCustomers}
-                className="refresh-btn"
-              >
-                Refresh
-              </button>
-            </div>
-
             {loading ? (
               <TableSkeleton rows={8} columns={8} />
             ) : (
@@ -561,6 +564,16 @@ const CustomersPage = () => {
                     return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
                   }).length }
                 ]} />
+
+                <div className="flex items-center justify-between mb-6">
+                  <h5 className="text-xl font-semibold text-gray-800">Customers List</h5>
+                  <button 
+                    onClick={fetchCustomers}
+                    className="refresh-btn"
+                  >
+                    Refresh
+                  </button>
+                </div>
 
                 <div className="mb-6">
                   <div style={{
@@ -627,9 +640,15 @@ const CustomersPage = () => {
                           </td>
                           <td className="date-cell">{formatDate(customer.registered_date)}</td>
                           <td className="text-center">
-                            <span className={`status-badge ${customer.status === 'Active' ? 'active' : 'inactive'}`}>
-                              {customer.status}
-                            </span>
+                            {customer.status === "Active" ? (
+                              <span style={{ display: 'inline-flex !important', alignItems: 'center !important', flexDirection: 'row !important', gap: '0.25rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', fontWeight: '600', backgroundColor: '#d1fae5', color: '#065f46', borderRadius: '0.375rem', whiteSpace: 'nowrap' }}>
+                                ✅ Active
+                              </span>
+                            ) : (
+                              <span style={{ display: 'inline-flex !important', alignItems: 'center !important', flexDirection: 'row !important', gap: '0.25rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', fontWeight: '600', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '0.375rem', whiteSpace: 'nowrap' }}>
+                                ❌ Inactive
+                              </span>
+                            )}
                           </td>
                           <td className="text-center">
                             <button 

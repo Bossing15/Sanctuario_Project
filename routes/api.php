@@ -24,10 +24,12 @@ Route::prefix('payments')->group(function () {
     Route::post('/webhook', [App\Http\Controllers\PaymentController::class, 'handleWebhook']);
     
     // Protected routes for authenticated users (clients and admins)
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth.multiple')->group(function () {
+        Route::get('/', [App\Http\Controllers\PaymentManagementController::class, 'getUserPayments']);
         Route::get('/methods', [App\Http\Controllers\PaymentController::class, 'getPaymentMethods']);
         Route::post('/create-intent', [App\Http\Controllers\PaymentController::class, 'createPaymentIntent']);
         Route::post('/create-checkout', [App\Http\Controllers\PaymentController::class, 'createCheckoutSession']);
+        Route::post('/send-receipt', [App\Http\Controllers\PaymentController::class, 'sendReceipt']);
     });
     
     // Public endpoint for recording client payments
@@ -79,9 +81,15 @@ Route::prefix('payments')->group(function () {
     
     // Public endpoint for listing all payments (for admin without auth)
     Route::get('/all', [App\Http\Controllers\PaymentManagementController::class, 'index']);
+    
+    // Public checkout endpoint (with optional auth)
+    Route::post('/create-checkout-public', [App\Http\Controllers\PaymentController::class, 'createCheckoutSession']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+// Public checkout endpoint outside of payments prefix (no auth required)
+Route::post('/payments/create-checkout-public', [App\Http\Controllers\PaymentController::class, 'createCheckoutSession']);
+
+Route::middleware('auth.multiple')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
@@ -190,6 +198,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/send-reminders', [App\Http\Controllers\PaymentManagementController::class, 'sendPaymentReminders']);
         Route::post('/{id}/generate-receipt', [App\Http\Controllers\PaymentManagementController::class, 'generateReceipt']);
         Route::get('/{id}/download-receipt', [App\Http\Controllers\PaymentManagementController::class, 'downloadReceipt']);
+        
+        // Admin dashboard routes
+        Route::get('/admin/all', [App\Http\Controllers\PaymentManagementController::class, 'adminAllPayments']);
+        Route::get('/admin/stats', [App\Http\Controllers\PaymentManagementController::class, 'adminPaymentStats']);
     });
     
     // Payment Plan routes - protected by billing permission
@@ -222,12 +234,20 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
     
+    // Booking authorization routes (admin only)
+    Route::middleware('auth.multiple')->prefix('bookings/authorization')->group(function () {
+        Route::get('/pending', [App\Http\Controllers\BookingAuthorizationController::class, 'getPendingRequests']);
+        Route::get('/stats', [App\Http\Controllers\BookingAuthorizationController::class, 'getStats']);
+        Route::post('/{bookingId}/approve', [App\Http\Controllers\BookingAuthorizationController::class, 'approveRequest']);
+        Route::post('/{bookingId}/reject', [App\Http\Controllers\BookingAuthorizationController::class, 'rejectRequest']);
+    });
+
     // Booking routes
     Route::prefix('bookings')->group(function () {
         // Client routes
         Route::post('/create', [App\Http\Controllers\BookingController::class, 'create']);
-        Route::get('/{booking}', [App\Http\Controllers\BookingController::class, 'show']);
         Route::get('/user/{userId}', [App\Http\Controllers\BookingController::class, 'getUserBookings']);
+        Route::get('/{booking}', [App\Http\Controllers\BookingController::class, 'show']);
         Route::post('/{booking}/submit-requirements', [App\Http\Controllers\BookingController::class, 'submitRequirements']);
         Route::post('/{booking}/pay', [App\Http\Controllers\BookingController::class, 'pay']);
         
@@ -235,11 +255,50 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [App\Http\Controllers\BookingController::class, 'adminIndex']);
         Route::post('/{booking}/update-status', [App\Http\Controllers\BookingController::class, 'updateStatus']);
         Route::post('/{booking}/review-requirements', [App\Http\Controllers\BookingController::class, 'reviewRequirements']);
+        
+        // Admin dashboard routes
+        Route::get('/admin/all', [App\Http\Controllers\BookingController::class, 'adminAllBookings']);
+        Route::get('/admin/stats', [App\Http\Controllers\BookingController::class, 'adminBookingStats']);
     });
+});
+
+// Lot selection routes (public - no auth required) - Using consolidated PropertyController
+Route::prefix('lawn-lots')->group(function () {
+    Route::get('/', [App\Http\Controllers\PropertyController::class, 'getProperties', 'lawn-lots']);
+    Route::get('/{lotId}', [App\Http\Controllers\PropertyController::class, 'getPropertyDetails', 'lawn-lots']);
+    Route::post('/select', [App\Http\Controllers\PropertyController::class, 'selectProperty', 'lawn-lots']);
+});
+
+Route::prefix('columbariums')->group(function () {
+    Route::get('/', [App\Http\Controllers\PropertyController::class, 'getProperties', 'columbariums']);
+    Route::get('/{columbariumId}', [App\Http\Controllers\PropertyController::class, 'getPropertyDetails', 'columbariums']);
+    Route::post('/select', [App\Http\Controllers\PropertyController::class, 'selectProperty', 'columbariums']);
+});
+
+Route::prefix('family-estates')->group(function () {
+    Route::get('/', [App\Http\Controllers\PropertyController::class, 'getProperties', 'family-estates']);
+    Route::get('/{estateId}', [App\Http\Controllers\PropertyController::class, 'getPropertyDetails', 'family-estates']);
+    Route::post('/select', [App\Http\Controllers\PropertyController::class, 'selectProperty', 'family-estates']);
 });
 
 // Public service routes (for client-side)
 Route::get('/public/services', [App\Http\Controllers\ServiceController::class, 'publicIndex']);
+
+// Public products route (for client-side)
+Route::get('/public/products', [App\Http\Controllers\ProductController::class, 'publicIndex']);
+
+// Public payment methods route (for testing)
+Route::get('/public/payment-methods', function() {
+    return response()->json([
+        'payment_methods' => [
+            ['type' => 'card', 'name' => 'Credit/Debit Card', 'description' => 'Visa, Mastercard, etc.', 'enabled' => true],
+            ['type' => 'gcash', 'name' => 'GCash', 'description' => 'Mobile wallet payment', 'enabled' => true],
+            ['type' => 'grab_pay', 'name' => 'GrabPay', 'description' => 'Grab wallet payment', 'enabled' => true],
+            ['type' => 'paymaya', 'name' => 'PayMaya', 'description' => 'PayMaya wallet', 'enabled' => true],
+        ],
+        'count' => 4
+    ]);
+});
 
 // Public requirements route (for signup page)
 Route::get('/public/requirements', [App\Http\Controllers\RequirementController::class, 'getAllRequirements']);
@@ -248,12 +307,12 @@ Route::get('/public/requirements', [App\Http\Controllers\RequirementController::
 Route::post('/inquiries/submit', [App\Http\Controllers\InquiryController::class, 'submit']);
 
 // User inquiry routes (protected)
-Route::middleware('auth:sanctum')->prefix('inquiries')->group(function () {
+Route::middleware('auth.multiple')->prefix('inquiries')->group(function () {
     Route::get('/user', [App\Http\Controllers\InquiryController::class, 'getUserInquiries']);
 });
 
 // Admin inquiry routes (protected)
-Route::middleware('auth:sanctum')->prefix('admin/inquiries')->group(function () {
+Route::middleware('auth.multiple')->prefix('admin/inquiries')->group(function () {
     Route::get('/', [App\Http\Controllers\InquiryController::class, 'index']);
     Route::put('/{id}/status', [App\Http\Controllers\InquiryController::class, 'updateStatus']);
     Route::post('/{id}/photos', [App\Http\Controllers\InquiryController::class, 'uploadPhotos']);
@@ -267,16 +326,47 @@ Route::post('/contact/submit', [ContactMessageController::class, 'submit']);
 Route::get('/site-settings', [App\Http\Controllers\SiteSettingController::class, 'getPublicSettings']);
 
 // Admin contact message routes (protected)
-Route::middleware('auth:sanctum')->prefix('admin/contact-messages')->group(function () {
+Route::middleware('auth.multiple')->prefix('admin/contact-messages')->group(function () {
     Route::get('/', [ContactMessageController::class, 'index']);
     Route::put('/{id}/status', [ContactMessageController::class, 'updateStatus']);
     Route::delete('/{id}', [ContactMessageController::class, 'destroy']);
 });
 
 // Admin site settings routes (protected)
-Route::middleware('auth:sanctum')->prefix('admin/site-settings')->group(function () {
+Route::middleware('auth.multiple')->prefix('admin/site-settings')->group(function () {
     Route::get('/', [App\Http\Controllers\SiteSettingController::class, 'index']);
     Route::post('/update', [App\Http\Controllers\SiteSettingController::class, 'updateSettings']);
     Route::post('/upload-image', [App\Http\Controllers\SiteSettingController::class, 'uploadImage']);
     Route::post('/initialize-defaults', [App\Http\Controllers\SiteSettingController::class, 'initializeDefaults']);
+});
+
+// Debug endpoint to check user's bookings and payments
+Route::middleware('auth.multiple')->get('/debug/user-data', function (Request $request) {
+    $user = $request->user();
+    $bookings = \App\Models\Booking::where('user_id', $user->id)->get();
+    $payments = \App\Models\Payment::where('client_id', $user->id)->get();
+    
+    return response()->json([
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+        ],
+        'bookings_count' => $bookings->count(),
+        'bookings' => $bookings,
+        'payments_count' => $payments->count(),
+        'payments' => $payments,
+    ]);
+});
+
+// Debug endpoint to check if token is being sent
+Route::get('/debug/token-check', function (Request $request) {
+    $authHeader = $request->header('Authorization');
+    $token = $request->bearerToken();
+    
+    return response()->json([
+        'auth_header' => $authHeader ? 'present' : 'missing',
+        'bearer_token' => $token ? 'present' : 'missing',
+        'origin' => $request->header('Origin'),
+    ]);
 });

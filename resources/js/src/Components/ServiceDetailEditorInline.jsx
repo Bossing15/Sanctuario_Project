@@ -28,6 +28,7 @@ const ServiceDetailEditorInline = ({ service, onSave, canManageServices }) => {
 
   useEffect(() => {
     if (service) {
+      console.log('Service data received:', service);
       setFormData({
         title: service.title || '',
         category: service.category || 'Services',
@@ -44,15 +45,33 @@ const ServiceDetailEditorInline = ({ service, onSave, canManageServices }) => {
         package_description: service.package_description || `Complete ${(service.title || '').toLowerCase()} services for your loved one`,
         package_note: service.package_note || 'Price will be calculated at checkout',
       });
-      setPreviewImage(service.image_path ? `/storage/${service.image_path}` : null);
       
-      if (service.gallery_images && Array.isArray(service.gallery_images)) {
-        const galleryImgs = service.gallery_images.map(img => ({
-          preview: `/storage/${img}`,
-          path: img,
-          isExisting: true
-        }));
+      // Set preview image - construct the full URL
+      if (service.image_path) {
+        console.log('Image path found:', service.image_path);
+        // Construct the full storage URL
+        const imagePath = `/storage/${service.image_path}`;
+        console.log('Full image URL:', imagePath);
+        setPreviewImage(imagePath);
+      } else {
+        console.log('No image path in service data');
+        setPreviewImage(null);
+      }
+      
+      if (service.gallery_images && Array.isArray(service.gallery_images) && service.gallery_images.length > 0) {
+        console.log('Gallery images found:', service.gallery_images);
+        const galleryImgs = service.gallery_images.map(img => {
+          const imagePath = `/storage/${img}`;
+          return {
+            preview: imagePath,
+            path: img,
+            isExisting: true
+          };
+        });
         setGalleryImages(galleryImgs);
+      } else {
+        console.log('No gallery images in service data');
+        setGalleryImages([]);
       }
     }
   }, [service]);
@@ -170,40 +189,54 @@ const ServiceDetailEditorInline = ({ service, onSave, canManageServices }) => {
           )}
         </div>
 
-        {/* Hero Image Section */}
-        <div className="hero-image-section">
-          <div 
-            className="hero-image-container editable"
-            onClick={() => editingField === 'hero' ? setEditingField(null) : setEditingField('hero')}
-          >
-            {editingField === 'hero' ? (
-              <div className="edit-mode">
-                <label className="file-label">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="file-input"
-                  />
-                  <span className="upload-text">Click to change hero image</span>
-                </label>
-              </div>
-            ) : (
+
+
+        {/* Image Section - Main editable image with gallery */}
+        <div className="gallery-section">
+          <label className="gallery-main editable">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="file-input"
+              style={{ display: 'none' }}
+            />
+            {displayGalleryImage ? (
               <>
-                <img src={previewImage} alt="Hero" className="hero-image" />
+                <img 
+                  src={displayGalleryImage} 
+                  alt="Service" 
+                  className="main-image"
+                  onError={(e) => {
+                    console.error('Image failed to load:', displayGalleryImage);
+                    e.target.style.display = 'none';
+                  }}
+                />
                 <div className="edit-overlay">
-                  <span className="edit-hint">Click to edit</span>
+                  <span className="edit-hint">📤 Click to upload new image</span>
                 </div>
               </>
+            ) : (
+              <div style={{
+                width: '100%',
+                height: '300px',
+                backgroundColor: '#f0f0f0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#999',
+                fontSize: '16px',
+                flexDirection: 'column',
+                gap: '10px',
+                borderRadius: '8px'
+              }}>
+                <span>📷 No image uploaded</span>
+                <span style={{ fontSize: '12px', color: '#bbb' }}>Click to upload one</span>
+              </div>
             )}
-          </div>
-        </div>
-
-        {/* Gallery Section */}
-        <div className="gallery-section">
-          <div className="gallery-main">
-            <img src={displayGalleryImage} alt="Gallery" className="main-image" />
-          </div>
+          </label>
+          
+          {/* Gallery Thumbnails */}
           <div className="gallery-thumbnails">
             {galleryImages.length > 0 ? (
               <>
@@ -214,6 +247,10 @@ const ServiceDetailEditorInline = ({ service, onSave, canManageServices }) => {
                       alt={`Gallery ${index}`}
                       className={`thumbnail ${selectedGalleryImage === index ? 'active' : ''}`}
                       onClick={() => setSelectedGalleryImage(index)}
+                      onError={(e) => {
+                        console.error('Thumbnail failed to load:', img.preview);
+                        e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23f0f0f0" width="100" height="100"/%3E%3C/svg%3E';
+                      }}
                     />
                     <button
                       type="button"

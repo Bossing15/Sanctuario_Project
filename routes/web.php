@@ -25,7 +25,7 @@ Route::get('/login', function () {
     return redirect('/admin/login');
 })->name('login');
 
-// Catch all routes and return the React app
-Route::get('/{any}', function () {
+// Catch all routes and return the React app (only for non-API routes)
+Route::fallback(function () {
     return view('welcome');
-})->where('any', '.*');
+});
