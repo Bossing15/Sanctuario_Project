@@ -106,7 +106,6 @@ const PermissionModal = ({ isOpen, onClose, admin, onSave }) => {
       <div className="modal max-w-md" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-header-title">
-            <span className="modal-header-icon">🔐</span>
             <span>Manage Permissions</span>
           </div>
           <button

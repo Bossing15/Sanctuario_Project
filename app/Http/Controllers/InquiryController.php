@@ -110,4 +110,73 @@ class InquiryController extends Controller
             ], 500);
         }
     }
+
+    public function markAsPaid($id, Request $request)
+    {
+        try {
+            $inquiry = Inquiry::findOrFail($id);
+            
+            // Update inquiry status to paid
+            $inquiry->update([
+                'status' => 'paid',
+                'payment_status' => 'completed',
+                'paid_at' => now(),
+            ]);
+
+            return response()->json([
+                'message' => 'Maintenance request marked as paid successfully',
+                'inquiry' => $inquiry
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to mark as paid',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function createPayment($id, Request $request)
+    {
+        try {
+            $inquiry = Inquiry::findOrFail($id);
+            
+            $validated = $request->validate([
+                'amount' => 'required|numeric|min:0',
+                'payment_method' => 'nullable|string',
+                'description' => 'nullable|string',
+            ]);
+
+            // Create payment record for this inquiry
+            $payment = \App\Models\Payment::create([
+                'user_id' => $request->user()->id,
+                'request_id' => $inquiry->id,
+                'invoice_number' => $inquiry->invoice_number,
+                'amount' => $validated['amount'],
+                'payment_method' => $validated['payment_method'] ?? 'PayMongo',
+                'payment_type' => 'full',
+                'payment_reference' => 'PAY-' . strtoupper(uniqid()),
+                'status' => 'pending',
+                'description' => $validated['description'] ?? 'Maintenance Request Payment',
+                'due_date' => now()->addDays(30),
+                'customer_name' => $inquiry->full_name ?? $inquiry->name ?? 'Guest',
+                'service_type' => $inquiry->service_type ?? 'maintenance',
+            ]);
+
+            // Update inquiry with payment information
+            $inquiry->update([
+                'payment_id' => $payment->id,
+                'payment_status' => 'pending',
+            ]);
+
+            return response()->json([
+                'message' => 'Payment created successfully',
+                'payment' => $payment
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to create payment',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

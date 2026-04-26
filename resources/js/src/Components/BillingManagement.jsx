@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { TableSkeleton } from './SkeletonLoader';
+import CrudActions from './CrudActions';
+import crudUtils from '../utils/crudUtils';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 import './Dashboard.css';
 
 const BillingManagement = () => {
@@ -7,6 +10,9 @@ const BillingManagement = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [paymentToDelete, setPaymentToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [stats, setStats] = useState({
     totalPayments: 0,
     paidAmount: 0,
@@ -95,16 +101,15 @@ const BillingManagement = () => {
 
   const getPaymentStatusBadge = (status) => {
     const statusConfig = {
-      'completed': { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid', icon: '✓' },
-      'pending': { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Unpaid', icon: '⏳' },
-      'failed': { bg: 'bg-red-100', text: 'text-red-700', label: 'Failed', icon: '✕' }
+      'completed': { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid' },
+      'pending': { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Unpaid' },
+      'failed': { bg: 'bg-red-100', text: 'text-red-700', label: 'Failed' }
     };
     
-    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-700', label: status, icon: '•' };
+    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-700', label: status };
     
     return (
       <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.text}`}>
-        <span>{config.icon}</span>
         {config.label}
       </span>
     );
@@ -112,14 +117,14 @@ const BillingManagement = () => {
 
   const getPaymentMethodIcon = (method) => {
     const methodIcons = {
-      'card': '💳',
-      'gcash': '📱',
-      'grab_pay': '🚗',
-      'paymaya': '💰',
-      'bank_transfer': '🏦',
-      'cash': '💵'
+      'card': 'Card',
+      'gcash': 'GCash',
+      'grab_pay': 'Grab Pay',
+      'paymaya': 'PayMaya',
+      'bank_transfer': 'Bank Transfer',
+      'cash': 'Cash'
     };
-    return methodIcons[method?.toLowerCase()] || '💳';
+    return methodIcons[method?.toLowerCase()] || 'Card';
   };
 
   const filteredPayments = payments.filter(payment => {
@@ -203,6 +208,44 @@ const BillingManagement = () => {
       console.error('Error generating receipt:', error);
       alert('An error occurred while generating receipt');
     }
+  };
+
+  const handleDeletePayment = (id) => {
+    setPaymentToDelete(id);
+    setShowDeleteConfirmModal(true);
+  };
+
+  const confirmDeletePayment = async () => {
+    if (!paymentToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const result = await crudUtils.deleteItem(
+        "/api/payments",
+        paymentToDelete,
+        token
+      );
+      
+      if (result.success) {
+        fetchAllPayments();
+        fetchPaymentStats();
+        setShowDeleteConfirmModal(false);
+        setPaymentToDelete(null);
+      } else {
+        alert(result.error || "Failed to delete payment");
+      }
+    } catch (error) {
+      console.error("Error deleting payment:", error);
+      alert("Error deleting payment");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const closeDeleteConfirmModal = () => {
+    setShowDeleteConfirmModal(false);
+    setPaymentToDelete(null);
   };
 
   return (
@@ -470,6 +513,16 @@ const BillingManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        show={showDeleteConfirmModal}
+        message="Are you sure you want to delete this payment?"
+        itemName="this payment"
+        onConfirm={confirmDeletePayment}
+        onCancel={closeDeleteConfirmModal}
+        isLoading={isDeleting}
+      />
     </div>
   );
 };

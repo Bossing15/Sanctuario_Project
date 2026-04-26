@@ -3,14 +3,22 @@ import { TableSkeleton } from "./SkeletonLoader";
 import customerIcon from '../assets/icons/Customers.png';
 import { formatDate } from '../utils/dateFormatter';
 import StatsCards from "./StatsCards";
+import CrudActions from "./CrudActions";
+import crudUtils from "../utils/crudUtils";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import usePermissions from "../utils/usePermissions";
 
 const CustomersPage = () => {
+  const { canPerformActions, canView, isComponentDisabled } = usePermissions();
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -198,15 +206,52 @@ const CustomersPage = () => {
       <>
         {status === "Active" ? (
           <span style={{ display: 'inline-flex !important', alignItems: 'center !important', flexDirection: 'row !important', gap: '0.25rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', fontWeight: '600', backgroundColor: '#d1fae5', color: '#065f46', borderRadius: '0.375rem', whiteSpace: 'nowrap' }}>
-            ✅ Active
+            Active
           </span>
         ) : (
           <span style={{ display: 'inline-flex !important', alignItems: 'center !important', flexDirection: 'row !important', gap: '0.25rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', fontWeight: '600', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '0.375rem', whiteSpace: 'nowrap' }}>
-            ❌ Inactive
+            Inactive
           </span>
         )}
       </>
     );
+  };
+
+  const handleDeleteCustomer = (id) => {
+    setCustomerToDelete(id);
+    setShowDeleteConfirmModal(true);
+  };
+
+  const confirmDeleteCustomer = async () => {
+    if (!customerToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const result = await crudUtils.deleteItem(
+        "/api/clients",
+        customerToDelete,
+        token
+      );
+      
+      if (result.success) {
+        fetchCustomers();
+        setShowDeleteConfirmModal(false);
+        setCustomerToDelete(null);
+      } else {
+        alert(result.error || "Failed to delete customer");
+      }
+    } catch (error) {
+      console.error("Error deleting customer:", error);
+      alert("Error deleting customer");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const closeDeleteConfirmModal = () => {
+    setShowDeleteConfirmModal(false);
+    setCustomerToDelete(null);
   };
 
   if (loading) {
@@ -248,7 +293,7 @@ const CustomersPage = () => {
       <div className="flex flex-col min-h-screen">
         <div className="p-8 min-h-screen flex-grow">
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
-            <div className="text-red-600 text-xl mb-4">⚠️ Error Loading Customers</div>
+            <div className="text-red-600 text-xl mb-4">Error Loading Customers</div>
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
               <p className="text-red-700 font-semibold mb-2">Error Details:</p>
               <p className="text-red-600 text-sm whitespace-pre-wrap">{error}</p>
@@ -284,6 +329,24 @@ const CustomersPage = () => {
     );
   }
 
+  // Check if user can view this component
+  if (!canView('customers')) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <div className="p-8 min-h-screen flex-grow">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
+            <div className="text-red-600 text-xl mb-4">Access Denied</div>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-red-700 font-semibold">
+                You do not have permission to access the Customers component.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navbar is now handled globally in App.jsx */}
@@ -294,7 +357,6 @@ const CustomersPage = () => {
           <div className="modal max-w-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-header-title">
-                <span className="modal-header-icon">👤</span>
                 <span>Customer Details</span>
               </div>
               <button className="modal-close" onClick={closeModal}>×</button>
@@ -545,7 +607,6 @@ const CustomersPage = () => {
 
         {customers.length === 0 ? (
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 text-center">
-            <div className="text-gray-400 text-6xl mb-4">📋</div>
             <h3 className="text-xl font-semibold text-gray-700 mb-2" style={{ fontStyle: 'italic' }}>No data available</h3>
           </div>
         ) : (
@@ -642,21 +703,26 @@ const CustomersPage = () => {
                           <td className="text-center">
                             {customer.status === "Active" ? (
                               <span style={{ display: 'inline-flex !important', alignItems: 'center !important', flexDirection: 'row !important', gap: '0.25rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', fontWeight: '600', backgroundColor: '#d1fae5', color: '#065f46', borderRadius: '0.375rem', whiteSpace: 'nowrap' }}>
-                                ✅ Active
+                                Active
                               </span>
                             ) : (
                               <span style={{ display: 'inline-flex !important', alignItems: 'center !important', flexDirection: 'row !important', gap: '0.25rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', fontWeight: '600', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '0.375rem', whiteSpace: 'nowrap' }}>
-                                ❌ Inactive
+                                Inactive
                               </span>
                             )}
                           </td>
                           <td className="text-center">
-                            <button 
-                              onClick={() => handleViewCustomer(customer.id)}
-                              className="action-btn primary"
-                            >
-                              View Details
-                            </button>
+                            <CrudActions
+                              onView={() => handleViewCustomer(customer.id)}
+                              onEdit={() => {}}
+                              onDelete={() => handleDeleteCustomer(customer.id)}
+                              onToggleStatus={() => {}}
+                              showView={true}
+                              showEdit={false}
+                              showDelete={!isComponentDisabled('customers')}
+                              showToggle={false}
+                              size="sm"
+                            />
                           </td>
                         </tr>
                       ))}
@@ -666,24 +732,17 @@ const CustomersPage = () => {
               </>
             )}
 
-            {/* Status Legend */}
-            <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <strong className="text-gray-800 font-semibold mb-3 block">Status Legend</strong>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-green-600">✅</span>
-                <strong className="text-gray-700">Active</strong> – Customer is active.
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-red-600">❌</span>
-                <strong className="text-gray-700">Inactive</strong> – Customer is inactive.
-              </div>
-            </div>
-
             {/* Add Customer Button */}
             <div className="text-right mt-8">
               <button 
                 onClick={() => setShowAddModal(true)}
-                className="px-6 py-3 bg-green-600 text-white rounded-xl shadow-md hover:bg-green-700 hover:shadow-lg transition-all font-bold"
+                disabled={isComponentDisabled('customers')}
+                className={`px-6 py-3 rounded-xl shadow-md font-bold transition-all ${
+                  isComponentDisabled('customers')
+                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-50'
+                    : 'bg-green-600 text-white hover:bg-green-700 hover:shadow-lg'
+                }`}
+                title={isComponentDisabled('customers') ? 'This component is disabled for your account' : 'Add a new customer'}
               >
                 Add New Customer
               </button>
@@ -691,6 +750,16 @@ const CustomersPage = () => {
           </>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        show={showDeleteConfirmModal}
+        message="Are you sure you want to delete this customer?"
+        itemName="this customer"
+        onConfirm={confirmDeleteCustomer}
+        onCancel={closeDeleteConfirmModal}
+        isLoading={isDeleting}
+      />
     </div>
   );
 };

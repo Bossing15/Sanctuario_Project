@@ -389,7 +389,6 @@ function InquiriesManagement() {
           <div className="modal max-w-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-header-title">
-                <span className="modal-header-icon">📋</span>
                 <span>Inquiry Details</span>
               </div>
               <button className="modal-close" onClick={() => setShowDetailModal(false)}>×</button>
@@ -452,7 +451,7 @@ function InquiriesManagement() {
                 onClick={(e) => !canManageInquiries && e.preventDefault()}
                 title={!canManageInquiries ? 'You do not have permission to call' : ''}
               >
-                📞 Call
+                Call
               </a>
               <button
                 className={`modal-btn danger ${!canManageInquiries ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -460,7 +459,7 @@ function InquiriesManagement() {
                 disabled={!canManageInquiries}
                 title={!canManageInquiries ? 'You do not have permission to delete' : ''}
               >
-                🗑️ Delete
+                Delete
               </button>
             </div>
           </div>

@@ -9,14 +9,10 @@ function SignupPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: '',
-    deceasedName: '',
     email: '',
-    address: '',
-    plotNumber: '',
-    section: '',
     phone: '',
+    address: '',
     username: '',
-    relationship: '',
     password: '',
     confirmPassword: '',
     agree: false,
@@ -127,12 +123,8 @@ function SignupPage() {
           role: 'client',
           access_level: 'client',
           // Client-specific fields
-          deceased_name: form.deceasedName,
-          grave_location: form.section && form.plotNumber ? `Section ${form.section}, Plot ${form.plotNumber}` : '',
-          address: form.address,
-          plot_number: form.plotNumber,
           phone: form.phone,
-          relationship: form.relationship,
+          address: form.address,
         }),
       });
 
@@ -166,17 +158,22 @@ function SignupPage() {
           {error && <div className="error-message">{error}</div>}
           
           <form onSubmit={handleSubmit} className="signup-form">
-            <input name="name" value={form.name} onChange={handleChange} placeholder="Enter Your Name" required />
-            <input name="deceasedName" value={form.deceasedName} onChange={handleChange} placeholder="Deceased Name" required />
-            <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="Enter Your Email Address" required />
-            <input name="address" value={form.address} onChange={handleChange} placeholder="Address" required />
-            <input name="plotNumber" value={form.plotNumber} onChange={handleChange} placeholder="Plot Number" required />
-            <input name="section" value={form.section} onChange={handleChange} placeholder="Section (e.g., A, B, C)" required />
-            <input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone Number" />
-            <input name="relationship" value={form.relationship} onChange={handleChange} placeholder="Relationship to Deceased" />
-            <input name="username" value={form.username} onChange={handleChange} placeholder="Username" required />
-            <input type="password" name="password" value={form.password} onChange={handleChange} placeholder="Password" required />
-            <input type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} placeholder="Confirm Password" required />
+            {/* Personal Information Section */}
+            <div className="form-section">
+              <h3 className="section-title">Personal Information</h3>
+              <input name="name" value={form.name} onChange={handleChange} placeholder="Full Name *" required />
+              <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="Email Address *" required />
+              <input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone Number" />
+              <input name="address" value={form.address} onChange={handleChange} placeholder="Address" />
+            </div>
+
+            {/* Account Credentials Section */}
+            <div className="form-section">
+              <h3 className="section-title">Account Credentials</h3>
+              <input name="username" value={form.username} onChange={handleChange} placeholder="Username *" required />
+              <input type="password" name="password" value={form.password} onChange={handleChange} placeholder="Password *" required />
+              <input type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} placeholder="Confirm Password *" required />
+            </div>
             
             {/* Requirements Upload Section */}
             <div className="requirements-section">

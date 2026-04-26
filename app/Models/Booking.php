@@ -25,6 +25,9 @@ class Booking extends Model
         'approved_at',
         'rejection_reason',
         'rejected_at',
+        'service_completion_status',
+        'completion_images',
+        'completion_date',
     ];
 
     protected $with = ['service', 'product', 'user'];
@@ -33,6 +36,8 @@ class Booking extends Model
         'booking_date' => 'datetime',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
+        'completion_date' => 'datetime',
+        'completion_images' => 'array',
     ];
 
     public function user()

@@ -105,7 +105,7 @@ const InlineServiceEditor = ({ service, isOpen, onClose, onSave, canManageServic
       <div className="inline-editor-modal" onClick={(e) => e.stopPropagation()}>
         <div className="inline-editor-header">
           <h2>Edit {formData.title}</h2>
-          <button className="close-btn" onClick={onClose}>✕</button>
+          <button className="close-btn" onClick={onClose}>×</button>
         </div>
 
         <form onSubmit={handleSubmit} className="inline-editor-form">
@@ -205,7 +205,7 @@ const InlineServiceEditor = ({ service, isOpen, onClose, onSave, canManageServic
                         className="remove-thumbnail"
                         onClick={() => removeGalleryImage(index)}
                       >
-                        ✕
+                        ×
                       </button>
                     </div>
                   ))}

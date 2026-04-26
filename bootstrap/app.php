@@ -33,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'billing.permission' => \App\Http\Middleware\CheckBillingPermission::class,
             'requirements.permission' => \App\Http\Middleware\CheckRequirementsPermission::class,
             'auth.multiple' => \App\Http\Middleware\AuthenticateWithMultipleModels::class,
+            'auth.optional' => \App\Http\Middleware\OptionalAuth::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

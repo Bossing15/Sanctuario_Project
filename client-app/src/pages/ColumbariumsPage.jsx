@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './InternmentPage.css';
 import LoginPromptModal from '../components/LoginPromptModal';
 import PaymentModal from '../components/PaymentModal';
+import DeceasedInfoModal from '../components/DeceasedInfoModal';
 import heroBg from '../assets/images/Sanctuario3_1.jpg';
 import lawnLotsImg from '../assets/images/lawn_lots.jpg';
 import familyEstateImg from '../assets/images/familt_estate.jpg';
@@ -16,8 +17,10 @@ function ColumbariumsPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [showDeceasedInfoModal, setShowDeceasedInfoModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [deceasedInfo, setDeceasedInfo] = useState(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
@@ -34,7 +37,7 @@ function ColumbariumsPage() {
 
       if (response.ok) {
         const data = await response.json();
-        const columbariums = data.products?.find(p => p.title === 'Columbariums') || data.find(p => p.title === 'Columbariums');
+        const columbariums = data.products?.find(p => p.title === 'Columbariums');
         setProduct(columbariums);
       }
     } catch (error) {
@@ -59,12 +62,19 @@ function ColumbariumsPage() {
   const handleSelectPlan = (planType, amount) => {
     setSelectedPlan({ planType, amount });
     setShowPricingModal(false);
+    setShowDeceasedInfoModal(true);
+  };
+
+  const handleDeceasedInfoSubmit = (info) => {
+    setDeceasedInfo(info);
+    setShowDeceasedInfoModal(false);
     setShowPaymentModal(true);
   };
 
   const handleClosePaymentModal = () => {
     setShowPaymentModal(false);
     setSelectedPlan(null);
+    setDeceasedInfo(null);
   };
 
   return (
@@ -196,8 +206,18 @@ function ColumbariumsPage() {
         </div>
       )}
 
+      {/* Deceased Information Modal */}
+      {showDeceasedInfoModal && (
+        <DeceasedInfoModal
+          onSubmit={handleDeceasedInfoSubmit}
+          onClose={() => setShowDeceasedInfoModal(false)}
+          allowMultiple={true}
+          maxDeceased={5}
+        />
+      )}
+
       {/* Payment Modal with Lot Selector */}
-      {showPaymentModal && product && selectedPlan && (
+      {showPaymentModal && product && selectedPlan && deceasedInfo && (
         <PaymentModal
           service={product}
           planType={selectedPlan.planType}
@@ -205,6 +225,7 @@ function ColumbariumsPage() {
           onClose={handleClosePaymentModal}
           isLawnLotProduct={true}
           productSlug="columbariums"
+          deceasedList={deceasedInfo}
         />
       )}
 

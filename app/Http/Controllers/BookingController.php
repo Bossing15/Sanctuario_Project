@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\Payment;
 use App\Models\RequirementSubmission;
 use App\Services\AuthorizationService;
 use Illuminate\Http\Request;
@@ -50,7 +51,14 @@ class BookingController extends Controller
 
             // Determine authorization status based on booking details
             $authStatus = $this->authorizationService->determineAuthorizationStatus($booking);
-            $booking->update(['authorization_status' => $authStatus]);
+            
+            // Set booking status based on authorization status
+            $bookingStatus = $authStatus === 'PENDING_AUTHORIZATION' ? 'PendingReview' : 'ReadyForPayment';
+            
+            $booking->update([
+                'authorization_status' => $authStatus,
+                'status' => $bookingStatus
+            ]);
 
             return response()->json([
                 'message' => 'Booking created successfully',
@@ -140,7 +148,7 @@ class BookingController extends Controller
     public function adminIndex()
     {
         try {
-            $bookings = Booking::all();
+            $bookings = Booking::with('user', 'service', 'product')->get();
             return response()->json([
                 'bookings' => $bookings,
                 'count' => $bookings->count()
@@ -307,6 +315,114 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to fetch booking statistics',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateServiceCompletion($bookingId, Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'service_completion_status' => 'required|in:pending,ongoing,done',
+                'completion_images' => 'nullable|array',
+                'completion_images.*' => 'nullable|string'
+            ]);
+
+            $booking = Booking::findOrFail($bookingId);
+            
+            $updateData = [
+                'service_completion_status' => $validated['service_completion_status']
+            ];
+
+            if ($validated['service_completion_status'] === 'done') {
+                $updateData['completion_date'] = now();
+                if (!empty($validated['completion_images'])) {
+                    $updateData['completion_images'] = $validated['completion_images'];
+                }
+            }
+
+            $booking->update($updateData);
+
+            return response()->json([
+                'message' => 'Service completion status updated successfully',
+                'booking' => $booking
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to update service completion status',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get or create payment record for a booking
+     * GET /api/bookings/{bookingId}/payment
+     */
+    public function getOrCreatePayment($bookingId)
+    {
+        try {
+            $booking = Booking::findOrFail($bookingId);
+
+            \Log::info('Getting or creating payment for booking', [
+                'booking_id' => $bookingId,
+                'user_id' => $booking->user_id,
+                'service_id' => $booking->service_id,
+                'amount' => $booking->total_amount ?? $booking->amount,
+            ]);
+
+            // Check if payment already exists
+            $payment = $booking->payment;
+
+            if (!$payment) {
+                \Log::info('Creating payment for booking', [
+                    'booking_id' => $booking->id,
+                    'user_id' => $booking->user_id,
+                    'service_id' => $booking->service_id,
+                    'amount' => $booking->total_amount ?? $booking->amount,
+                ]);
+
+                // Create payment record
+                $payment = Payment::create([
+                    'booking_id' => $booking->id,
+                    'client_id' => $booking->user_id,
+                    'service_id' => $booking->service_id,
+                    'amount' => $booking->total_amount ?? $booking->amount,
+                    'description' => $booking->service?->title ?? 'Service Payment',
+                    'status' => 'pending',
+                    'payment_type' => 'service',
+                    'payment_reference' => 'SANC-' . $booking->id . '-' . substr(now()->timestamp, -6),
+                    'payment_method' => 'PayMongo',
+                    'due_date' => now()->addDays(7)->toDateString(),
+                ]);
+
+                \Log::info('Payment created successfully', [
+                    'payment_id' => $payment->id,
+                    'booking_id' => $booking->id,
+                ]);
+
+                // Update booking with payment_id
+                $booking->update(['payment_id' => $payment->id]);
+            } else {
+                \Log::info('Payment already exists for booking', [
+                    'payment_id' => $payment->id,
+                    'booking_id' => $booking->id,
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Payment record retrieved/created successfully',
+                'payment' => $payment,
+            ], 200);
+        } catch (\Exception $e) {
+            \Log::error('Failed to get or create payment', [
+                'booking_id' => $bookingId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json([
+                'message' => 'Failed to get or create payment',
                 'error' => $e->getMessage()
             ], 500);
         }

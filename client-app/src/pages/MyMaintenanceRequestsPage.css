@@ -569,3 +569,125 @@
   background: #d1e7dd;
   border-left-color: #198754;
 }
+
+
+/* Reservation Card Specific Styles */
+.reservation-card {
+  border-left: 4px solid #8b5cf6;
+}
+
+.reservation-card .request-header {
+  background: linear-gradient(135deg, #faf5ff 0%, #faf5ff 100%);
+}
+
+.reservation-card .amount {
+  color: #7c3aed;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.reservation-card .status-badge {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.reservation-card .status-badge.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.reservation-card .status-badge.completed {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.reservation-card .status-badge.rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.reservation-card .status-badge.cancelled {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.reservation-card .status-icon {
+  color: #8b5cf6;
+}
+
+.reservation-card .status-icon.pending {
+  color: #ffc107;
+}
+
+.reservation-card .status-icon.completed {
+  color: #10b981;
+}
+
+.reservation-card .status-icon.rejected {
+  color: #dc3545;
+}
+
+.reservation-card .status-icon.cancelled {
+  color: #6c757d;
+}
+
+/* Pay Now Button */
+.pay-now-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pay-now-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.pay-now-btn:active {
+  transform: translateY(0);
+}
+
+/* Action Buttons Container */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+/* Cancel Button */
+.cancel-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cancel-btn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.cancel-btn:active {
+  transform: translateY(0);
+}

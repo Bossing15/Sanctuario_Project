@@ -67,7 +67,7 @@ const ServiceEditor = ({ service, isOpen, onClose, onSave, canManageServices }) 
       <div className="service-editor-modal" onClick={(e) => e.stopPropagation()}>
         <div className="service-editor-header">
           <h2>{service?.id ? 'Edit Service' : 'Add New Service'}</h2>
-          <button className="close-btn" onClick={onClose}>✕</button>
+          <button className="close-btn" onClick={onClose}>×</button>
         </div>
 
         <div className="service-editor-tabs">

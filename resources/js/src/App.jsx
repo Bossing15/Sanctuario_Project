@@ -23,6 +23,7 @@ import Maintenance from "./Components/Maintenance";
 import Services from "./Components/Services";
 import Products from "./Components/Products";
 import ServiceDetailEditor from "./Components/ServiceDetailEditor";
+import ActivityLogsPage from "./Components/ActivityLogsPage";
 
 const ProtectedRoute = ({ children, requiredRole = null }) => {
   const token = localStorage.getItem('authToken');
@@ -207,6 +208,12 @@ const App = () => {
           <Route path="/admin/payment/cancel" element={
             <ProtectedRoute requiredRole="admin">
               <AdminPaymentCancel />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/activity-logs" element={
+            <ProtectedRoute requiredRole="admin">
+              <ActivityLogsPage />
             </ProtectedRoute>
           } />
           

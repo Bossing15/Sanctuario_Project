@@ -257,7 +257,7 @@ const ServiceDetailEditorInline = ({ service, onSave, canManageServices }) => {
                       className="remove-thumbnail"
                       onClick={() => removeGalleryImage(index)}
                     >
-                      ✕
+                      ×
                     </button>
                   </div>
                 ))}

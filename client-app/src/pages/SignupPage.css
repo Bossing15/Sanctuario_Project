@@ -115,6 +115,43 @@ html, body {
   row-gap: 8px;
 }
 
+/* Form Sections */
+.form-section {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 10px;
+  row-gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e1e5e9;
+  margin-bottom: 8px;
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.section-title {
+  grid-column: span 2;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1b3d1b;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-section input {
+  grid-column: span 1;
+}
+
+.form-section input[type="email"],
+.form-section input[type="date"] {
+  grid-column: span 2;
+}
+
 .signup-form input,
 .signup-form select {
   width: 100%;
@@ -156,6 +193,7 @@ html, body {
 .signup-form input[name="username"],
 .signup-form input[name="password"],
 .signup-form input[name="confirmPassword"],
+.signup-form input[name="dateOfBurial"],
 .signup-form label.terms-row {
   grid-column: span 2;
 }

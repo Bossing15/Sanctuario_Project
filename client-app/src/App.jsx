@@ -18,6 +18,7 @@ import PaymentCancel from './pages/PaymentCancel';
 import MyPurchasesPage from './pages/MyPurchasesPage';
 import MyServicesPage from './pages/MyServicesPage';
 import MyMaintenanceRequestsPage from './pages/MyMaintenanceRequestsPage';
+import MyReservationsPage from './pages/MyReservationsPage';
 import InternmentPage from './pages/InternmentPage';
 import MaintenancePage from './pages/MaintenancePage';
 import ProductsServicesPage from './pages/ProductsServicesPage';
@@ -38,8 +39,13 @@ import './styles/modals.css';
 function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const hideNavbar = ['/login', '/signup', '/user', '/payment', '/payment/success', '/payment/cancel', '/my-purchases'].includes(location.pathname);
-  const hideFooter = ['/login', '/signup', '/user', '/payment', '/payment/success', '/payment/cancel', '/my-purchases'].includes(location.pathname);
+  const hideNavbar = ['/login', '/signup', '/user', '/payment', '/payment/success', '/payment/cancel', '/my-purchases', '/my-reservations'].includes(location.pathname);
+  const hideFooter = ['/login', '/signup', '/user', '/payment', '/payment/success', '/payment/cancel', '/my-purchases', '/my-reservations'].includes(location.pathname);
+
+  // Store the client app URL in localStorage for payment redirects
+  useEffect(() => {
+    localStorage.setItem('clientAppUrl', window.location.origin);
+  }, []);
 
   return (
     <>
@@ -75,6 +81,7 @@ function Layout() {
         <Route path="/my-purchases" element={<MyPurchasesPage />} />
         <Route path="/my-services" element={<MyServicesPage />} />
         <Route path="/my-maintenance-requests" element={<MyMaintenanceRequestsPage />} />
+        <Route path="/my-reservations" element={<MyReservationsPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/payment" element={<PaymentPage />} />
@@ -104,7 +111,7 @@ function App() {
   }, []);
 
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Layout />
     </Router>
   );

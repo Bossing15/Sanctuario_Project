@@ -1,0 +1,109 @@
+.status-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 20px;
+  background: #f3f4f6;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 0.875rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.status-toggle.md {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.status-toggle.sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.status-toggle.lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+/* Active State */
+.status-toggle.active {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-color: #059669;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.status-toggle.active:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Inactive State */
+.status-toggle.inactive {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border-color: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.status-toggle.inactive:hover:not(:disabled) {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Disabled State */
+.status-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Loading State */
+.status-toggle.loading {
+  pointer-events: none;
+}
+
+.status-toggle.loading .toggle-slider {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.toggle-slider {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+}
+
+.toggle-label {
+  display: inline-block;
+  min-width: 60px;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .status-toggle {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .toggle-label {
+    min-width: 50px;
+  }
+}

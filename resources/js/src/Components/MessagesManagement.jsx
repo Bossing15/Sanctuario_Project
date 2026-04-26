@@ -6,6 +6,8 @@ import messageIcon from "../assets/icons/icons8-message-50.png";
 import usePermissions from '../utils/usePermissions';
 import SmsModal from './SmsModal';
 import { TableSkeleton } from './SkeletonLoader';
+import CrudActions from './CrudActions';
+import crudUtils from '../utils/crudUtils';
 
 const MessagesManagement = () => {
   const { canPerformActions } = usePermissions();
@@ -152,6 +154,31 @@ const MessagesManagement = () => {
         }
       }
     });
+  };
+
+  const handleDeleteMessage = async (id) => {
+    const token = localStorage.getItem("authToken");
+    const result = await crudUtils.deleteItem(
+      "/api/admin/contact-messages",
+      id,
+      token
+    );
+    
+    if (result.success) {
+      setMessages(messages.filter(msg => msg.id !== id));
+      setAlertModal({
+        show: true,
+        type: 'success',
+        message: 'Message deleted successfully'
+      });
+      setShowDetailModal(false);
+    } else {
+      setAlertModal({
+        show: true,
+        type: 'error',
+        message: result.error || 'Failed to delete message'
+      });
+    }
   };
 
   const openDetailModal = (message) => {
@@ -450,15 +477,15 @@ const MessagesManagement = () => {
                   <td className="text-center">
                     {message.status === 'New' ? (
                       <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
-                        ⏳ New
+                        New
                       </span>
                     ) : message.status === 'Responded' ? (
                       <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
-                        ✅ Responded
+                        Responded
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
-                        ℹ️ {message.status}
+                        {message.status}
                       </span>
                     )}
                   </td>
@@ -533,18 +560,18 @@ const MessagesManagement = () => {
               </div>
             </div>
             <div className="modal-footer">
-              <button 
-                className="btn-delete"
-                onClick={() => canManageMessages && handleDelete(selectedMessage.id)}
+              <CrudActions
+                onView={() => {}}
+                onEdit={() => {}}
+                onDelete={() => handleDeleteMessage(selectedMessage.id)}
+                onToggleStatus={() => {}}
+                showView={false}
+                showEdit={false}
+                showDelete={true}
+                showToggle={false}
                 disabled={!canManageMessages}
-                style={{ 
-                  opacity: !canManageMessages ? 0.5 : 1, 
-                  cursor: !canManageMessages ? 'not-allowed' : 'pointer' 
-                }}
-                title={!canManageMessages ? 'You do not have permission to delete messages' : ''}
-              >
-                Delete Message
-              </button>
+                size="md"
+              />
             </div>
           </div>
         </div>

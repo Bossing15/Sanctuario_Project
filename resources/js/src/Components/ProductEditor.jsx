@@ -146,7 +146,7 @@ const ProductEditor = ({ product, isOpen, onClose, onSave, canManageServices }) 
           onClick={onClose}
           aria-label="Close modal"
         >
-          ✕
+          ×
         </button>
         <div className="service-detail-form">
           {notification && (
@@ -174,7 +174,7 @@ const ProductEditor = ({ product, isOpen, onClose, onSave, canManageServices }) 
                   className="title-display editable"
                   onClick={() => setEditingField('title')}
                 >
-                  {formData.title || '📝 Click to add product name'}
+                  {formData.title || 'Click to add product name'}
                   <span className="edit-hint">Click to edit</span>
                 </h1>
               )}
@@ -198,7 +198,7 @@ const ProductEditor = ({ product, isOpen, onClose, onSave, canManageServices }) 
                   className="description-display editable"
                   onClick={() => setEditingField('description')}
                 >
-                  {formData.description || '📝 Click to add product description'}
+                  {formData.description || 'Click to add product description'}
                   <span className="edit-hint">Click to edit</span>
                 </p>
               )}
@@ -285,7 +285,7 @@ const ProductEditor = ({ product, isOpen, onClose, onSave, canManageServices }) 
                           className="remove-thumbnail"
                           onClick={() => removeGalleryImage(index)}
                         >
-                          ✕
+                          ×
                         </button>
                       </div>
                     ))}

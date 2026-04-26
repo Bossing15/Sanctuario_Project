@@ -8,6 +8,8 @@ import dashboardIcon from "../assets/icons/Dashboard.png";
 import usePermissions from '../utils/usePermissions';
 import { TableSkeleton } from './SkeletonLoader';
 import AuthorizationModal from './AuthorizationModal';
+import ReservationDetailsModal from './ReservationDetailsModal';
+import ServiceCompletionModal from './ServiceCompletionModal';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -30,6 +32,12 @@ const Dashboard = () => {
   const [loadingPurchases, setLoadingPurchases] = useState(true);
   const [showAuthorizationModal, setShowAuthorizationModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [reservations, setReservations] = useState([]);
+  const [loadingReservations, setLoadingReservations] = useState(true);
+  const [showReservationDetailsModal, setShowReservationDetailsModal] = useState(false);
+  const [selectedReservationDetails, setSelectedReservationDetails] = useState(null);
+  const [showServiceCompletionModal, setShowServiceCompletionModal] = useState(false);
+  const [selectedServiceBooking, setSelectedServiceBooking] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -38,6 +46,7 @@ const Dashboard = () => {
       fetchBookings();
       fetchMaintenanceRequests();
       fetchPurchases();
+      fetchReservations();
     }
   }, []);
 
@@ -207,6 +216,17 @@ const Dashboard = () => {
         });
 
         console.log('Enriched bookings:', enrichedBookings);
+        // Debug: Log service data for each booking
+        enrichedBookings.forEach(booking => {
+          console.log(`Booking ${booking.id}:`, {
+            service_id: booking.service_id,
+            service_name: booking.service_name,
+            service_category: booking.service?.category,
+            service_object: booking.service,
+            status: booking.status,
+            authorization_status: booking.authorization_status
+          });
+        });
         setPurchases(enrichedBookings);
       } else {
         console.warn('Failed to fetch purchases:', response.status);
@@ -217,6 +237,39 @@ const Dashboard = () => {
       setPurchases([]);
     } finally {
       setLoadingPurchases(false);
+    }
+  };
+
+  const fetchReservations = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        setLoadingReservations(false);
+        return;
+      }
+      
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/admin/reservations`;
+      const response = await fetch(apiUrl, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setReservations(data.reservations || []);
+      } else {
+        console.warn('Failed to fetch reservations:', response.status);
+        setReservations([]);
+      }
+    } catch (error) {
+      console.error('Error fetching reservations:', error);
+      setReservations([]);
+    } finally {
+      setLoadingReservations(false);
     }
   };
 
@@ -281,6 +334,68 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Error disapproving service:', error);
       alert('Error disapproving service: ' + error.message);
+    }
+  };
+
+  const handleApproveReservation = async (reservationId) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(
+        `${window.location.protocol}//${window.location.host}/api/admin/reservations/${reservationId}/approve`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          credentials: 'include'
+        }
+      );
+
+      if (response.ok) {
+        fetchReservations();
+        alert('Reservation approved successfully!');
+      } else {
+        const errorData = await response.json();
+        alert('Failed to approve: ' + (errorData.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error approving reservation:', error);
+      alert('Error approving reservation: ' + error.message);
+    }
+  };
+
+  const handleRejectReservation = async (reservationId) => {
+    const reason = prompt('Enter reason for rejection:');
+    if (!reason) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(
+        `${window.location.protocol}//${window.location.host}/api/admin/reservations/${reservationId}/reject`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({ admin_notes: reason })
+        }
+      );
+
+      if (response.ok) {
+        fetchReservations();
+        alert('Reservation rejected successfully!');
+      } else {
+        const errorData = await response.json();
+        alert('Failed to reject: ' + (errorData.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error rejecting reservation:', error);
+      alert('Error rejecting reservation: ' + error.message);
     }
   };
 
@@ -374,15 +489,14 @@ const Dashboard = () => {
 
   const getPaymentStatusBadge = (status) => {
     const statusConfig = {
-      'completed': { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid', icon: '✓' },
-      'pending': { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Unpaid', icon: '⏳' }
+      'completed': { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid' },
+      'pending': { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Unpaid' }
     };
     
-    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-700', label: status, icon: '•' };
+    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-700', label: status };
     
     return (
       <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.text}`}>
-        <span>{config.icon}</span>
         {config.label}
       </span>
     );
@@ -440,7 +554,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-center mb-3">
               <img src={pending} alt="Pending Icon" className="w-10 h-10" />
             </div>
-            <h6 className="text-gray-600 mb-1 text-sm font-medium">Pending Maintenance Requests</h6>
+            <h6 className="text-gray-600 mb-1 text-sm font-medium">Pending Requests</h6>
             <h5 className="font-bold text-2xl text-yellow-600">
               {loadingMaintenance ? '...' : maintenanceRequests.filter(r => r.status === 'New' || r.status === 'In Progress').length}
             </h5>
@@ -482,14 +596,15 @@ const Dashboard = () => {
             onClick={() => {
               fetchMaintenanceRequests();
               fetchPurchases();
+              fetchReservations();
             }}
-            disabled={loadingMaintenance || loadingPurchases}
+            disabled={loadingMaintenance || loadingPurchases || loadingReservations}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loadingMaintenance || loadingPurchases ? 'Loading...' : 'Refresh'}
+            {loadingMaintenance || loadingPurchases || loadingReservations ? 'Loading...' : 'Refresh'}
           </button>
         </div>
-        {loadingMaintenance || loadingPurchases ? (
+        {loadingMaintenance || loadingPurchases || loadingReservations ? (
           <TableSkeleton rows={5} columns={8} />
         ) : (
           <>
@@ -527,38 +642,50 @@ const Dashboard = () => {
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Customer</th>
-                  <th>Deceased_Name</th>
+                  <th>Customer Name</th>
+                  <th>Contact Number</th>
                   <th>Date_Added</th>
-                  <th>Contact</th>
                   <th>Product/Service</th>
                   <th>Amount</th>
                   <th>Authorization</th>
                   <th>Status</th>
                   <th>Actions</th>
-                  <th>Type</th>
                 </tr>
               </thead>
               <tbody>
-                {maintenanceRequests.length === 0 && purchases.length === 0 ? (
+                {maintenanceRequests.length === 0 && purchases.length === 0 && reservations.length === 0 ? (
                   <tr className="empty-row">
-                    <td colSpan="11" style={{ textAlign: 'center', padding: '2rem', color: '#6b7280', fontStyle: 'italic' }}>
+                    <td colSpan="9" style={{ textAlign: 'center', padding: '2rem', color: '#6b7280', fontStyle: 'italic' }}>
                       No data available
                     </td>
                   </tr>
                 ) : (
                   (() => {
-                    // Combine maintenance and purchase data
+                    // Separate service bookings from product bookings
+                    const serviceBookings = purchases.filter(p => p.service_id && !p.product_id);
+                    const productBookings = purchases.filter(p => p.product_id && !p.service_id);
+                    
+                    // Combine maintenance, service, product, and reservation data
                     const combinedData = [
                       ...maintenanceRequests.map(req => ({
                         ...req,
                         type: 'Maintenance',
                         sortDate: new Date(req.created_at)
                       })),
-                      ...purchases.map(purchase => ({
-                        ...purchase,
+                      ...serviceBookings.map(booking => ({
+                        ...booking,
+                        type: 'Service',
+                        sortDate: new Date(booking.created_at || booking.booking_date)
+                      })),
+                      ...productBookings.map(booking => ({
+                        ...booking,
                         type: 'Purchase',
-                        sortDate: new Date(purchase.created_at || purchase.booking_date)
+                        sortDate: new Date(booking.created_at || booking.booking_date)
+                      })),
+                      ...reservations.map(reservation => ({
+                        ...reservation,
+                        type: 'Reservation',
+                        sortDate: new Date(reservation.created_at)
                       }))
                     ];
 
@@ -605,9 +732,9 @@ const Dashboard = () => {
                           return (
                             <tr key={`maint-${item.id}`}>
                               <td className="font-mono">#{item.id}</td>
-                              <td className="font-bold">{item.full_name}</td>
+                              <td className="font-bold">{item.full_name || 'N/A'}</td>
+                              <td>{item.phone || 'N/A'}</td>
                               <td className="date-cell">{formatDate(item.created_at)}</td>
-                              <td>{item.phone}</td>
                               <td>{item.product_interest}</td>
                               <td>-</td>
                               <td className="text-center">
@@ -618,46 +745,52 @@ const Dashboard = () => {
                               <td className="text-center">
                                 {item.status === 'New' ? (
                                   <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
-                                    ⏳ Pending
+                                    Pending
                                   </span>
                                 ) : item.status === 'In Progress' ? (
                                   <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
-                                    🔄 In Progress
+                                    In Progress
                                   </span>
                                 ) : item.status === 'Responded' ? (
                                   <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
-                                    ✅ Completed
+                                    Completed
                                   </span>
                                 ) : item.status === 'Closed' ? (
                                   <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
-                                    ✅ Closed
+                                    Closed
                                   </span>
                                 ) : (
                                   <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
-                                    ℹ️ {item.status}
+                                    {item.status}
                                   </span>
                                 )}
                               </td>
                               <td className="text-center">
-                                <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-purple-100 text-purple-700 rounded-lg">
-                                  Maintenance
-                                </span>
+                                {/* Actions for maintenance */}
                               </td>
                             </tr>
                           );
-                        } else {
-                          // Purchase row
+                        }
+                        
+                        if (item.type === 'Purchase') {
+                          console.log('Rendering Purchase item:', {
+                            id: item.id,
+                            service_name: item.service_name,
+                            service_category: item.service?.category,
+                            service_object: item.service,
+                            should_show_status: (item.service?.category?.toLowerCase().includes('maintenance') || item.service_name?.toLowerCase().includes('grave'))
+                          });
                           const getAuthorizationBadge = (status) => {
                             const statusConfig = {
-                              'PENDING_AUTHORIZATION': { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pending', icon: '⏳' },
-                              'AUTHORIZED': { bg: 'bg-green-100', text: 'text-green-700', label: 'Approved', icon: '✅' },
-                              'AUTO_APPROVED': { bg: 'bg-green-100', text: 'text-green-700', label: 'Auto Approved', icon: '✅' },
-                              'REJECTED': { bg: 'bg-red-100', text: 'text-red-700', label: 'Rejected', icon: '❌' }
+                              'PENDING_AUTHORIZATION': { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pending' },
+                              'AUTHORIZED': { bg: 'bg-green-100', text: 'text-green-700', label: 'Approved' },
+                              'AUTO_APPROVED': { bg: 'bg-green-100', text: 'text-green-700', label: 'Auto Approved' },
+                              'REJECTED': { bg: 'bg-red-100', text: 'text-red-700', label: 'Rejected' }
                             };
-                            const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-700', label: status || 'N/A', icon: '•' };
+                            const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-700', label: status || 'N/A' };
                             return (
                               <span className={`inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold ${config.bg} ${config.text} rounded-lg shadow-sm`}>
-                                {config.icon} {config.label}
+                                {config.label}
                               </span>
                             );
                           };
@@ -666,9 +799,8 @@ const Dashboard = () => {
                             <tr key={`purchase-${item.id}`}>
                               <td className="font-mono">#{item.id}</td>
                               <td className="font-bold">{item.client?.name || item.customer_name || 'N/A'}</td>
-                              <td className="font-semibold text-blue-600">{item.deceased_name || 'N/A'}</td>
-                              <td className="date-cell">{formatDate(item.created_at || item.booking_date)}</td>
                               <td>{item.client?.phone || 'N/A'}</td>
+                              <td className="date-cell">{formatDate(item.created_at || item.booking_date)}</td>
                               <td>
                                 <div className="flex flex-col gap-1">
                                   <span className="font-semibold">{item.service_name || item.product_name || 'N/A'}</span>
@@ -695,25 +827,29 @@ const Dashboard = () => {
                                 </div>
                               </td>
                               <td className="text-center">
-                                {item.status === 'ReadyForPayment' ? (
+                                {item.status === 'PendingReview' ? (
                                   <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
-                                    ⏳ Pending Payment
+                                    Pending Review
+                                  </span>
+                                ) : item.status === 'ReadyForPayment' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
+                                    Ready for Payment
                                   </span>
                                 ) : item.status === 'Paid' ? (
                                   <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
-                                    ✅ Paid
+                                    Paid
                                   </span>
                                 ) : item.status === 'Completed' ? (
-                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
-                                    ✅ Completed
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                                    Completed
                                   </span>
                                 ) : item.status === 'Cancelled' ? (
                                   <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
-                                    ❌ Cancelled
+                                    Cancelled
                                   </span>
                                 ) : (
                                   <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg shadow-sm">
-                                    ℹ️ {item.status}
+                                    {item.status}
                                   </span>
                                 )}
                               </td>
@@ -726,23 +862,210 @@ const Dashboard = () => {
                                         className="px-3 py-1 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
                                         title="Approve this service application"
                                       >
-                                        ✓ Approve
+                                        Approve
                                       </button>
                                       <button
                                         onClick={() => handleDisapproveService(item.id)}
                                         className="px-3 py-1 text-xs font-semibold bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                                        title="Disapprove this service application"
+                                        title="Reject this service application"
                                       >
-                                        ✕ Disapprove
+                                        Reject
+                                      </button>
+                                    </>
+                                  )}
+                                  {(item.service?.category?.toLowerCase().includes('maintenance') || item.service_name?.toLowerCase().includes('grave')) && (
+                                    <button
+                                      onClick={() => {
+                                        setSelectedServiceBooking(item);
+                                        setShowServiceCompletionModal(true);
+                                      }}
+                                      className="px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                      title="Mark service completion status"
+                                    >
+                                      Status
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        }
+                        
+                        if (item.type === 'Service') {
+                          console.log('Rendering Service item:', {
+                            id: item.id,
+                            service_name: item.service_name,
+                            service_category: item.service?.category,
+                            service_object: item.service,
+                            should_show_status: (item.service?.category?.toLowerCase().includes('maintenance') || item.service_name?.toLowerCase().includes('grave'))
+                          });
+                          return (
+                            <tr key={`service-${item.id}`}>
+                              <td className="font-mono">#{item.id}</td>
+                              <td className="font-bold">{item.client?.name || item.customer_name || 'N/A'}</td>
+                              <td>{item.client?.phone || 'N/A'}</td>
+                              <td className="date-cell">{formatDate(item.created_at || item.booking_date)}</td>
+                              <td>
+                                <div className="flex flex-col gap-1">
+                                  <span className="font-semibold">{item.service_name || 'N/A'}</span>
+                                  <span className="text-xs text-gray-500">
+                                    {item.service?.category || 'Service'}
+                                  </span>
+                                </div>
+                              </td>
+                              <td>{formatCurrency(item.total_amount || item.amount || 0)}</td>
+                              <td className="text-center">
+                                <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg">
+                                  N/A
+                                </span>
+                              </td>
+                              <td className="text-center">
+                                {item.status === 'pending' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
+                                    Pending
+                                  </span>
+                                ) : item.status === 'approved' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                                    Approved
+                                  </span>
+                                ) : item.status === 'rejected' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
+                                    Rejected
+                                  </span>
+                                ) : item.status === 'paid' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                                    Paid
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg shadow-sm">
+                                    {item.status}
+                                  </span>
+                                )}
+                              </td>
+                              <td className="text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  <button
+                                    onClick={() => {
+                                      setSelectedReservationDetails(item);
+                                      setShowReservationDetailsModal(true);
+                                    }}
+                                    className="px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                    title="View service details"
+                                  >
+                                    View
+                                  </button>
+                                  {item.authorization_status === 'PENDING_AUTHORIZATION' && (
+                                    <>
+                                      <button
+                                        onClick={() => handleApproveService(item.id)}
+                                        className="px-3 py-1 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                                        title="Approve this service application"
+                                      >
+                                        Approve
+                                      </button>
+                                      <button
+                                        onClick={() => handleDisapproveService(item.id)}
+                                        className="px-3 py-1 text-xs font-semibold bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                                        title="Reject this service application"
+                                      >
+                                        Reject
+                                      </button>
+                                    </>
+                                  )}
+                                  {(item.service?.category?.toLowerCase().includes('maintenance') || item.service_name?.toLowerCase().includes('grave')) && (
+                                    <button
+                                      onClick={() => {
+                                        setSelectedServiceBooking(item);
+                                        setShowServiceCompletionModal(true);
+                                      }}
+                                      className="px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                      title="Mark service completion status"
+                                    >
+                                      Status
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        }
+                        
+                        if (item.type === 'Reservation') {
+                          // Reservation row
+                          return (
+                            <tr key={`reservation-${item.id}`}>
+                              <td className="font-mono">#{item.id}</td>
+                              <td className="font-bold">{item.user?.name || item.client?.name || 'N/A'}</td>
+                              <td>{item.user?.phone || item.client?.phone || 'N/A'}</td>
+                              <td className="date-cell">{formatDate(item.created_at)}</td>
+                              <td>
+                                <div className="flex flex-col gap-1">
+                                  <span className="font-semibold">{item.product?.title || item.service?.title || 'N/A'}</span>
+                                  <span className="text-xs text-gray-500">
+                                    {item.plan_type || 'N/A'}
+                                  </span>
+                                </div>
+                              </td>
+                              <td>{formatCurrency(item.amount || 0)}</td>
+                              <td className="text-center">
+                                <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg">
+                                  N/A
+                                </span>
+                              </td>
+                              <td className="text-center">
+                                {item.status === 'pending' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
+                                    Pending
+                                  </span>
+                                ) : item.status === 'approved' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                                    Approved
+                                  </span>
+                                ) : item.status === 'rejected' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
+                                    Rejected
+                                  </span>
+                                ) : item.status === 'paid' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                                    Paid
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg shadow-sm">
+                                    {item.status}
+                                  </span>
+                                )}
+                              </td>
+                              <td className="text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  <button
+                                    onClick={() => {
+                                      setSelectedReservationDetails(item);
+                                      setShowReservationDetailsModal(true);
+                                    }}
+                                    className="px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                    title="View reservation details"
+                                  >
+                                    View
+                                  </button>
+                                  {item.status === 'pending' && (
+                                    <>
+                                      <button
+                                        onClick={() => handleApproveReservation(item.id)}
+                                        className="px-3 py-1 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                                        title="Approve this reservation"
+                                      >
+                                        Approve
+                                      </button>
+                                      <button
+                                        onClick={() => handleRejectReservation(item.id)}
+                                        className="px-3 py-1 text-xs font-semibold bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                                        title="Reject this reservation"
+                                      >
+                                        Reject
                                       </button>
                                     </>
                                   )}
                                 </div>
-                              </td>
-                              <td className="text-center">
-                                <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg">
-                                  Purchase
-                                </span>
                               </td>
                             </tr>
                           );
@@ -823,6 +1146,33 @@ const Dashboard = () => {
             setPurchases(purchases.map(p => p.id === updatedBooking.id ? updatedBooking : p));
             setShowAuthorizationModal(false);
             setSelectedBooking(null);
+          }}
+        />
+      )}
+
+      {/* Reservation Details Modal */}
+      {showReservationDetailsModal && selectedReservationDetails && (
+        <ReservationDetailsModal
+          reservation={selectedReservationDetails}
+          onClose={() => {
+            setShowReservationDetailsModal(false);
+            setSelectedReservationDetails(null);
+          }}
+        />
+      )}
+
+      {/* Service Completion Modal */}
+      {showServiceCompletionModal && selectedServiceBooking && (
+        <ServiceCompletionModal
+          booking={selectedServiceBooking}
+          onClose={() => {
+            setShowServiceCompletionModal(false);
+            setSelectedServiceBooking(null);
+          }}
+          onUpdate={(updatedBooking) => {
+            setPurchases(purchases.map(p => p.id === updatedBooking.id ? updatedBooking : p));
+            setShowServiceCompletionModal(false);
+            setSelectedServiceBooking(null);
           }}
         />
       )}
@@ -993,7 +1343,6 @@ const MaintenanceModal = ({ request, canManageInquiries, onClose, onUpdate }) =>
         {/* Header */}
         <div className="modal-header">
           <div className="modal-header-title">
-            <span className="modal-header-icon">🔧</span>
             <span>Maintenance Request #{request.id}</span>
           </div>
           <button className="modal-close" onClick={onClose}>×</button>
@@ -1072,7 +1421,6 @@ const MaintenanceModal = ({ request, canManageInquiries, onClose, onUpdate }) =>
             <h3 className="text-lg font-semibold mb-3 text-gray-800">Maintenance Photos</h3>
             <div className={`border-2 border-dashed border-gray-300 rounded-lg p-6 text-center ${!canManageInquiries ? 'opacity-50 bg-gray-50' : ''}`}>
               <label htmlFor="maintenance-photo-upload" className={canManageInquiries ? 'cursor-pointer' : 'cursor-not-allowed'}>
-                <div className="text-4xl mb-2">📸</div>
                 <div className="text-sm text-gray-600">
                   {canManageInquiries 
                     ? (selectedFiles.length > 0 ? `${selectedFiles.length} file(s) selected` : 'Click to upload photos')
@@ -1118,7 +1466,7 @@ const MaintenanceModal = ({ request, canManageInquiries, onClose, onUpdate }) =>
               onClick={handleMarkComplete}
               className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-all font-semibold"
             >
-              ✓ Mark as Complete
+              Mark as Complete
             </button>
           )}
         </div>

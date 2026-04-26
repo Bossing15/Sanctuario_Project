@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoginPromptModal from '../components/LoginPromptModal';
 import AlertModal from '../components/AlertModal';
+import PaymentModal from '../components/PaymentModal';
+import DeceasedInfoModal from '../components/DeceasedInfoModal';
 import './MaintenancePage.css';
 import heroBg from '../assets/images/Sanctuario3_1.jpg';
 
@@ -12,6 +14,14 @@ function MaintenancePage() {
   const [showLoginPromptModal, setShowLoginPromptModal] = useState(false);
   const [alertModal, setAlertModal] = useState({ show: false, type: 'info', message: '' });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [hasGravePlot, setHasGravePlot] = useState(false);
+  const [checkingGravePlot, setCheckingGravePlot] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
+  const [showDeceasedModal, setShowDeceasedModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [deceasedList, setDeceasedList] = useState(null);
 
   useEffect(() => {
     fetchServices();
@@ -21,6 +31,34 @@ function MaintenancePage() {
   const checkLogin = () => {
     const token = localStorage.getItem('authToken');
     setIsLoggedIn(!!token);
+    if (token) {
+      checkUserGravePlot(token);
+    }
+  };
+
+  const checkUserGravePlot = async (token) => {
+    try {
+      setCheckingGravePlot(true);
+      const response = await fetch('http://localhost:8000/api/user/grave-plots', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Check if user has any grave plots (lawn lots, columbariums, or family estates)
+        const hasPlot = data.grave_plots && data.grave_plots.length > 0;
+        setHasGravePlot(hasPlot);
+      }
+    } catch (error) {
+      console.error('Error checking grave plots:', error);
+      setHasGravePlot(false);
+    } finally {
+      setCheckingGravePlot(false);
+    }
   };
 
   const fetchServices = async () => {
@@ -55,125 +93,55 @@ function MaintenancePage() {
       return;
     }
 
-    // Proceed with service request (requirements already submitted during signup)
-    await submitServiceRequest(service, planType, amount);
-  };
-
-  const submitServiceRequest = async (service, planType, amount) => {
-    const token = localStorage.getItem('authToken');
-
-    try {
-      // Get current user info
-      const userResponse = await fetch('http://localhost:8000/api/user', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      if (!userResponse.ok) {
-        setAlertModal({ show: true, type: 'warning', message: 'Please login again' });
-        return;
-      }
-
-      const userData = await userResponse.json();
-      
-      // Use grave location from user's account data
-      const graveLocation = userData.grave_location || 'N/A';
-      
-      // Create inquiry for maintenance service
-      const inquiryData = {
-        full_name: userData.name || 'Customer',
-        email: userData.email,
-        phone: userData.phone || 'N/A',
-        grave_location: graveLocation,
-        product_interest: `${service.title} - ${planType} Plan`,
-        message: `Customer is interested in ${service.title} with ${planType} plan (₱${amount}). Grave Location: ${graveLocation}. Requirements have been submitted. Awaiting maintenance service photos before payment.`
-      };
-
-      const inquiryResponse = await fetch('http://localhost:8000/api/inquiries/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(inquiryData),
-      });
-
-      if (inquiryResponse.ok) {
-        // Create payment record
-        const dueDate = new Date();
-        dueDate.setDate(dueDate.getDate() + 30); // Due in 30 days
-
-        const paymentData = {
-          client_id: userData.id,
-          amount: parseFloat(amount),
-          payment_method: 'Cash', // Default to Cash, can be changed later
-          payment_type: 'full', // Maintenance is full payment
-          status: 'pending',
-          due_date: dueDate.toISOString().split('T')[0],
-          description: `${service.title} - ${planType} Plan`
-        };
-
-        try {
-          console.log('Creating payment with data:', paymentData);
-          const paymentResponse = await fetch('http://localhost:8000/api/payments/record', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-            body: JSON.stringify(paymentData),
-          });
-
-          if (paymentResponse.ok) {
-            const paymentResult = await paymentResponse.json();
-            console.log('Payment created successfully:', paymentResult);
-          } else {
-            const errorData = await paymentResponse.json();
-            console.error('Payment creation failed:', errorData);
-            console.error('Payment data sent:', paymentData);
-            const errorDetails = errorData.errors ? JSON.stringify(errorData.errors) : errorData.message;
-            alert('Warning: Payment record could not be created.\nError: ' + errorDetails + '\n\nPlease contact support.');
-          }
-        } catch (paymentError) {
-          console.error('Error creating payment record:', paymentError);
-          alert('Warning: Payment record could not be created due to network error.');
-        }
-
-        setAlertModal({ 
-          show: true, 
-          type: 'success', 
-          message: `Your ${planType} maintenance service request has been submitted successfully! 
-
-Our team will review your request and send you photos of the maintenance work. You can review the photos before proceeding with payment.
-
-Payment for your ${planType} plan (₱${amount}) can be made after you receive and approve the maintenance photos.
-
-We'll contact you soon with updates!`,
-          onClose: () => {
-            setAlertModal({ show: false, type: 'info', message: '' });
-          }
-        });
-      } else {
-        const errorData = await inquiryResponse.json();
-        setAlertModal({ 
-          show: true, 
-          type: 'error', 
-          message: errorData.message || 'Failed to submit request. Please try again.' 
-        });
-      }
-    } catch (error) {
-      console.error('Error submitting inquiry:', error);
+    // Check if user has a grave plot
+    if (!hasGravePlot) {
       setAlertModal({ 
         show: true, 
-        type: 'error', 
-        message: 'An error occurred. Please try again later.' 
+        type: 'warning', 
+        message: 'You must have a grave plot (Lawn Lot, Columbarium, or Family Estate) before you can purchase maintenance services. Please purchase a grave plot first.' 
       });
+      return;
     }
+
+    // Set selected service and plan, then show pricing modal
+    setSelectedService(service);
+    setSelectedPlan({ planType, amount });
+    setShowPricingModal(false);
+    setShowDeceasedModal(true);
+  };
+
+  const handleDeceasedSubmit = (deceased) => {
+    setDeceasedList(deceased);
+    setShowDeceasedModal(false);
+    setShowPaymentModal(true);
+  };
+
+  const handleClosePaymentModal = () => {
+    setShowPaymentModal(false);
+    setSelectedService(null);
+    setSelectedPlan(null);
+    setDeceasedList(null);
+  };
+
+  const handleOpenPricingModal = (service) => {
+    const token = localStorage.getItem('authToken');
+    
+    if (!token) {
+      setShowLoginPromptModal(true);
+      return;
+    }
+
+    if (!hasGravePlot) {
+      setAlertModal({ 
+        show: true, 
+        type: 'warning', 
+        message: 'You must have a grave plot (Lawn Lot, Columbarium, or Family Estate) before you can purchase maintenance services. Please purchase a grave plot first.' 
+      });
+      return;
+    }
+
+    setSelectedService(service);
+    setShowPricingModal(true);
   };
 
 
@@ -214,6 +182,20 @@ We'll contact you soon with updates!`,
             <p>Please log in to your account to request maintenance services.</p>
             <button className="notice-btn" onClick={() => navigate('/login')}>
               Login Now
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Grave Plot Notice */}
+      {isLoggedIn && !checkingGravePlot && !hasGravePlot && (
+        <div className="requirements-notice warning">
+          <div className="notice-icon">⚠️</div>
+          <div className="notice-content">
+            <h3>Grave Plot Required</h3>
+            <p>You must have a grave plot (Lawn Lot, Columbarium, or Family Estate) before you can purchase maintenance services.</p>
+            <button className="notice-btn" onClick={() => navigate('/products-services')}>
+              Purchase a Grave Plot
             </button>
           </div>
         </div>
@@ -378,6 +360,71 @@ We'll contact you soon with updates!`,
           type={alertModal.type}
           message={alertModal.message}
           onClose={alertModal.onClose || (() => setAlertModal({ show: false, type: 'info', message: '' }))}
+        />
+      )}
+
+      {/* Pricing Selection Modal */}
+      {showPricingModal && selectedService && (
+        <div className="modal-overlay" onClick={() => setShowPricingModal(false)}>
+          <div className="pricing-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Select Payment Plan</h2>
+              <button className="modal-close" onClick={() => setShowPricingModal(false)}>✕</button>
+            </div>
+            <div className="modal-content">
+              <p className="modal-subtitle">Choose your preferred payment plan for {selectedService.title}</p>
+              <div className="plan-options">
+                {selectedService.price_monthly && (
+                  <div className="plan-card">
+                    <h3>Monthly Plan</h3>
+                    <p className="plan-price">₱{parseFloat(selectedService.price_monthly).toFixed(2)}</p>
+                    <p className="plan-description">Pay monthly for flexibility</p>
+                    <button className="plan-btn" onClick={() => handleSelectPlan(selectedService, 'Monthly', selectedService.price_monthly)} style={{ marginTop: '15px', backgroundColor: '#10b981' }}>Select Plan</button>
+                  </div>
+                )}
+                {selectedService.price_quarterly && (
+                  <div className="plan-card">
+                    <h3>Quarterly Plan</h3>
+                    <p className="plan-price">₱{parseFloat(selectedService.price_quarterly).toFixed(2)}</p>
+                    <p className="plan-description">Pay every 3 months</p>
+                    <button className="plan-btn" onClick={() => handleSelectPlan(selectedService, 'Quarterly', selectedService.price_quarterly)} style={{ marginTop: '15px', backgroundColor: '#10b981' }}>Select Plan</button>
+                  </div>
+                )}
+                {selectedService.price_yearly && (
+                  <div className="plan-card">
+                    <h3>Yearly Plan</h3>
+                    <p className="plan-price">₱{parseFloat(selectedService.price_yearly).toFixed(2)}</p>
+                    <p className="plan-description">Best value - pay annually</p>
+                    <button className="plan-btn" onClick={() => handleSelectPlan(selectedService, 'Yearly', selectedService.price_yearly)} style={{ marginTop: '15px', backgroundColor: '#10b981' }}>Select Plan</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Modal */}
+      {showPaymentModal && selectedService && selectedPlan && (
+        <PaymentModal
+          service={selectedService}
+          planType={selectedPlan.planType}
+          amount={selectedPlan.amount}
+          onClose={handleClosePaymentModal}
+          isLawnLotProduct={false}
+          productSlug="maintenance"
+          deceasedList={deceasedList}
+        />
+      )}
+
+      {/* Deceased Info Modal */}
+      {showDeceasedModal && (
+        <DeceasedInfoModal
+          onSubmit={handleDeceasedSubmit}
+          onClose={() => setShowDeceasedModal(false)}
+          allowMultiple={false}
+          maxDeceased={1}
+          isService={true}
         />
       )}
     </div>

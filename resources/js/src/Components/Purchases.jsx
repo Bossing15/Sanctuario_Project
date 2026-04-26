@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { TableSkeleton } from './SkeletonLoader';
+import CrudActions from './CrudActions';
+import crudUtils from '../utils/crudUtils';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 import './Purchases.css';
 
 const Purchases = () => {
@@ -7,6 +10,9 @@ const Purchases = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [purchaseToDelete, setPurchaseToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchPurchases();
@@ -79,6 +85,44 @@ const Purchases = () => {
 
   const formatCurrency = (amount) => {
     return `₱${parseFloat(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  };
+
+  const handleDeletePurchase = (id) => {
+    setPurchaseToDelete(id);
+    setShowDeleteConfirmModal(true);
+  };
+
+  const confirmDeletePurchase = async () => {
+    if (!purchaseToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const result = await crudUtils.deleteItem(
+        "/api/bookings",
+        purchaseToDelete,
+        token
+      );
+      
+      if (result.success) {
+        fetchPurchases();
+        setShowDeleteConfirmModal(false);
+        setPurchaseToDelete(null);
+      } else {
+        alert(result.error || "Failed to delete purchase");
+      }
+    } catch (error) {
+      console.error("Error deleting purchase:", error);
+      alert("Error deleting purchase");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const closeDeleteConfirmModal = () => {
+    setShowDeleteConfirmModal(false);
+    setPurchaseToDelete(null);
+  };
   };
 
   const getStatusBadge = (status) => {
@@ -195,6 +239,7 @@ const Purchases = () => {
                   <th>Amount</th>
                   <th>Status</th>
                   <th>Date</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -215,6 +260,19 @@ const Purchases = () => {
                       <td className="font-semibold text-green-600">{formatCurrency(purchase.amount)}</td>
                       <td>{getStatusBadge(purchase.status)}</td>
                       <td className="text-sm">{formatDate(purchase.created_at)}</td>
+                      <td className="text-center">
+                        <CrudActions
+                          onView={() => {}}
+                          onEdit={() => {}}
+                          onDelete={() => handleDeletePurchase(purchase.id)}
+                          onToggleStatus={() => {}}
+                          showView={false}
+                          showEdit={false}
+                          showDelete={true}
+                          showToggle={false}
+                          size="sm"
+                        />
+                      </td>
                     </tr>
                   ))
                 )}
@@ -223,6 +281,16 @@ const Purchases = () => {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        show={showDeleteConfirmModal}
+        message="Are you sure you want to delete this purchase?"
+        itemName="this purchase"
+        onConfirm={confirmDeletePurchase}
+        onCancel={closeDeleteConfirmModal}
+        isLoading={isDeleting}
+      />
     </div>
   );
 };

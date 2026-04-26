@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Booking;
+use App\Models\Request as PurchaseRequest;
 use App\Models\Admin;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -12,11 +13,12 @@ class EmailNotificationService
     /**
      * Send email notification when authorization request is pending
      * Notifies admin that a new authorization request needs review
+     * Accepts either Booking or Request (PurchaseRequest) model
      * 
-     * @param Booking $booking
+     * @param Booking|PurchaseRequest $model
      * @return bool
      */
-    public function notifyAdminPendingRequest(Booking $booking): bool
+    public function notifyAdminPendingRequest($model): bool
     {
         try {
             // Get all admins with billing/authorization permissions
@@ -32,32 +34,49 @@ class EmailNotificationService
                 return false;
             }
 
-            $customer = $booking->user;
-            $itemName = $booking->product ? $booking->product->title : ($booking->service ? $booking->service->title : 'Item');
+            // Handle both Booking and Request models
+            if ($model instanceof PurchaseRequest) {
+                $customer = $model->user;
+                $itemName = $model->product ? $model->product->title : ($model->service ? $model->service->title : 'Lot');
+                $amount = $model->paymentPlan ? $model->paymentPlan->price : 0;
+                $date = $model->created_at->format('F d, Y');
+                $modelId = $model->id;
+                $modelType = 'request';
+            } else {
+                // Booking model
+                $customer = $model->user;
+                $itemName = $model->product ? $model->product->title : ($model->service ? $model->service->title : 'Item');
+                $amount = $model->amount ?? 0;
+                $date = $model->booking_date ?? now()->format('F d, Y');
+                $modelId = $model->id;
+                $modelType = 'booking';
+            }
 
             foreach ($admins as $admin) {
                 $subject = "New Authorization Request - {$itemName}";
                 $message = "A new authorization request requires your review.\n\n";
                 $message .= "Customer: {$customer->name}\n";
                 $message .= "Email: {$customer->email}\n";
-                $message .= "Phone: {$customer->phone}\n";
+                if ($customer->phone) {
+                    $message .= "Phone: {$customer->phone}\n";
+                }
                 $message .= "Item: {$itemName}\n";
-                $message .= "Amount: PHP " . number_format($booking->amount, 2) . "\n";
-                $message .= "Booking Date: {$booking->booking_date}\n\n";
+                $message .= "Amount: PHP " . number_format($amount, 2) . "\n";
+                $message .= "Date: {$date}\n\n";
                 $message .= "Please log in to the admin dashboard to review and approve/reject this request.";
 
                 $this->sendEmail($admin->email, $subject, $message);
             }
 
             Log::info('Admin notification sent for pending authorization', [
-                'booking_id' => $booking->id,
+                'model_id' => $modelId,
+                'model_type' => $modelType,
                 'admins_notified' => $admins->count()
             ]);
 
             return true;
         } catch (\Exception $e) {
             Log::error('Failed to send admin pending notification', [
-                'booking_id' => $booking->id,
                 'error' => $e->getMessage()
             ]);
             return false;

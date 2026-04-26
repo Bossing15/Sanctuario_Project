@@ -12,7 +12,6 @@ export default function DeleteConfirmationModal({
       <div className="modal max-w-md" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-header-title">
-            <span className="modal-header-icon">⚠️</span>
             <span>Delete Confirmation</span>
           </div>
           <button className="modal-close" onClick={onCancel}>×</button>

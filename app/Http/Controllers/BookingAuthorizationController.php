@@ -55,7 +55,24 @@ class BookingAuthorizationController extends Controller
     {
         try {
             $admin = $request->user();
-            if (!$admin || !in_array($admin->access_level ?? $admin->role, ['admin', 'staff'])) {
+            
+            // Check if user is authenticated
+            if (!$admin) {
+                return response()->json(['message' => 'Unauthenticated'], 401);
+            }
+            
+            // Check if user is an admin or staff
+            $accessLevel = $admin->access_level ?? $admin->role ?? null;
+            $isAdmin = in_array($accessLevel, ['admin', 'staff', 'Admin', 'Staff', 'super_admin']) || 
+                      in_array($admin->role ?? null, ['admin', 'staff', 'Admin', 'Staff', 'super_admin']);
+            
+            if (!$isAdmin) {
+                Log::warning('Unauthorized approval attempt', [
+                    'user_id' => $admin->id,
+                    'user_type' => class_basename($admin),
+                    'access_level' => $accessLevel,
+                    'role' => $admin->role ?? null
+                ]);
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
 
@@ -72,7 +89,8 @@ class BookingAuthorizationController extends Controller
             $booking->update([
                 'authorization_status' => 'AUTHORIZED',
                 'approved_by' => $admin->id,
-                'approved_at' => now()
+                'approved_at' => now(),
+                'status' => 'ReadyForPayment'
             ]);
 
             // Send email notification to customer
@@ -109,7 +127,24 @@ class BookingAuthorizationController extends Controller
             ]);
 
             $admin = $request->user();
-            if (!$admin || !in_array($admin->access_level ?? $admin->role, ['admin', 'staff'])) {
+            
+            // Check if user is authenticated
+            if (!$admin) {
+                return response()->json(['message' => 'Unauthenticated'], 401);
+            }
+            
+            // Check if user is an admin or staff
+            $accessLevel = $admin->access_level ?? $admin->role ?? null;
+            $isAdmin = in_array($accessLevel, ['admin', 'staff', 'Admin', 'Staff', 'super_admin']) || 
+                      in_array($admin->role ?? null, ['admin', 'staff', 'Admin', 'Staff', 'super_admin']);
+            
+            if (!$isAdmin) {
+                Log::warning('Unauthorized rejection attempt', [
+                    'user_id' => $admin->id,
+                    'user_type' => class_basename($admin),
+                    'access_level' => $accessLevel,
+                    'role' => $admin->role ?? null
+                ]);
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
 

@@ -50,7 +50,15 @@ function LoginPage({ onLogin }) {
         navigate('/home');
         if (onLogin) onLogin();
       } else {
-        setError(data.message || 'Invalid username or password');
+        console.error('Login failed:', response.status, data);
+        
+        if (response.status === 401) {
+          setError('Invalid email or password. Please check your credentials and try again.');
+        } else if (response.status === 422) {
+          setError(data.message || 'Please provide valid email and password.');
+        } else {
+          setError(data.message || 'Login failed. Please try again.');
+        }
       }
     } catch (error) {
       console.error('Login error:', error);

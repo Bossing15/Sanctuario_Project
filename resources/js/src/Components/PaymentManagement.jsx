@@ -1,6 +1,9 @@
 ﻿import { useState, useEffect } from 'react';
 import { formatDate } from '../utils/dateFormatter';
 import StatsCards from './StatsCards';
+import CrudActions from './CrudActions';
+import crudUtils from '../utils/crudUtils';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 
 const PaymentManagement = ({ canManageBilling = true }) => {
   const [payments, setPayments] = useState([]);
@@ -8,6 +11,9 @@ const PaymentManagement = ({ canManageBilling = true }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [paymentToDelete, setPaymentToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchPayments();
@@ -95,6 +101,43 @@ const PaymentManagement = ({ canManageBilling = true }) => {
     setShowReceiptModal(true);
   };
 
+  const handleDeletePayment = (id) => {
+    setPaymentToDelete(id);
+    setShowDeleteConfirmModal(true);
+  };
+
+  const confirmDeletePayment = async () => {
+    if (!paymentToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const result = await crudUtils.deleteItem(
+        "/api/payments",
+        paymentToDelete,
+        token
+      );
+      
+      if (result.success) {
+        fetchPayments();
+        setShowDeleteConfirmModal(false);
+        setPaymentToDelete(null);
+      } else {
+        alert(result.error || "Failed to delete payment");
+      }
+    } catch (error) {
+      console.error("Error deleting payment:", error);
+      alert("Error deleting payment");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const closeDeleteConfirmModal = () => {
+    setShowDeleteConfirmModal(false);
+    setPaymentToDelete(null);
+  };
+
   const handleDownloadPDF = () => {
     if (selectedPayment) {
       const downloadUrl = `/api/payments/${selectedPayment.id}/download-receipt`;
@@ -177,6 +220,7 @@ const PaymentManagement = ({ canManageBilling = true }) => {
                 <th>Method</th>
                 <th>Due_Date</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -216,8 +260,21 @@ const PaymentManagement = ({ canManageBilling = true }) => {
                   <td className="date-cell">{payment.paid_date ? formatDate(payment.paid_date) : 'N/A'}</td>
                   <td className="text-center">
                     <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                      ✓ Paid
+                      Paid
                     </span>
+                  </td>
+                  <td className="text-center">
+                    <CrudActions
+                      onView={() => handleGenerateReceipt(payment)}
+                      onEdit={() => {}}
+                      onDelete={() => handleDeletePayment(payment.id)}
+                      onToggleStatus={() => {}}
+                      showView={true}
+                      showEdit={false}
+                      showDelete={canManageBilling}
+                      showToggle={false}
+                      size="sm"
+                    />
                   </td>
                 </tr>
                 );
@@ -355,7 +412,7 @@ const PaymentManagement = ({ canManageBilling = true }) => {
                 className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-semibold shadow-md transition-all"
                 onClick={handlePrint}
               >
-                🖨️ Print
+                Print
               </button>
               <button
                 onClick={handleDownloadPDF}
@@ -370,6 +427,16 @@ const PaymentManagement = ({ canManageBilling = true }) => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        show={showDeleteConfirmModal}
+        message="Are you sure you want to delete this payment?"
+        itemName="this payment"
+        onConfirm={confirmDeletePayment}
+        onCancel={closeDeleteConfirmModal}
+        isLoading={isDeleting}
+      />
 
     </div>
   );

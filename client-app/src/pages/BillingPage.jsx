@@ -17,11 +17,35 @@ function BillingPage() {
   const [alertModal, setAlertModal] = useState({ show: false, type: 'info', message: '' });
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [selectedReceiptPayment, setSelectedReceiptPayment] = useState(null);
+  const [highlightedPaymentId, setHighlightedPaymentId] = useState(null);
 
   useEffect(() => {
     fetchPendingPayments();
     
-    // Check if a payment was just completed
+    // Check if payment was completed via query parameter (from PayMongo redirect)
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment_completed') === 'true') {
+      console.log('Payment completed via redirect, refreshing payments');
+      
+      // Refresh payments after a short delay to ensure backend has updated
+      setTimeout(() => {
+        fetchPendingPayments();
+      }, 1000);
+      
+      // Show success message
+      setAlertModal({
+        show: true,
+        type: 'success',
+        message: 'Payment completed successfully! Your payment has been processed.',
+        onClose: () => {
+          setAlertModal({ show: false, type: 'info', message: '' });
+          // Clear the query parameter
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      });
+    }
+    
+    // Check if a payment was just completed (legacy sessionStorage method)
     const checkPaymentCompletion = () => {
       const paymentCompleted = sessionStorage.getItem('paymentCompleted');
       if (paymentCompleted) {
@@ -44,12 +68,101 @@ function BillingPage() {
     
     checkPaymentCompletion();
     
+    // Check if there's a pending payment from My Requests redirect
+    const checkPendingPayment = () => {
+      const pendingPaymentData = sessionStorage.getItem('pendingPayment');
+      console.log('Checking pending payment:', pendingPaymentData);
+      
+      if (pendingPaymentData) {
+        try {
+          const paymentData = JSON.parse(pendingPaymentData);
+          console.log('Pending payment from redirect:', paymentData);
+          
+          // Store for later matching
+          sessionStorage.setItem('redirectedPaymentInfo', JSON.stringify(paymentData));
+          console.log('Stored redirectedPaymentInfo');
+          
+          // Clear the pending payment data
+          sessionStorage.removeItem('pendingPayment');
+          console.log('Cleared pendingPayment');
+        } catch (e) {
+          console.error('Error parsing pending payment info:', e);
+        }
+      }
+    };
+    
+    checkPendingPayment();
+    
     // Cleanup function to reset state when component unmounts
     return () => {
       setShowPaymentModal(false);
       setSelectedPayment(null);
     };
   }, []);
+
+  // Effect to highlight payment after it's loaded
+  useEffect(() => {
+    console.log('Highlight effect triggered:', { loading, pendingPaymentsLength: pendingPayments.length });
+    
+    if (!loading && pendingPayments.length > 0) {
+      const redirectedPaymentInfo = sessionStorage.getItem('redirectedPaymentInfo');
+      console.log('Redirected payment info:', redirectedPaymentInfo);
+      
+      if (redirectedPaymentInfo) {
+        try {
+          const paymentInfo = JSON.parse(redirectedPaymentInfo);
+          console.log('Looking for payment to highlight:', paymentInfo);
+          console.log('All pending payments:', pendingPayments);
+          
+          // Match by invoice_number (for maintenance requests) or reservation_code (for reservations)
+          const matchingPayment = pendingPayments.find(p => {
+            const invoiceNumberMatch = p.invoice_number === paymentInfo.invoiceNumber;
+            const reservationCodeMatch = p.reservation_code === paymentInfo.reservationCode;
+            
+            console.log('Comparing payment:', { 
+              id: p.id,
+              paymentInvoiceNumber: p.invoice_number,
+              infoInvoiceNumber: paymentInfo.invoiceNumber,
+              invoiceNumberMatch,
+              paymentReservationCode: p.reservation_code,
+              infoReservationCode: paymentInfo.reservationCode,
+              reservationCodeMatch
+            });
+            
+            return invoiceNumberMatch || reservationCodeMatch;
+          });
+          
+          console.log('Matching payment result:', matchingPayment);
+          
+          if (matchingPayment) {
+            console.log('Found matching payment to highlight:', matchingPayment.id);
+            setHighlightedPaymentId(matchingPayment.id);
+            
+            // Auto-scroll to the highlighted payment after a small delay
+            setTimeout(() => {
+              const element = document.getElementById(`payment-${matchingPayment.id}`);
+              console.log('Element found:', !!element);
+              if (element) {
+                console.log('Scrolling to payment:', matchingPayment.id);
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }, 300);
+            
+            // Clear highlight after 5 seconds
+            setTimeout(() => {
+              console.log('Clearing highlight');
+              setHighlightedPaymentId(null);
+              sessionStorage.removeItem('redirectedPaymentInfo');
+            }, 5000);
+          } else {
+            console.log('No matching payment found');
+          }
+        } catch (e) {
+          console.error('Error processing redirected payment info:', e);
+        }
+      }
+    }
+  }, [loading, pendingPayments]);
 
   const fetchPendingPayments = async () => {
     const token = localStorage.getItem('authToken');
@@ -75,26 +188,14 @@ function BillingPage() {
         credentials: 'include',
       });
 
+      let allPayments = [];
+      
       if (response.ok) {
         const data = await response.json();
-        let allPayments = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : (Array.isArray(data.payments) ? data.payments : []));
+        allPayments = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : (Array.isArray(data.payments) ? data.payments : []));
         
         console.log('All payments fetched:', allPayments);
         console.log('Payment statuses:', allPayments.map(p => ({ id: p.id, status: p.status, paid_date: p.paid_date })));
-        
-        const pending = allPayments.filter(
-          payment => payment.status === 'pending' || payment.status === 'overdue'
-        );
-        
-        const completed = allPayments.filter(
-          payment => payment.status === 'completed'
-        );
-        
-        console.log('Pending payments:', pending.length);
-        console.log('Completed payments:', completed.length);
-        
-        setPendingPayments(pending);
-        setCompletedPayments(completed);
       } else {
         console.warn('Failed to fetch payments:', response.status);
         
@@ -108,10 +209,83 @@ function BillingPage() {
           navigate('/login');
           return;
         }
-        
-        setPendingPayments([]);
-        setCompletedPayments([]);
       }
+      
+      // Fetch maintenance bookings that are ready for payment
+      try {
+        const userResponse = await fetch('http://localhost:8000/api/user', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          const userId = userData.id;
+
+          const bookingsResponse = await fetch(`http://localhost:8000/api/bookings/user/${userId}${cacheBuster}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0'
+            },
+            credentials: 'include',
+          });
+
+          if (bookingsResponse.ok) {
+            const bookingsData = await bookingsResponse.json();
+            let bookings = Array.isArray(bookingsData) ? bookingsData : (Array.isArray(bookingsData.data) ? bookingsData.data : (Array.isArray(bookingsData.bookings) ? bookingsData.bookings : []));
+            
+            // Filter maintenance bookings that are ready for payment
+            const maintenanceReadyForPayment = bookings.filter(b => 
+              b.service_id && !b.product_id && b.status?.toLowerCase() === 'readyforpayment'
+            );
+            
+            console.log('Maintenance bookings ready for payment:', maintenanceReadyForPayment);
+            
+            // Convert maintenance bookings to payment format
+            // Use booking ID as the payment ID for now
+            const maintenancePayments = maintenanceReadyForPayment.map(booking => ({
+              id: booking.id,
+              booking_id: booking.id,
+              type: 'maintenance-booking',
+              invoice_number: booking.invoice_number || `SANC-${booking.id}`,
+              description: booking.service?.title || booking.service?.name || 'Maintenance Service',
+              amount: booking.total_amount || booking.amount,
+              status: 'pending',
+              created_at: booking.created_at,
+              plan_type: booking.plan_type || 'Standard'
+            }));
+            
+            // Combine regular payments with maintenance bookings
+            allPayments = [...allPayments, ...maintenancePayments];
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching maintenance bookings:', error);
+      }
+        
+        const pending = allPayments.filter(
+          payment => payment.status === 'pending' || payment.status === 'overdue'
+        );
+        
+        const completed = allPayments.filter(
+          payment => payment.status === 'completed'
+        );
+        
+        console.log('Pending payments (including maintenance):', pending.length);
+        console.log('Completed payments:', completed.length);
+        
+        setPendingPayments(pending);
+        setCompletedPayments(completed);
     } catch (error) {
       console.error('Error fetching payments:', error);
       setPendingPayments([]);
@@ -223,10 +397,12 @@ function BillingPage() {
               <span class="label">Date & Time:</span>
               <span class="value">${transactionDate.toLocaleString('en-PH')}</span>
             </div>
+            ${isPaid ? `
             <div class="detail-row">
               <span class="label">Transaction ID:</span>
               <span class="value">${payment.paymongo_intent_id || payment.payment_reference || 'N/A'}</span>
             </div>
+            ` : ''}
             ${!isPaid ? `
             <div class="detail-row">
               <span class="label">Due Date:</span>
@@ -387,7 +563,11 @@ function BillingPage() {
 
               <div className="payments-list">
                 {pendingPayments.map((payment) => (
-                  <div key={payment.id} className="payment-item">
+                  <div 
+                    key={payment.id} 
+                    id={`payment-${payment.id}`}
+                    className={`payment-item ${highlightedPaymentId === payment.id ? 'highlighted' : ''}`}
+                  >
                     <div className="payment-info">
                       <div className="payment-header">
                         <h4>{payment.description || 'Service Payment'}</h4>
@@ -396,6 +576,16 @@ function BillingPage() {
                         </span>
                       </div>
                       <div className="payment-details">
+                        <div className="detail-item">
+                          <span className="detail-label">Invoice Number:</span>
+                          <span className="detail-value" style={{ fontWeight: 'bold', color: '#3b82f6' }}>{payment.invoice_number || 'N/A'}</span>
+                        </div>
+                        {payment.transaction_id && (
+                          <div className="detail-item">
+                            <span className="detail-label">Transaction ID:</span>
+                            <span className="detail-value" style={{ fontWeight: 'bold', color: '#10b981' }}>{payment.transaction_id}</span>
+                          </div>
+                        )}
                         <div className="detail-item">
                           <span className="detail-label">Plan:</span>
                           <span className="detail-value">{payment.payment_type || 'One-time'}</span>
@@ -448,7 +638,6 @@ function BillingPage() {
           ) : (
             completedPayments.length === 0 ? (
               <div className="no-payments-state">
-                <div className="info-icon">ℹ️</div>
                 <h3>No Payment History</h3>
                 <p>You don't have any completed payments yet.</p>
               </div>
@@ -464,6 +653,16 @@ function BillingPage() {
                         </span>
                       </div>
                       <div className="payment-details">
+                        <div className="detail-item">
+                          <span className="detail-label">Invoice Number:</span>
+                          <span className="detail-value" style={{ fontWeight: 'bold', color: '#3b82f6' }}>{payment.invoice_number || 'N/A'}</span>
+                        </div>
+                        {payment.transaction_id && (
+                          <div className="detail-item">
+                            <span className="detail-label">Transaction ID:</span>
+                            <span className="detail-value" style={{ fontWeight: 'bold', color: '#10b981' }}>{payment.transaction_id}</span>
+                          </div>
+                        )}
                         <div className="detail-item">
                           <span className="detail-label">Plan:</span>
                           <span className="detail-value">{payment.payment_type || 'One-time'}</span>
@@ -526,6 +725,8 @@ function BillingPage() {
             fetchPendingPayments();
           }}
           isLawnLotProduct={false}
+          isApprovedReservation={true}
+          reservationId={selectedPayment.reservation_id}
         />
       )}
 

@@ -56,7 +56,6 @@ function AdminPaymentSuccess() {
           </>
         ) : error ? (
           <>
-            <div className="text-6xl text-red-600 mx-auto mb-6">❌</div>
             <h1 className="text-2xl font-bold text-gray-800 mb-4">Payment Error</h1>
             <p className="text-gray-600 mb-6">{error}</p>
             <button

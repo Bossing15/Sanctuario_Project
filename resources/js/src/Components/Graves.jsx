@@ -175,7 +175,6 @@ export default function Graves() {
           <div className="modal max-w-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-header-title">
-                <span className="modal-header-icon">⚰️</span>
                 <span>Grave Details</span>
               </div>
               <button className="modal-close" onClick={closeModal}>×</button>
@@ -190,11 +189,11 @@ export default function Graves() {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
                   <div>{selectedGrave.status === "Active" ? (
                     <span className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
-                      ✅ Active
+                      Active
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
-                      ❌ Inactive
+                      Inactive
                     </span>
                   )}</div>
                 </div>
@@ -350,9 +349,6 @@ export default function Graves() {
           <div className="modal max-w-md" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-header-title">
-                <span className="modal-header-icon">
-                  {notification.type === 'success' ? '✓' : notification.type === 'error' ? '✕' : 'ℹ'}
-                </span>
                 <span>{notification.type === 'success' ? 'Success' : notification.type === 'error' ? 'Error' : 'Information'}</span>
               </div>
               <button className="modal-close" onClick={() => setNotification(null)}>×</button>
@@ -391,7 +387,7 @@ export default function Graves() {
               <TableSkeleton rows={8} columns={8} />
             ) : error ? (
               <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 text-center">
-                <div className="text-red-600 text-xl mb-4">⚠️ Error</div>
+                <div className="text-red-600 text-xl mb-4">Error</div>
                 <p className="text-gray-700 mb-4">{error}</p>
                 <button 
                   onClick={fetchGraves}
@@ -402,7 +398,7 @@ export default function Graves() {
               </div>
             ) : gravesData.length === 0 ? (
               <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 text-center">
-                <div className="text-gray-400 text-6xl mb-4">⚰️</div>
+                <div className="text-gray-400 text-6xl mb-4"></div>
                 <h3 className="text-xl font-semibold text-gray-700 mb-2">No Purchased Graves Found</h3>
                 <p className="text-gray-500">No graves have been purchased yet.</p>
               </div>
@@ -513,11 +509,11 @@ export default function Graves() {
                             <td className="text-center">
                               {grave.status === "Active" ? (
                                 <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
-                                  ✅ Active
+                                  Active
                                 </span>
                               ) : (
                                 <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
-                                  ❌ Inactive
+                                  Inactive
                                 </span>
                               )}
                             </td>
@@ -547,10 +543,10 @@ export default function Graves() {
 
                 <div className="graves-legend pb-8">
                   <p className="text-sm">
-                    <span className="text-green-600 font-semibold">✅ Active</span> – The Customer is Active and is Paying for the Services.
+                    <span className="text-green-600 font-semibold">Active</span> – The Customer is Active and is Paying for the Services.
                   </p>
                   <p className="text-sm">
-                    <span className="text-red-600 font-semibold">❌ Inactive</span> – The Customer is Inactive Due to Non-Payment of the Services.
+                    <span className="text-red-600 font-semibold">Inactive</span> – The Customer is Inactive Due to Non-Payment of the Services.
                   </p>
                 </div>
               </>

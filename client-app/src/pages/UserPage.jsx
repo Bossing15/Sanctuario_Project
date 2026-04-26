@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FaArrowLeft, FaUserCircle, FaUser, FaCreditCard, FaShoppingBag, FaSignOutAlt as FaLogout } from 'react-icons/fa';
+import { FaArrowLeft, FaUserCircle, FaUser, FaCreditCard, FaShoppingBag, FaClipboardList, FaSignOutAlt as FaLogout, FaCheckCircle, FaCalendarAlt, FaMapMarkerAlt } from 'react-icons/fa';
 import PaymentModal from '../components/PaymentModal';
 import AlertModal from '../components/AlertModal';
 import './UserPage.css';
@@ -26,6 +26,7 @@ function UserPage() {
   const [activeTab, setActiveTab] = useState(tabFromUrl);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [pendingPayments, setPendingPayments] = useState([]);
+  const [purchasedProducts, setPurchasedProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
@@ -45,6 +46,8 @@ function UserPage() {
   useEffect(() => {
     if (activeTab === 'billing') {
       fetchPendingPayments();
+    } else if (activeTab === 'profile') {
+      fetchPurchasedProducts();
     }
   }, [activeTab]);
 
@@ -64,7 +67,9 @@ function UserPage() {
 
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8000/api/payments', {
+      
+      // Fetch regular payments
+      const paymentsResponse = await fetch('http://localhost:8000/api/payments', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -74,15 +79,123 @@ function UserPage() {
         credentials: 'include',
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        const pending = (data.data || data).filter(
+      let payments = [];
+      if (paymentsResponse.ok) {
+        const data = await paymentsResponse.json();
+        payments = (data.data || data).filter(
           payment => payment.status === 'pending' || payment.status === 'overdue'
         );
-        setPendingPayments(pending);
       }
+
+      // Fetch approved reservations
+      const reservationsResponse = await fetch('http://localhost:8000/api/reservations', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      let reservations = [];
+      if (reservationsResponse.ok) {
+        const data = await reservationsResponse.json();
+        // Convert approved reservations to payment format
+        reservations = (data.reservations || [])
+          .filter(res => res.status === 'approved')
+          .map(res => ({
+            id: res.id,
+            description: res.product?.title || res.service?.title || 'Reservation',
+            amount: res.amount,
+            payment_type: res.plan_type || 'One-time',
+            due_date: res.created_at,
+            status: 'pending',
+            reservation_id: res.id,
+            is_reservation: true,
+          }));
+      }
+
+      // Combine both
+      setPendingPayments([...payments, ...reservations]);
     } catch (error) {
       console.error('Error fetching payments:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPurchasedProducts = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Fetch paid/completed reservations
+      const reservationsResponse = await fetch('http://localhost:8000/api/reservations', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      let products = [];
+      if (reservationsResponse.ok) {
+        const data = await reservationsResponse.json();
+        console.log('All reservations:', data.reservations);
+        
+        // Get paid/completed reservations
+        const paidProducts = (data.reservations || [])
+          .filter(res => res.status === 'paid' || res.status === 'completed')
+          .map(res => ({
+            id: res.id,
+            productName: res.product?.title || res.service?.title || 'Product/Service',
+            productType: res.lot_type || 'Unknown',
+            deceasedName: res.deceased_name,
+            dateOfDeath: res.deceased_date_of_death,
+            relationship: res.deceased_relationship,
+            planType: res.plan_type,
+            amount: res.amount,
+            reservationCode: res.reservation_code,
+            invoiceNumber: res.invoice_number,
+            purchaseDate: res.created_at,
+            approvedDate: res.approved_at,
+            status: res.status,
+            lotId: res.lot_id,
+            lotType: res.lot_type,
+            // Lot information
+            lot: res.lot ? {
+              plotNumber: res.lot.plot_number,
+              graveLocation: res.lot.grave_location,
+              section: res.lot.section,
+              status: res.lot.status,
+              notes: res.lot.notes,
+            } : null,
+          }));
+        
+        console.log('Filtered purchased products:', paidProducts);
+        console.log('Total reservations:', data.reservations?.length);
+        console.log('Paid/Completed count:', paidProducts.length);
+        
+        // If no paid products, show all reservations for debugging
+        if (paidProducts.length === 0) {
+          console.log('No paid products found. All reservation statuses:', 
+            data.reservations?.map(r => ({ id: r.id, status: r.status, deceased: r.deceased_name }))
+          );
+        }
+        
+        products = paidProducts;
+      }
+
+      setPurchasedProducts(products);
+    } catch (error) {
+      console.error('Error fetching purchased products:', error);
     } finally {
       setLoading(false);
     }
@@ -200,6 +313,18 @@ function UserPage() {
                   <div className="tab-content">
                     <span className="tab-title">My Purchases</span>
                     <span className="tab-subtitle">Order history</span>
+                  </div>
+                </button>
+                <button 
+                  className={`tab-btn ${activeTab === 'reservations' ? 'active' : ''}`}
+                  onClick={() => navigate('/my-reservations')}
+                >
+                  <div className="tab-icon">
+                    <FaClipboardList />
+                  </div>
+                  <div className="tab-content">
+                    <span className="tab-title">My Reservations</span>
+                    <span className="tab-subtitle">Pending approvals</span>
                   </div>
                 </button>
               </div>
@@ -355,6 +480,125 @@ function UserPage() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Purchased Products Section */}
+                  <div className="purchased-products-section">
+                    <h3>My Purchased Products</h3>
+                    
+                    {loading ? (
+                      <div className="loading-state">
+                        <div className="spinner"></div>
+                        <p>Loading your products...</p>
+                      </div>
+                    ) : purchasedProducts.length === 0 ? (
+                      <div className="no-products-state">
+                        <div className="empty-icon">📦</div>
+                        <h4>No Products Yet</h4>
+                        <p>You haven't purchased any products yet. Start exploring our offerings!</p>
+                      </div>
+                    ) : (
+                      <div className="products-grid">
+                        {purchasedProducts.map((product) => (
+                          <div key={product.id} className="product-card-item">
+                            <div className="product-card-header">
+                              <div className="product-status-badge">
+                                <FaCheckCircle className="status-icon" />
+                                <span>Purchased</span>
+                              </div>
+                              <div className="product-code">{product.reservationCode}</div>
+                            </div>
+                            
+                            <div className="product-card-body">
+                              <h4 className="product-name">{product.productName}</h4>
+                              
+                              <div className="product-info-grid">
+                                <div className="info-row">
+                                  <span className="info-label">Deceased Name:</span>
+                                  <span className="info-value">{product.deceasedName}</span>
+                                </div>
+                                
+                                <div className="info-row">
+                                  <span className="info-label">Date of Death:</span>
+                                  <span className="info-value">{formatDate(product.dateOfDeath)}</span>
+                                </div>
+                                
+                                <div className="info-row">
+                                  <span className="info-label">Relationship:</span>
+                                  <span className="info-value">{product.relationship || 'N/A'}</span>
+                                </div>
+                                
+                                <div className="info-row">
+                                  <span className="info-label">Product Type:</span>
+                                  <span className="info-value">{product.productType}</span>
+                                </div>
+                                
+                                <div className="info-row">
+                                  <span className="info-label">Plan Type:</span>
+                                  <span className="info-value">{product.planType || 'One-time'}</span>
+                                </div>
+                                
+                                <div className="info-row">
+                                  <span className="info-label">Amount:</span>
+                                  <span className="info-value amount">{formatCurrency(product.amount)}</span>
+                                </div>
+                                
+                                <div className="info-row">
+                                  <span className="info-label">Invoice Number:</span>
+                                  <span className="info-value">{product.invoiceNumber || 'N/A'}</span>
+                                </div>
+                                
+                                <div className="info-row">
+                                  <span className="info-label">Purchase Date:</span>
+                                  <span className="info-value">{formatDate(product.purchaseDate)}</span>
+                                </div>
+
+                                {/* Lot Information Section */}
+                                {product.lot && (
+                                  <>
+                                    <div className="info-row lot-section-header">
+                                      <FaMapMarkerAlt className="lot-icon" />
+                                      <span className="info-label">Lot Details</span>
+                                    </div>
+                                    
+                                    <div className="info-row">
+                                      <span className="info-label">Plot Number:</span>
+                                      <span className="info-value">{product.lot.plotNumber || 'N/A'}</span>
+                                    </div>
+                                    
+                                    <div className="info-row">
+                                      <span className="info-label">Section:</span>
+                                      <span className="info-value">{product.lot.section || 'N/A'}</span>
+                                    </div>
+                                    
+                                    <div className="info-row">
+                                      <span className="info-label">Location:</span>
+                                      <span className="info-value">{product.lot.graveLocation || 'N/A'}</span>
+                                    </div>
+                                    
+                                    <div className="info-row">
+                                      <span className="info-label">Lot Status:</span>
+                                      <span className="info-value">{product.lot.status || 'N/A'}</span>
+                                    </div>
+                                    
+                                    {product.lot.notes && (
+                                      <div className="info-row">
+                                        <span className="info-label">Notes:</span>
+                                        <span className="info-value">{product.lot.notes}</span>
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div className="product-card-footer">
+                              <span className="status-badge completed">✓ Completed</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -428,6 +672,8 @@ function UserPage() {
           planType={selectedPayment.payment_type}
           amount={selectedPayment.amount}
           bookingId={selectedPayment.booking_id}
+          reservationId={selectedPayment.is_reservation ? selectedPayment.reservation_id : null}
+          isApprovedReservation={selectedPayment.is_reservation}
           onClose={() => {
             setShowPaymentModal(false);
             setSelectedPayment(null);

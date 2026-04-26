@@ -8,6 +8,8 @@ import InlineServiceEditor from "./InlineServiceEditor";
 import ServiceDetailEditorInline from "./ServiceDetailEditorInline";
 import MaintenanceHeader from "./MaintenanceHeader";
 import StatsCards from "./StatsCards";
+import CrudActions from "./CrudActions";
+import crudUtils from "../utils/crudUtils";
 import "./MaintenanceHeader.css";
 
 const Services = () => {
@@ -128,6 +130,11 @@ const Services = () => {
   const handleSaveMaintenanceHeader = async (formData) => {
     // This is just for the UI - you can extend this to save to a database if needed
     showNotification("Maintenance header updated!", "success");
+  };
+
+  const handleViewService = (service) => {
+    setEditingService(service);
+    setShowServiceEditor(true);
   };
 
   const confirmDeleteService = async () => {
@@ -371,39 +378,27 @@ const Services = () => {
                           <td className="text-center">
                             {service.status === "Active" ? (
                               <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
-                                ✅ Active
+                                Active
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
-                                ❌ Inactive
+                                Inactive
                               </span>
                             )}
                           </td>
-                          <td>
-                            <div className="flex gap-2">
-                              <button 
-                                onClick={() => handleEditService(service)}
-                                disabled={!canManageServices}
-                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                                  canManageServices
-                                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                }`}
-                              >
-                                Edit
-                              </button>
-                              <button 
-                                onClick={() => handleDeleteService(service.id)}
-                                disabled={!canManageServices}
-                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                                  canManageServices
-                                    ? "bg-red-600 text-white hover:bg-red-700"
-                                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                }`}
-                              >
-                                Delete
-                              </button>
-                            </div>
+                          <td className="text-center">
+                            <CrudActions
+                              onView={() => handleViewService(service)}
+                              onEdit={() => handleEditService(service)}
+                              onDelete={() => handleDeleteService(service.id)}
+                              onToggleStatus={() => {}}
+                              showView={true}
+                              showEdit={true}
+                              showDelete={true}
+                              showToggle={false}
+                              disabled={!canManageServices}
+                              size="sm"
+                            />
                           </td>
                         </tr>
                       ))

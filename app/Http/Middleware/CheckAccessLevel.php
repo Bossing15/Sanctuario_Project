@@ -15,7 +15,14 @@ class CheckAccessLevel
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        if (!in_array($user->access_level ?? $user->role, $levels)) {
+        $userLevel = $user->access_level ?? $user->role;
+        
+        // Allow super_admin to access any admin-level routes
+        if ($userLevel === 'super_admin' && in_array('admin', $levels)) {
+            return $next($request);
+        }
+
+        if (!in_array($userLevel, $levels)) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 

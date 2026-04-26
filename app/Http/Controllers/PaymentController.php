@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
+use App\Models\Request as PurchaseRequest;
 use App\Services\AuthorizationService;
 use App\Services\EmailNotificationService;
 use Illuminate\Http\Request;
@@ -19,8 +20,16 @@ class PaymentController extends Controller
 
     public function __construct(AuthorizationService $authorizationService, EmailNotificationService $emailNotificationService)
     {
-        $this->paymongoPublicKey = config('services.paymongo.public_key') ?? env('PAYMONGO_PUBLIC_KEY');
-        $this->paymongoSecretKey = config('services.paymongo.secret_key') ?? env('PAYMONGO_SECRET_KEY');
+        $environment = config('services.paymongo.environment', 'test');
+        
+        if ($environment === 'test') {
+            $this->paymongoPublicKey = config('services.paymongo.test_public_key') ?? env('PAYMONGO_TEST_PUBLIC_KEY');
+            $this->paymongoSecretKey = config('services.paymongo.test_secret_key') ?? env('PAYMONGO_TEST_SECRET_KEY');
+        } else {
+            $this->paymongoPublicKey = config('services.paymongo.public_key') ?? env('PAYMONGO_PUBLIC_KEY');
+            $this->paymongoSecretKey = config('services.paymongo.secret_key') ?? env('PAYMONGO_SECRET_KEY');
+        }
+        
         $this->authorizationService = $authorizationService;
         $this->emailNotificationService = $emailNotificationService;
     }
@@ -63,34 +72,64 @@ class PaymentController extends Controller
                         }
                     }
 
-                    return response()->json([
-                        'message' => 'Payment successful',
-                        'status' => 'success',
-                        'payment_id' => $payment->id,
-                        'booking_id' => $payment->booking_id,
-                        'amount' => $payment->amount,
-                        'method' => $payment->payment_method,
-                        'reference' => $payment->paymongo_intent_id,
-                        'completed_at' => $payment->completed_at,
-                        'booking' => $booking
+                    // If there's an inquiry (maintenance request) associated with this payment, update it
+                    if ($payment->request_id) {
+                        $inquiry = \App\Models\Inquiry::find($payment->request_id);
+                        if ($inquiry) {
+                            $inquiry->update([
+                                'payment_id' => $payment->id,
+                                'transaction_id' => $payment->paymongo_intent_id ?? $payment->payment_reference,
+                                'payment_status' => 'completed',
+                                'paid_at' => now(),
+                                'status' => 'paid'
+                            ]);
+                            Log::info('Inquiry marked as paid', [
+                                'inquiry_id' => $inquiry->id,
+                                'payment_id' => $payment->id,
+                                'transaction_id' => $payment->paymongo_intent_id ?? $payment->payment_reference
+                            ]);
+                        }
+                    }
+
+                    // If there's a reservation associated with this payment, update it
+                    if ($payment->reservation_id) {
+                        $reservation = \App\Models\Reservation::find($payment->reservation_id);
+                        if ($reservation) {
+                            $reservation->update([
+                                'status' => 'paid',
+                                'paid_at' => now()
+                            ]);
+                            Log::info('Reservation marked as paid', [
+                                'reservation_id' => $reservation->id,
+                                'payment_id' => $payment->id
+                            ]);
+                        }
+                    }
+
+                    // Return HTML page that redirects to client app
+                    $clientUrl = config('app.client_url', 'http://localhost:3000');
+                    return view('payment-success', [
+                        'clientUrl' => $clientUrl,
+                        'paymentId' => $paymentId
                     ]);
                 }
             }
 
             // Fallback if no payment_id
-            return response()->json([
-                'message' => 'Payment successful',
-                'status' => 'success',
-                'session_id' => $sessionId
+            $clientUrl = config('app.client_url', 'http://localhost:3000');
+            return view('payment-success', [
+                'clientUrl' => $clientUrl,
+                'paymentId' => null
             ]);
         } catch (\Exception $e) {
             Log::error('Payment success handling failed', [
                 'error' => $e->getMessage()
             ]);
-            return response()->json([
-                'message' => 'Payment success handling failed',
+            $clientUrl = config('app.client_url', 'http://localhost:3000');
+            return view('payment-error', [
+                'clientUrl' => $clientUrl,
                 'error' => $e->getMessage()
-            ], 500);
+            ]);
         }
     }
 
@@ -114,11 +153,55 @@ class PaymentController extends Controller
         try {
             Log::info('Payment webhook received', $request->all());
             
+            $data = $request->all();
+            
+            // Check if this is a payment.paid event
+            if (isset($data['data']['attributes']['type']) && $data['data']['attributes']['type'] === 'payment.paid') {
+                $paymentId = $data['data']['attributes']['data']['id'] ?? null;
+                
+                if ($paymentId) {
+                    // Find the payment record
+                    $payment = Payment::where('paymongo_intent_id', $paymentId)->first();
+                    
+                    if ($payment) {
+                        // Update payment status
+                        $payment->update([
+                            'status' => 'completed',
+                            'paid_date' => now(),
+                            'completed_at' => now(),
+                        ]);
+                        
+                        // If this is a reservation payment, update reservation status
+                        if ($payment->reservation_id) {
+                            $reservation = Reservation::find($payment->reservation_id);
+                            if ($reservation) {
+                                $reservation->update([
+                                    'status' => 'paid',
+                                ]);
+                                
+                                Log::info('Reservation marked as paid via webhook', [
+                                    'reservation_id' => $reservation->id,
+                                    'payment_id' => $payment->id,
+                                ]);
+                            }
+                        }
+                        
+                        Log::info('Payment marked as completed via webhook', [
+                            'payment_id' => $payment->id,
+                        ]);
+                    }
+                }
+            }
+            
             return response()->json([
                 'message' => 'Webhook processed',
                 'status' => 'received'
             ]);
         } catch (\Exception $e) {
+            Log::error('Webhook handling error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return response()->json([
                 'message' => 'Webhook handling failed',
                 'error' => $e->getMessage()
@@ -171,6 +254,7 @@ class PaymentController extends Controller
                             'currency' => $validated['currency'] ?? 'PHP',
                             'description' => $validated['description'] ?? 'Payment',
                             'statement_descriptor' => 'SANCTUARIO',
+                            'payment_method_allowed' => ['card', 'gcash', 'grab_pay', 'paymaya'],
                         ]
                     ]
                 ]);
@@ -209,6 +293,11 @@ class PaymentController extends Controller
     public function createCheckoutSession(Request $request)
     {
         try {
+            Log::info('createCheckoutSession called', [
+                'method' => $request->method(),
+                'all_data' => $request->all()
+            ]);
+
             $validated = $request->validate([
                 'amount' => 'required|numeric|min:0',
                 'description' => 'nullable|string',
@@ -218,8 +307,36 @@ class PaymentController extends Controller
                 'service_type' => 'nullable|string',
                 'product_id' => 'nullable|integer',
                 'plan_type' => 'nullable|string',
-                'grave_id' => 'nullable|integer|exists:graves,id',
+                'grave_id' => 'nullable|integer',
+                'lot_id' => 'nullable|integer',
+                'lot_type' => 'nullable|string',
+                'payment_plan_id' => 'nullable|integer',
+                'deceased_name' => 'nullable|string|max:255',
+                'deceased_date_of_death' => 'nullable|date|before_or_equal:today',
+                'deceased_relationship' => 'nullable|string|max:100',
+                'additional_deceased_info' => 'nullable|array',
             ]);
+
+            Log::info('Validation passed', ['validated' => $validated]);
+
+            // Normalize lot_type to match database enum values if provided
+            if (!empty($validated['lot_type'])) {
+                $lotTypeMap = [
+                    'lawn-lots' => 'LawnLot',
+                    'lawlots' => 'LawnLot',
+                    'lawnlot' => 'LawnLot',
+                    'columbariums' => 'Columbarium',
+                    'columbarium' => 'Columbarium',
+                    'family-estates' => 'FamilyEstate',
+                    'familyestates' => 'FamilyEstate',
+                    'familyestate' => 'FamilyEstate',
+                ];
+                
+                $lotType = strtolower($validated['lot_type']);
+                $validated['lot_type'] = $lotTypeMap[$lotType] ?? 'LawnLot';
+
+                Log::info('Lot type normalized', ['original' => $lotType, 'normalized' => $validated['lot_type']]);
+            }
 
             // If user is authenticated, use their ID instead of the provided client_id
             $clientId = $validated['client_id'];
@@ -231,287 +348,76 @@ class PaymentController extends Controller
                 ]);
             }
 
-            Log::info('Checkout session request received', [
+            Log::info('Request creation initiated', [
                 'product_id' => $validated['product_id'] ?? 'null',
                 'plan_type' => $validated['plan_type'] ?? 'null',
                 'amount' => $validated['amount'],
-                'client_id' => $clientId
+                'client_id' => $clientId,
+                'lot_id' => $validated['lot_id'] ?? 'null',
+                'lot_type' => $validated['lot_type'] ?? 'null'
             ]);
 
-            $secretKey = config('services.paymongo.secret_key') ?? env('PAYMONGO_SECRET_KEY');
-            $publicKey = config('services.paymongo.public_key') ?? env('PAYMONGO_PUBLIC_KEY');
-            
-            Log::info('Creating PayMongo checkout session', [
+            // Create a purchase request instead of payment
+            $purchaseRequest = \App\Models\Request::create([
+                'user_id' => $clientId,
+                'product_id' => $validated['product_id'] ?? null,
+                'service_id' => null, // service_id will be null for now, can be set later
+                'payment_plan_id' => $validated['payment_plan_id'] ?? null,
+                'lot_id' => $validated['lot_id'] ?? null,
+                'lot_type' => $validated['lot_type'] ?? null,
+                'deceased_name' => $validated['deceased_name'] ?? null,
+                'deceased_date_of_death' => $validated['deceased_date_of_death'] ?? null,
+                'deceased_relationship' => $validated['deceased_relationship'] ?? null,
+                'additional_deceased_info' => $validated['additional_deceased_info'] ?? null,
                 'amount' => $validated['amount'],
-                'payment_method' => $validated['payment_method']
+                'status' => 'Pending_Approval',
+                'status_history' => [
+                    [
+                        'status' => 'Pending_Approval',
+                        'timestamp' => now()->toIso8601String(),
+                    ],
+                ],
             ]);
 
-            $amountInCentavos = (int)($validated['amount'] * 100);
-            $paymentMethodType = $this->mapPaymentMethod($validated['payment_method']);
-            
-            // Create payment intent first
-            $intentPayload = [
-                'data' => [
-                    'attributes' => [
-                        'amount' => $amountInCentavos,
-                        'currency' => 'PHP',
-                        'description' => $validated['description'] ?? 'Payment',
-                        'statement_descriptor' => 'SANCTUARIO',
-                        'payment_method_allowed' => [$paymentMethodType]
-                    ]
-                ]
-            ];
+            Log::info('Purchase request created', [
+                'request_id' => $purchaseRequest->id,
+                'user_id' => $clientId,
+                'status' => 'Pending_Approval',
+            ]);
 
-            $intentResponse = Http::withBasicAuth($secretKey, '')
-                ->post($this->paymongoBaseUrl . '/payment_intents', $intentPayload);
-
-            if (!$intentResponse->successful()) {
-                $errorData = $intentResponse->json();
-                Log::error('PayMongo payment intent error', [
-                    'status' => $intentResponse->status(),
-                    'error' => $errorData
+            // Send notification to admin about pending request
+            try {
+                $this->emailNotificationService->notifyAdminPendingRequest($purchaseRequest);
+                Log::info('Admin notification sent successfully', [
+                    'request_id' => $purchaseRequest->id
                 ]);
-                return response()->json([
-                    'message' => 'Failed to create payment intent',
-                    'error' => $errorData['errors'][0]['detail'] ?? 'Unknown error'
-                ], 400);
-            }
-
-            $intentData = $intentResponse->json();
-            Log::info('PayMongo intent response:', $intentData);
-            $intentId = $intentData['data']['id'];
-            $clientKey = $intentData['data']['attributes']['client_key'];
-
-            Log::info('Payment intent created', [
-                'intent_id' => $intentId,
-                'client_key' => $clientKey
-            ]);
-
-            // Create checkout session
-            $checkoutPayload = [
-                'data' => [
-                    'attributes' => [
-                        'payment_intent_id' => $intentId,
-                        'success_url' => 'http://localhost:3002/payment/success',
-                        'cancel_url' => 'http://localhost:3002/payment/cancel',
-                        'payment_method_types' => [$paymentMethodType],
-                        'line_items' => [
-                            [
-                                'currency' => 'PHP',
-                                'amount' => $amountInCentavos,
-                                'description' => $validated['description'] ?? 'Payment',
-                                'name' => $validated['customer_name'] ?? 'Payment',
-                                'quantity' => 1
-                            ]
-                        ]
-                    ]
-                ]
-            ];
-
-            $checkoutResponse = Http::withBasicAuth($secretKey, '')
-                ->post($this->paymongoBaseUrl . '/checkout_sessions', $checkoutPayload);
-
-            if (!$checkoutResponse->successful()) {
-                $errorData = $checkoutResponse->json();
-                Log::error('PayMongo checkout session error', [
-                    'status' => $checkoutResponse->status(),
-                    'error' => $errorData
+            } catch (\Exception $e) {
+                Log::warning('Failed to send admin notification', [
+                    'request_id' => $purchaseRequest->id,
+                    'error' => $e->getMessage()
                 ]);
-                return response()->json([
-                    'message' => 'Failed to create checkout session',
-                    'error' => $errorData['errors'][0]['detail'] ?? 'Unknown error'
-                ], 400);
+                // Don't fail the request creation if email fails
             }
 
-            $checkoutData = $checkoutResponse->json();
-            Log::info('PayMongo checkout response:', $checkoutData);
-            $checkoutUrl = $checkoutData['data']['attributes']['checkout_url'];
-            $sessionId = $checkoutData['data']['id'];
-
-            Log::info('Checkout session created', [
-                'session_id' => $sessionId,
-                'checkout_url' => $checkoutUrl
-            ]);
-
-            // Verify client exists before creating payment
-            $client = \App\Models\Client::find($clientId);
-            if (!$client) {
-                Log::warning('Client not found, creating payment with null client_id', ['client_id' => $clientId]);
-                // Allow payment creation with null client_id if client doesn't exist
-                $clientId = null;
-            }
-
-            // Check if we're updating an existing payment
-            $existingPaymentId = $request->input('existing_payment_id');
-            if ($existingPaymentId) {
-                // Update existing payment instead of creating a new one
-                $payment = Payment::find($existingPaymentId);
-                if ($payment) {
-                    Log::info('Updating existing payment', [
-                        'payment_id' => $existingPaymentId,
-                        'old_status' => $payment->status,
-                        'new_status' => 'pending'
-                    ]);
-                    
-                    // Update the payment with new PayMongo details
-                    $payment->update([
-                        'paymongo_intent_id' => $intentId,
-                        'paymongo_client_key' => $clientKey,
-                        'status' => 'pending'
-                    ]);
-                } else {
-                    Log::warning('Existing payment not found', ['payment_id' => $existingPaymentId]);
-                    // Create new payment if existing one not found
-                    $payment = Payment::create([
-                        'client_id' => $clientId,
-                        'booking_id' => null,
-                        'grave_id' => null,
-                        'service_id' => null,
-                        'product_id' => $validated['product_id'] ?? null,
-                        'amount' => $validated['amount'],
-                        'payment_method' => $validated['payment_method'],
-                        'payment_type' => 'full',
-                        'payment_reference' => 'PAY-' . strtoupper(uniqid()),
-                        'status' => 'pending',
-                        'description' => $validated['description'] ?? 'Payment',
-                        'due_date' => now()->addDays(30),
-                        'paymongo_intent_id' => $intentId,
-                        'paymongo_client_key' => $clientKey,
-                        'customer_name' => $validated['customer_name'] ?? 'Guest',
-                        'service_type' => $validated['service_type'] ?? 'general',
-                        'product_id' => $validated['product_id'] ?? null,
-                    ]);
-                }
-            } else {
-                // Create new payment
-                $payment = Payment::create([
-                    'client_id' => $clientId,
-                    'booking_id' => null,
-                    'grave_id' => null,
-                    'service_id' => null,
-                    'product_id' => $validated['product_id'] ?? null,
-                    'amount' => $validated['amount'],
-                    'payment_method' => $validated['payment_method'],
-                    'payment_type' => 'full',
-                    'payment_reference' => 'PAY-' . strtoupper(uniqid()),
-                    'status' => 'pending',
-                    'description' => $validated['description'] ?? 'Payment',
-                    'due_date' => now()->addDays(30),
-                    'paymongo_intent_id' => $intentId,
-                    'paymongo_client_key' => $clientKey,
-                    'customer_name' => $validated['customer_name'] ?? 'Guest',
-                    'service_type' => $validated['service_type'] ?? 'general',
-                    'product_id' => $validated['product_id'] ?? null,
-                ]);
-            }
-
-            // Create a booking record if product_id or service_id is provided
-            $booking = null;
-            if (!empty($validated['product_id']) || !empty($validated['service_id'])) {
-                try {
-                    $booking = \App\Models\Booking::create([
-                        'user_id' => $clientId,
-                        'service_id' => $validated['service_id'] ?? null,
-                        'product_id' => $validated['product_id'] ?? null,
-                        'grave_id' => $validated['grave_id'] ?? null,
-                        'plan_type' => $validated['plan_type'] ?? 'Monthly',
-                        'amount' => $validated['amount'],
-                        'status' => 'ReadyForPayment',
-                        'total_amount' => $validated['amount'],
-                    ]);
-
-                    // Determine authorization status
-                    $authStatus = $this->authorizationService->determineAuthorizationStatus($booking);
-                    $booking->update(['authorization_status' => $authStatus]);
-
-                    Log::info('Booking created with authorization status', [
-                        'booking_id' => $booking->id,
-                        'authorization_status' => $authStatus,
-                        'product_id' => $validated['product_id'] ?? null,
-                        'service_id' => $validated['service_id'] ?? null,
-                    ]);
-
-                    // If authorization is required, don't create payment yet
-                    if ($authStatus === 'PENDING_AUTHORIZATION') {
-                        Log::info('Booking requires authorization, skipping payment creation', [
-                            'booking_id' => $booking->id
-                        ]);
-
-                        // Send email notification to admin about pending request
-                        $this->emailNotificationService->notifyAdminPendingRequest($booking);
-
-                        return response()->json([
-                            'message' => 'Your request is pending approval',
-                            'status' => 'pending_authorization',
-                            'booking_id' => $booking->id,
-                            'authorization_status' => $authStatus,
-                            'notification' => 'Your request is pending approval. You will be notified once approved.',
-                            'next_step' => 'Wait for admin approval before proceeding with payment'
-                        ], 202);
-                    }
-
-                    // If rejected, return error
-                    if ($authStatus === 'REJECTED') {
-                        Log::info('Booking rejected due to unavailable lot', [
-                            'booking_id' => $booking->id
-                        ]);
-
-                        return response()->json([
-                            'message' => 'Transaction cannot be processed',
-                            'status' => 'rejected',
-                            'booking_id' => $booking->id,
-                            'reason' => 'The selected lot is not available or does not exist'
-                        ], 400);
-                    }
-
-                    // Link the booking to the payment (for AUTO_APPROVED)
-                    $payment->update(['booking_id' => $booking->id]);
-                    
-                    Log::info('Booking created successfully with auto-approval', [
-                        'booking_id' => $booking->id,
-                        'payment_id' => $payment->id,
-                        'grave_id' => $validated['grave_id'] ?? null
-                    ]);
-                } catch (\Exception $bookingError) {
-                    Log::error('Failed to create booking', [
-                        'error' => $bookingError->getMessage(),
-                        'product_id' => $validated['product_id'] ?? null,
-                        'service_id' => $validated['service_id'] ?? null,
-                        'user_id' => $clientId
-                    ]);
-                }
-            }
-
-            Log::info('Payment record created', [
-                'payment_id' => $payment->id,
-                'booking_id' => $booking?->id,
-                'intent_id' => $intentId
-            ]);
-
-            // Return checkout URL for frontend to redirect to
             return response()->json([
-                'message' => 'Checkout session created',
-                'payment_id' => $payment->id,
-                'session_id' => $sessionId,
-                'checkout_url' => $checkoutUrl,
-                'client_key' => $clientKey,
-                'amount' => $validated['amount'],
-                'payment_method' => $validated['payment_method'],
-                'intent_id' => $intentId
-            ], 201);
-
+                'message' => 'Your request has been submitted for admin approval',
+                'status' => 'pending_approval',
+                'request_id' => $purchaseRequest->id,
+                'notification' => 'Your request is pending approval. You will be notified once approved.',
+                'next_step' => 'Wait for admin approval before proceeding with payment'
+            ], 202);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
-            Log::error('Payment intent error', [
+            Log::error('Request creation error', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
             return response()->json([
-                'message' => 'Failed to create payment intent',
+                'message' => 'Failed to create request',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -702,5 +608,257 @@ class PaymentController extends Controller
 </body>
 </html>
 HTML;
+    }
+
+    /**
+     * Create payment from approved request
+     * POST /api/payments/from-request/{requestId}
+     * 
+     * @param Request $request
+     * @param int $requestId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function createFromRequest(Request $request, $requestId)
+    {
+        try {
+            $purchaseRequest = PurchaseRequest::findOrFail($requestId);
+
+            // Verify request is approved
+            if ($purchaseRequest->status !== 'Approved') {
+                Log::warning('Attempt to create payment from non-approved request', [
+                    'request_id' => $requestId,
+                    'status' => $purchaseRequest->status,
+                    'user_id' => auth()->id(),
+                ]);
+                return response()->json([
+                    'error' => 'Request must be approved before creating payment',
+                ], 422);
+            }
+
+            // Verify user owns the request
+            if ($purchaseRequest->user_id !== auth()->id()) {
+                Log::warning('Unauthorized attempt to create payment from request', [
+                    'request_id' => $requestId,
+                    'request_user_id' => $purchaseRequest->user_id,
+                    'auth_user_id' => auth()->id(),
+                ]);
+                return response()->json([
+                    'error' => 'Unauthorized',
+                ], 403);
+            }
+
+            // Validate required fields for payment
+            $validated = $request->validate([
+                'amount' => 'required|numeric|min:0',
+                'payment_method' => 'required|string',
+                'description' => 'nullable|string',
+            ]);
+
+            // Create payment from request data
+            $payment = Payment::create([
+                'client_id' => $purchaseRequest->user_id,
+                'product_id' => $purchaseRequest->product_id,
+                'service_id' => $purchaseRequest->service_id,
+                'payment_plan_id' => $purchaseRequest->payment_plan_id,
+                'request_id' => $purchaseRequest->id,
+                'amount' => $validated['amount'],
+                'payment_method' => $validated['payment_method'],
+                'payment_type' => 'full',
+                'payment_reference' => 'PAY-' . strtoupper(uniqid()),
+                'status' => 'pending',
+                'description' => $validated['description'] ?? 'Payment from approved request',
+                'due_date' => now()->addDays(30),
+                'customer_name' => $purchaseRequest->user->name ?? 'Guest',
+                'service_type' => 'general',
+            ]);
+
+            Log::info('Payment created from approved request', [
+                'payment_id' => $payment->id,
+                'request_id' => $purchaseRequest->id,
+                'user_id' => $purchaseRequest->user_id,
+                'amount' => $validated['amount'],
+            ]);
+
+            return response()->json([
+                'message' => 'Payment created successfully',
+                'payment' => $payment,
+            ], 201);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::warning('Request not found for payment creation', [
+                'request_id' => $requestId,
+            ]);
+            return response()->json([
+                'error' => 'Request not found',
+            ], 404);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Failed to create payment from request', [
+                'request_id' => $requestId,
+                'error' => $e->getMessage(),
+            ]);
+            return response()->json([
+                'message' => 'Failed to create payment',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function processPayment(Request $request, $paymentId)
+    {
+        try {
+            Log::info('Process payment request', [
+                'payment_id' => $paymentId,
+                'all_data' => $request->all(),
+            ]);
+
+            $validated = $request->validate([
+                'payment_method' => 'required|string',
+            ]);
+
+            $payment = Payment::findOrFail($paymentId);
+
+            // Verify the payment belongs to the authenticated user
+            if ($payment->client_id !== $request->user()->id) {
+                return response()->json([
+                    'error' => 'Unauthorized',
+                ], 403);
+            }
+
+            // Map payment method to valid enum value
+            $paymentMethodMap = [
+                'card' => 'Card',
+                'gcash' => 'GCash',
+                'grab_pay' => 'GrabPay',
+                'grabpay' => 'GrabPay',
+                'paymaya' => 'PayMaya',
+                'bank transfer' => 'Bank Transfer',
+                'cash' => 'Cash',
+                'paymongo' => 'PayMongo',
+            ];
+
+            $methodKey = strtolower($validated['payment_method']);
+            $paymentMethod = $paymentMethodMap[$methodKey] ?? 'PayMongo';
+
+            Log::info('Payment method mapped', [
+                'input' => $validated['payment_method'],
+                'mapped' => $paymentMethod,
+            ]);
+
+            // Create payment intent with PayMongo
+            $amountInCentavos = (int)($payment->amount * 100);
+
+            $response = Http::withBasicAuth($this->paymongoSecretKey, '')
+                ->post($this->paymongoBaseUrl . '/payment_intents', [
+                    'data' => [
+                        'attributes' => [
+                            'amount' => $amountInCentavos,
+                            'currency' => 'PHP',
+                            'description' => $payment->description ?? 'Payment',
+                            'statement_descriptor' => 'SANCTUARIO',
+                            'payment_method_allowed' => ['card', 'gcash', 'grab_pay', 'paymaya'],
+                        ]
+                    ]
+                ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $intentId = $data['data']['id'];
+                $clientKey = $data['data']['attributes']['client_key'];
+
+                // Update payment with PayMongo details
+                $payment->update([
+                    'payment_method' => $paymentMethod,
+                    'paymongo_intent_id' => $intentId,
+                    'paymongo_client_key' => $clientKey,
+                    'transaction_id' => $intentId,
+                ]);
+
+                // Create checkout session
+                $checkoutResponse = Http::withBasicAuth($this->paymongoSecretKey, '')
+                    ->post($this->paymongoBaseUrl . '/checkout_sessions', [
+                        'data' => [
+                            'attributes' => [
+                                'payment_intent_id' => $intentId,
+                                'success_url' => config('app.url') . '/api/payments/success?payment_id=' . $paymentId,
+                                'cancel_url' => config('app.url') . '/api/payments/cancel',
+                                'description' => $payment->description ?? 'Payment',
+                                'payment_method_types' => ['card', 'gcash', 'grab_pay', 'paymaya'],
+                                'line_items' => [
+                                    [
+                                        'currency' => 'PHP',
+                                        'amount' => (int)($payment->amount * 100),
+                                        'description' => $payment->description ?? 'Payment',
+                                        'name' => 'Payment',
+                                        'quantity' => 1,
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]);
+
+                if ($checkoutResponse->successful()) {
+                    $checkoutData = $checkoutResponse->json();
+                    $checkoutUrl = $checkoutData['data']['attributes']['checkout_url'];
+
+                    Log::info('Checkout session created for existing payment', [
+                        'payment_id' => $paymentId,
+                        'intent_id' => $intentId,
+                        'checkout_url' => $checkoutUrl,
+                    ]);
+
+                    return response()->json([
+                        'message' => 'Checkout session created',
+                        'intent_id' => $intentId,
+                        'client_secret' => $clientKey,
+                        'checkout_url' => $checkoutUrl,
+                        'amount' => $payment->amount,
+                        'currency' => 'PHP'
+                    ], 201);
+                } else {
+                    Log::error('PayMongo checkout session error', [
+                        'status' => $checkoutResponse->status(),
+                        'response' => $checkoutResponse->json()
+                    ]);
+                    return response()->json([
+                        'message' => 'Failed to create checkout session',
+                        'error' => $checkoutResponse->json()['errors'][0]['detail'] ?? 'Unknown error'
+                    ], 400);
+                }
+            } else {
+                Log::error('PayMongo payment intent error', [
+                    'status' => $response->status(),
+                    'response' => $response->json()
+                ]);
+                return response()->json([
+                    'message' => 'Failed to create payment intent',
+                    'error' => $response->json()['errors'][0]['detail'] ?? 'Unknown error'
+                ], 400);
+            }
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Payment not found',
+            ], 404);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error', [
+                'errors' => $e->errors(),
+            ]);
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Failed to process payment', [
+                'payment_id' => $paymentId,
+                'error' => $e->getMessage(),
+            ]);
+            return response()->json([
+                'message' => 'Failed to process payment',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

@@ -308,7 +308,7 @@ const ServiceDetailEditor = () => {
                       className="remove-thumbnail"
                       onClick={() => removeGalleryImage(index)}
                     >
-                      ✕
+                      ×
                     </button>
                   </div>
                 ))}

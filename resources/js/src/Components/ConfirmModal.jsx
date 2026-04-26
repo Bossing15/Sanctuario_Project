@@ -18,16 +18,16 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, confirmText
   const getIcon = () => {
     switch (type) {
       case 'success':
-        return '✓';
+        return 'Success';
       case 'error':
       case 'danger':
-        return '✕';
+        return 'Error';
       case 'warning':
-        return '⚠';
+        return 'Warning';
       case 'question':
-        return '❓';
+        return 'Question';
       default:
-        return 'ℹ';
+        return 'Info';
     }
   };
 

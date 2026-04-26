@@ -85,7 +85,7 @@ const SpecializedServiceEditor = ({ service, isOpen, onClose, onSave, canManageS
       <div className="specialized-editor-modal" onClick={(e) => e.stopPropagation()}>
         <div className="specialized-editor-header">
           <h2>{service?.id ? `Edit ${formData.title}` : 'Add New Service'}</h2>
-          <button className="close-btn" onClick={onClose}>✕</button>
+          <button className="close-btn" onClick={onClose}>×</button>
         </div>
 
         <form onSubmit={handleSubmit} className="specialized-editor-form">

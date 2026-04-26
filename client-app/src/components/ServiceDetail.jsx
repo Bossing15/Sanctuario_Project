@@ -266,7 +266,7 @@ const ServiceDetail = ({ service, onClose }) => {
           planType={selectedPlan.planType}
           amount={selectedPlan.amount}
           onClose={handleClosePaymentModal}
-          isLawnLotProduct={['lawn-lots', 'family-estates', 'columbariums', 'cremation', 'interment'].includes(service?.slug)}
+          isLawnLotProduct={false}
         />
       )}
 

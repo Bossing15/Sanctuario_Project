@@ -103,7 +103,7 @@ function AuthorizationModal({ request, onClose, onApprove, onReject }) {
               <div className="detail-item">
                 <label>Status:</label>
                 <span className="detail-value status-badge pending">
-                  ⏳ {request.authorization_status_label}
+                  {request.authorization_status_label}
                 </span>
               </div>
               <div className="detail-item">

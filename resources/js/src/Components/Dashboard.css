@@ -1,94 +1,229 @@
-/* Dashboard Component Styles */
+/* ============================================
+   DASHBOARD COMPONENT - MODERN DESIGN SYSTEM
+   ============================================ */
 
-/* Stat Cards - Desktop */
+/* 8px Spacing System */
+:root {
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 1rem;       /* 16px */
+  --spacing-lg: 1.5rem;     /* 24px */
+  --spacing-xl: 2rem;       /* 32px */
+  --spacing-2xl: 2.5rem;    /* 40px */
+  --spacing-3xl: 3rem;      /* 48px */
+  
+  /* Border Radius */
+  --radius-sm: 0.5rem;      /* 8px */
+  --radius-md: 0.75rem;     /* 12px */
+  --radius-lg: 1rem;        /* 16px */
+  
+  /* Shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   STAT CARDS - MODERN DESIGN
+   ============================================ */
+
 .dashboard-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-2xl);
 }
 
 .dashboard-stats .stat-card {
   background: white;
-  padding: 1.5rem;
-  border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid #f0f0f0;
+  box-shadow: var(--shadow-sm);
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all var(--transition-base);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 160px;
+}
+
+/* Subtle background gradient on hover */
+.dashboard-stats .stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.02) 0%, rgba(34, 197, 94, 0) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  pointer-events: none;
+}
+
+.dashboard-stats .stat-card:hover::before {
+  opacity: 1;
 }
 
 .dashboard-stats .stat-card:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+  border-color: #e5e7eb;
 }
 
-/* Tablet View */
+/* Icon Container */
+.dashboard-stats .stat-card > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--spacing-md);
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+}
+
+.dashboard-stats .stat-card:hover > div:first-child {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  transform: scale(1.1);
+}
+
+.dashboard-stats .stat-card img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+/* Label */
+.dashboard-stats .stat-card h6 {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin: 0 0 var(--spacing-xs) 0;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+/* Value */
+.dashboard-stats .stat-card h5 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - 8px GRID
+   ============================================ */
+
+/* Tablet View (1024px and below) */
 @media (max-width: 1024px) {
   .dashboard-stats {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
   }
 
   .dashboard-stats .stat-card {
-    padding: 1.25rem;
+    padding: var(--spacing-lg);
+    min-height: 140px;
+  }
+
+  .dashboard-stats .stat-card h5 {
+    font-size: 1.5rem;
+  }
+
+  .dashboard-stats .stat-card h6 {
+    font-size: 0.75rem;
   }
 }
 
-/* Mobile View */
+/* Mobile View (768px and below) */
 @media (max-width: 768px) {
   .dashboard-stats {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
   }
 
   .dashboard-stats .stat-card {
-    padding: 0.75rem;
-    border-radius: 0.5rem;
+    padding: var(--spacing-md);
+    border-radius: var(--radius-sm);
+    min-height: 120px;
   }
 
-  .dashboard-stats .stat-card h6 {
-    font-size: 0.65rem !important;
-    margin-bottom: 0.25rem !important;
-  }
-
-  .dashboard-stats .stat-card h5 {
-    font-size: 1rem !important;
+  .dashboard-stats .stat-card > div:first-child {
+    width: 40px;
+    height: 40px;
+    margin-bottom: var(--spacing-sm);
   }
 
   .dashboard-stats .stat-card img {
-    width: 24px !important;
-    height: 24px !important;
+    width: 24px;
+    height: 24px;
   }
 
-  .dashboard-stats .stat-card > div {
-    margin-bottom: 0.5rem !important;
+  .dashboard-stats .stat-card h6 {
+    font-size: 0.65rem;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .dashboard-stats .stat-card h5 {
+    font-size: 1.125rem;
+  }
+
+  .dashboard-stats .stat-card:hover {
+    transform: translateY(-2px);
   }
 }
 
-/* Small Mobile View */
+/* Small Mobile View (480px and below) */
 @media (max-width: 480px) {
   .dashboard-stats {
     grid-template-columns: 1fr;
-    gap: 0.5rem;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
   }
 
   .dashboard-stats .stat-card {
-    padding: 0.75rem;
+    padding: var(--spacing-md);
+    min-height: 110px;
   }
 
-  .dashboard-stats .stat-card h6 {
-    font-size: 0.6rem !important;
-  }
-
-  .dashboard-stats .stat-card h5 {
-    font-size: 0.9rem !important;
+  .dashboard-stats .stat-card > div:first-child {
+    width: 36px;
+    height: 36px;
+    margin-bottom: var(--spacing-sm);
   }
 
   .dashboard-stats .stat-card img {
-    width: 20px !important;
-    height: 20px !important;
+    width: 20px;
+    height: 20px;
+  }
+
+  .dashboard-stats .stat-card h6 {
+    font-size: 0.6rem;
+  }
+
+  .dashboard-stats .stat-card h5 {
+    font-size: 1rem;
+  }
+
+  .dashboard-stats .stat-card:hover {
+    transform: translateY(-1px);
   }
 }

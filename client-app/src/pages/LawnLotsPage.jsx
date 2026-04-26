@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './InternmentPage.css';
 import LoginPromptModal from '../components/LoginPromptModal';
 import PaymentModal from '../components/PaymentModal';
+import DeceasedInfoModal from '../components/DeceasedInfoModal';
 import heroBg from '../assets/images/Sanctuario3_1.jpg';
 import lawnLotsImg from '../assets/images/lawn_lots.jpg';
 import familyEstateImg from '../assets/images/familt_estate.jpg';
@@ -16,8 +17,10 @@ function LawnLotsPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [showDeceasedInfoModal, setShowDeceasedInfoModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [deceasedInfo, setDeceasedInfo] = useState(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
@@ -43,8 +46,16 @@ function LawnLotsPage() {
         console.log('Response text:', text.substring(0, 500));
         const data = JSON.parse(text);
         console.log('Product data:', data);
-        const lawnLots = data.products?.find(p => p.title === 'Lawn Lots') || data.find(p => p.title === 'Lawn Lots');
-        setProduct(lawnLots);
+        console.log('Products array:', data.products);
+        
+        if (data.products && Array.isArray(data.products)) {
+          const lawnLots = data.products.find(p => p.title === 'Lawn Lots');
+          console.log('Found Lawn Lots product:', lawnLots);
+          setProduct(lawnLots);
+        } else {
+          console.error('Products is not an array:', data.products);
+          setProduct(null);
+        }
       } else {
         const text = await response.text();
         console.error('Error response:', response.status, text.substring(0, 200));
@@ -71,12 +82,19 @@ function LawnLotsPage() {
   const handleSelectPlan = (planType, amount) => {
     setSelectedPlan({ planType, amount });
     setShowPricingModal(false);
+    setShowDeceasedInfoModal(true);
+  };
+
+  const handleDeceasedInfoSubmit = (info) => {
+    setDeceasedInfo(info);
+    setShowDeceasedInfoModal(false);
     setShowPaymentModal(true);
   };
 
   const handleClosePaymentModal = () => {
     setShowPaymentModal(false);
     setSelectedPlan(null);
+    setDeceasedInfo(null);
   };
 
   return (
@@ -208,8 +226,17 @@ function LawnLotsPage() {
         </div>
       )}
 
+      {/* Deceased Information Modal */}
+      {showDeceasedInfoModal && (
+        <DeceasedInfoModal
+          onSubmit={handleDeceasedInfoSubmit}
+          onClose={() => setShowDeceasedInfoModal(false)}
+          allowMultiple={false}
+        />
+      )}
+
       {/* Payment Modal with Lawn Lot Selector */}
-      {showPaymentModal && product && selectedPlan && (
+      {showPaymentModal && product && selectedPlan && deceasedInfo && (
         <PaymentModal
           service={product}
           planType={selectedPlan.planType}
@@ -217,6 +244,7 @@ function LawnLotsPage() {
           onClose={handleClosePaymentModal}
           isLawnLotProduct={true}
           productSlug="lawn-lots"
+          deceasedList={deceasedInfo}
         />
       )}
 

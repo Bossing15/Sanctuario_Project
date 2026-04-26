@@ -8,7 +8,6 @@ const PaymentHistoryDetails = () => {
         <hr className="my-3 border-gray-400" />
 
         <div className="flex items-center mb-4">
-          <span className="text-3xl text-gray-700 mr-2">👤</span>
           <h5 className="text-base font-medium">
             Maria Dela Cruz – <strong>Pay_ID 010</strong>
           </h5>

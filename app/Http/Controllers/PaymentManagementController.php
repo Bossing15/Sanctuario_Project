@@ -28,6 +28,7 @@ class PaymentManagementController extends Controller
         try {
             $user = $request->user();
             $payments = Payment::where('client_id', $user->id)
+                ->orWhere('user_id', $user->id)
                 ->with('booking')
                 ->get()
                 ->map(function ($payment) {
@@ -244,7 +245,7 @@ class PaymentManagementController extends Controller
     public function adminAllPayments(Request $request)
     {
         try {
-            // Start with a basic query
+            // Start with a basic query for regular payments
             $query = Payment::query();
             
             // Filter by status if provided
@@ -292,15 +293,51 @@ class PaymentManagementController extends Controller
                 ];
             })->toArray();
             
+            // Also fetch maintenance bookings that are ready for payment
+            $maintenanceBookings = \App\Models\Booking::where('service_id', '!=', null)
+                ->where('product_id', null)
+                ->where('status', 'ReadyForPayment')
+                ->with('user', 'service')
+                ->get()
+                ->map(function ($booking) {
+                    return [
+                        'id' => 'maintenance-' . $booking->id,
+                        'booking_id' => (int) $booking->id,
+                        'type' => 'maintenance-booking',
+                        'customer_name' => (string) ($booking->user->name ?? 'N/A'),
+                        'customer_email' => (string) ($booking->user->email ?? 'N/A'),
+                        'customer_phone' => (string) ($booking->user->phone ?? 'N/A'),
+                        'amount' => (float) ($booking->total_amount ?? $booking->amount ?? 0),
+                        'status' => 'pending',
+                        'payment_method' => 'N/A',
+                        'payment_reference' => (string) ($booking->invoice_number ?? 'SANC-' . $booking->id),
+                        'due_date' => $booking->created_at ? $booking->created_at->toDateString() : null,
+                        'paid_date' => null,
+                        'created_at' => $booking->created_at ? $booking->created_at->toIso8601String() : null,
+                        'description' => (string) ($booking->service->title ?? 'Maintenance Service'),
+                        'penalty_amount' => 0,
+                    ];
+                })->toArray();
+            
+            // Combine both arrays
+            $allData = array_merge($data, $maintenanceBookings);
+            
+            // Sort by created_at descending
+            usort($allData, function ($a, $b) {
+                $dateA = strtotime($a['created_at'] ?? 0);
+                $dateB = strtotime($b['created_at'] ?? 0);
+                return $dateB - $dateA;
+            });
+            
             return response()->json([
-                'data' => $data,
+                'data' => $allData,
                 'pagination' => [
-                    'total' => $payments->total(),
-                    'per_page' => $payments->perPage(),
-                    'current_page' => $payments->currentPage(),
-                    'last_page' => $payments->lastPage(),
-                    'from' => $payments->firstItem(),
-                    'to' => $payments->lastItem(),
+                    'total' => count($allData),
+                    'per_page' => $perPage,
+                    'current_page' => 1,
+                    'last_page' => ceil(count($allData) / $perPage),
+                    'from' => 1,
+                    'to' => min($perPage, count($allData)),
                 ]
             ], 200);
             

@@ -105,15 +105,14 @@ const AdminBillings = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      'completed': { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid', icon: '✓' },
-      'pending': { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Unpaid', icon: '⏳' }
+      'completed': { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid' },
+      'pending': { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Unpaid' }
     };
     
-    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-700', label: status, icon: '•' };
+    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-700', label: status };
     
     return (
       <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.text}`}>
-        <span>{config.icon}</span>
         {config.label}
       </span>
     );

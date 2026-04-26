@@ -10,26 +10,39 @@ Route::post('/test', function() {
     return response()->json(['message' => 'API working']);
 });
 
+Route::post('/test-request', function(\Illuminate\Http\Request $request) {
+    \Illuminate\Support\Facades\Log::info('Test request received', [
+        'all_data' => $request->all(),
+        'headers' => $request->headers->all()
+    ]);
+    return response()->json([
+        'message' => 'Test request received',
+        'data' => $request->all()
+    ]);
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/admin/login', [AuthController::class, 'adminLogin']);
 Route::post('/client/login', [AuthController::class, 'clientLogin']);
-Route::post('/register', [AuthController::class, 'register']);
+// Register endpoint - requires auth for admin registration, public for client registration
+Route::post('/register', [AuthController::class, 'register'])->middleware('auth.optional');
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
 // Public Client Payment routes (no auth required for customers) - Uses real PayMongo
 Route::prefix('payments')->group(function () {
     // Public routes for webhooks and callbacks
-    Route::get('/success', [App\Http\Controllers\PaymentController::class, 'paymentSuccess']);
-    Route::get('/cancel', [App\Http\Controllers\PaymentController::class, 'paymentCancel']);
+    Route::get('/success', [App\Http\Controllers\PaymentController::class, 'paymentSuccess'])->name('payment.success');
+    Route::get('/cancel', [App\Http\Controllers\PaymentController::class, 'paymentCancel'])->name('payment.cancel');
     Route::post('/webhook', [App\Http\Controllers\PaymentController::class, 'handleWebhook']);
+    Route::get('/methods', [App\Http\Controllers\PaymentController::class, 'getPaymentMethods']);
     
     // Protected routes for authenticated users (clients and admins)
     Route::middleware('auth.multiple')->group(function () {
         Route::get('/', [App\Http\Controllers\PaymentManagementController::class, 'getUserPayments']);
-        Route::get('/methods', [App\Http\Controllers\PaymentController::class, 'getPaymentMethods']);
         Route::post('/create-intent', [App\Http\Controllers\PaymentController::class, 'createPaymentIntent']);
         Route::post('/create-checkout', [App\Http\Controllers\PaymentController::class, 'createCheckoutSession']);
         Route::post('/send-receipt', [App\Http\Controllers\PaymentController::class, 'sendReceipt']);
+        Route::post('/{paymentId}/process', [App\Http\Controllers\PaymentController::class, 'processPayment']);
     });
     
     // Public endpoint for recording client payments
@@ -93,13 +106,35 @@ Route::middleware('auth.multiple')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::get('/user/grave-plots', [App\Http\Controllers\ReservationController::class, 'getUserGravePlots']);
+    Route::get('/user/selected-lots', [App\Http\Controllers\ReservationController::class, 'getUserSelectedLots']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    
+    // Reservation routes
+    Route::prefix('reservations')->group(function () {
+        Route::post('/', [App\Http\Controllers\ReservationController::class, 'store']);
+        Route::get('/', [App\Http\Controllers\ReservationController::class, 'index']);
+        Route::get('/{id}', [App\Http\Controllers\ReservationController::class, 'show']);
+        Route::post('/{id}/cancel', [App\Http\Controllers\ReservationController::class, 'cancel']);
+        Route::post('/{id}/pay', [App\Http\Controllers\ReservationController::class, 'pay']);
+        Route::post('/{id}/attach-payment-method', [App\Http\Controllers\ReservationController::class, 'attachPaymentMethod']);
+        Route::post('/{id}/mark-paid', [App\Http\Controllers\ReservationController::class, 'markPaid']);
+    });
+    
+    // Admin reservation routes
+    Route::middleware('access.level:admin')->prefix('admin/reservations')->group(function () {
+        Route::get('/', [App\Http\Controllers\ReservationController::class, 'adminIndex']);
+        Route::get('/pending', [App\Http\Controllers\ReservationController::class, 'adminPending']);
+        Route::post('/{id}/approve', [App\Http\Controllers\ReservationController::class, 'approve']);
+        Route::post('/{id}/reject', [App\Http\Controllers\ReservationController::class, 'reject']);
+    });
     
     // Profile routes
     Route::prefix('profile')->group(function () {
         Route::get('/', [App\Http\Controllers\ProfileController::class, 'getProfile']);
         Route::post('/upload-picture', [App\Http\Controllers\ProfileController::class, 'uploadProfilePicture']);
         Route::delete('/delete-picture', [App\Http\Controllers\ProfileController::class, 'deleteProfilePicture']);
+        Route::post('/update', [App\Http\Controllers\ProfileController::class, 'updateProfile']);
     });
     
     // Routes accessible by all authenticated admin users (admin, staff, caretaker)
@@ -250,35 +285,78 @@ Route::middleware('auth.multiple')->group(function () {
         Route::get('/{booking}', [App\Http\Controllers\BookingController::class, 'show']);
         Route::post('/{booking}/submit-requirements', [App\Http\Controllers\BookingController::class, 'submitRequirements']);
         Route::post('/{booking}/pay', [App\Http\Controllers\BookingController::class, 'pay']);
+        Route::get('/{bookingId}/payment', [App\Http\Controllers\BookingController::class, 'getOrCreatePayment']);
         
         // Admin routes
         Route::get('/', [App\Http\Controllers\BookingController::class, 'adminIndex']);
         Route::post('/{booking}/update-status', [App\Http\Controllers\BookingController::class, 'updateStatus']);
         Route::post('/{booking}/review-requirements', [App\Http\Controllers\BookingController::class, 'reviewRequirements']);
+        Route::post('/{booking}/update-completion', [App\Http\Controllers\BookingController::class, 'updateServiceCompletion']);
         
         // Admin dashboard routes
         Route::get('/admin/all', [App\Http\Controllers\BookingController::class, 'adminAllBookings']);
         Route::get('/admin/stats', [App\Http\Controllers\BookingController::class, 'adminBookingStats']);
     });
+    
+    // Request management routes
+    Route::prefix('requests')->group(function () {
+        // Admin routes (must be defined before /{request} to avoid conflicts)
+        Route::middleware('access.level:admin')->group(function () {
+            Route::get('/admin/pending', [App\Http\Controllers\RequestController::class, 'adminIndex']);
+        });
+        
+        // User routes
+        Route::post('/', [App\Http\Controllers\RequestController::class, 'store']);
+        Route::get('/', [App\Http\Controllers\RequestController::class, 'index']);
+        Route::get('/{request}', [App\Http\Controllers\RequestController::class, 'show']);
+        Route::post('/{request}/cancel', [App\Http\Controllers\RequestController::class, 'cancel']);
+        
+        // Admin action routes
+        Route::middleware('access.level:admin')->group(function () {
+            Route::post('/{request}/approve', [App\Http\Controllers\RequestController::class, 'approve']);
+            Route::post('/{request}/reject', [App\Http\Controllers\RequestController::class, 'reject']);
+        });
+    });
+    
+    // Payment from request route
+    Route::post('/payments/from-request/{requestId}', [App\Http\Controllers\PaymentController::class, 'createFromRequest']);
 });
 
 // Lot selection routes (public - no auth required) - Using consolidated PropertyController
 Route::prefix('lawn-lots')->group(function () {
-    Route::get('/', [App\Http\Controllers\PropertyController::class, 'getProperties', 'lawn-lots']);
-    Route::get('/{lotId}', [App\Http\Controllers\PropertyController::class, 'getPropertyDetails', 'lawn-lots']);
-    Route::post('/select', [App\Http\Controllers\PropertyController::class, 'selectProperty', 'lawn-lots']);
+    Route::get('/', function () {
+        return app(App\Http\Controllers\PropertyController::class)->getProperties(request(), 'lawn-lots');
+    });
+    Route::get('/{lotId}', function ($lotId) {
+        return app(App\Http\Controllers\PropertyController::class)->getPropertyDetails('lawn-lots', $lotId);
+    });
+    Route::post('/select', function () {
+        return app(App\Http\Controllers\PropertyController::class)->selectProperty(request(), 'lawn-lots');
+    });
 });
 
 Route::prefix('columbariums')->group(function () {
-    Route::get('/', [App\Http\Controllers\PropertyController::class, 'getProperties', 'columbariums']);
-    Route::get('/{columbariumId}', [App\Http\Controllers\PropertyController::class, 'getPropertyDetails', 'columbariums']);
-    Route::post('/select', [App\Http\Controllers\PropertyController::class, 'selectProperty', 'columbariums']);
+    Route::get('/', function () {
+        return app(App\Http\Controllers\PropertyController::class)->getProperties(request(), 'columbariums');
+    });
+    Route::get('/{columbariumId}', function ($columbariumId) {
+        return app(App\Http\Controllers\PropertyController::class)->getPropertyDetails('columbariums', $columbariumId);
+    });
+    Route::post('/select', function () {
+        return app(App\Http\Controllers\PropertyController::class)->selectProperty(request(), 'columbariums');
+    });
 });
 
 Route::prefix('family-estates')->group(function () {
-    Route::get('/', [App\Http\Controllers\PropertyController::class, 'getProperties', 'family-estates']);
-    Route::get('/{estateId}', [App\Http\Controllers\PropertyController::class, 'getPropertyDetails', 'family-estates']);
-    Route::post('/select', [App\Http\Controllers\PropertyController::class, 'selectProperty', 'family-estates']);
+    Route::get('/', function () {
+        return app(App\Http\Controllers\PropertyController::class)->getProperties(request(), 'family-estates');
+    });
+    Route::get('/{estateId}', function ($estateId) {
+        return app(App\Http\Controllers\PropertyController::class)->getPropertyDetails('family-estates', $estateId);
+    });
+    Route::post('/select', function () {
+        return app(App\Http\Controllers\PropertyController::class)->selectProperty(request(), 'family-estates');
+    });
 });
 
 // Public service routes (for client-side)
@@ -309,6 +387,8 @@ Route::post('/inquiries/submit', [App\Http\Controllers\InquiryController::class,
 // User inquiry routes (protected)
 Route::middleware('auth.multiple')->prefix('inquiries')->group(function () {
     Route::get('/user', [App\Http\Controllers\InquiryController::class, 'getUserInquiries']);
+    Route::post('/{id}/mark-paid', [App\Http\Controllers\InquiryController::class, 'markAsPaid']);
+    Route::post('/{id}/create-payment', [App\Http\Controllers\InquiryController::class, 'createPayment']);
 });
 
 // Admin inquiry routes (protected)
@@ -317,6 +397,15 @@ Route::middleware('auth.multiple')->prefix('admin/inquiries')->group(function ()
     Route::put('/{id}/status', [App\Http\Controllers\InquiryController::class, 'updateStatus']);
     Route::post('/{id}/photos', [App\Http\Controllers\InquiryController::class, 'uploadPhotos']);
     Route::delete('/{id}', [App\Http\Controllers\InquiryController::class, 'destroy']);
+});
+
+// Admin activity logs routes (protected)
+Route::middleware('auth.multiple')->prefix('admin/activity-logs')->group(function () {
+    Route::get('/', [App\Http\Controllers\ActivityLogController::class, 'index']);
+    Route::get('/stats', [App\Http\Controllers\ActivityLogController::class, 'getStats']);
+    Route::get('/actions', [App\Http\Controllers\ActivityLogController::class, 'getActions']);
+    Route::get('/export/csv', [App\Http\Controllers\ActivityLogController::class, 'exportCsv']);
+    Route::get('/{id}', [App\Http\Controllers\ActivityLogController::class, 'show']);
 });
 
 // Public contact message routes (for client-side)

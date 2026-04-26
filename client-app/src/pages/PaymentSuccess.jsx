@@ -65,66 +65,9 @@ function PaymentSuccess() {
   }, [location.state, location.search]);
 
   useEffect(() => {
-    // Mark payment as completed when user returns from PayMongo
-    const completePayment = async () => {
-      const params = new URLSearchParams(location.search);
-      let paymentId = params.get('payment_id');
-      
-      // If payment_id not in URL, check sessionStorage
-      if (!paymentId) {
-        paymentId = sessionStorage.getItem('currentPaymentId');
-        console.log('Retrieved payment_id from sessionStorage:', paymentId);
-      }
-      
-      console.log('PaymentSuccess page loaded with payment_id:', paymentId);
-      console.log('Full URL params:', Object.fromEntries(params));
-      
-      if (paymentId) {
-        try {
-          console.log('Calling payment success API with payment_id:', paymentId);
-          const response = await fetch(`http://localhost:8000/api/payments/success?payment_id=${paymentId}`, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json'
-            }
-          });
-          
-          console.log('Payment success API response status:', response.status);
-          
-          if (response.ok) {
-            const result = await response.json();
-            console.log('Payment marked as completed:', result);
-            
-            // Clear the stored payment ID
-            sessionStorage.removeItem('currentPaymentId');
-            
-            // Store payment completion info in sessionStorage for BillingPage to pick up
-            sessionStorage.setItem('paymentCompleted', JSON.stringify({
-              paymentId: paymentId,
-              amount: result.amount,
-              method: result.method,
-              completedAt: result.completed_at,
-              timestamp: new Date().getTime()
-            }));
-          } else {
-            const error = await response.json().catch(() => ({}));
-            console.error('Failed to mark payment as completed:', error);
-            // Don't throw - allow page to continue even if API call fails
-          }
-        } catch (error) {
-          console.error('Error completing payment:', error);
-          // Don't throw - allow page to continue even if API call fails
-        }
-      } else {
-        console.warn('No payment_id found in URL');
-      }
-    };
-    
-    if (paymentData) {
-      console.log('Payment completed page data:', paymentData);
-      completePayment();
-    }
-  }, [location.search, paymentData]);
+    // Just show success - webhook will handle the payment update
+    console.log('Payment success page loaded');
+  }, []);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-PH', {

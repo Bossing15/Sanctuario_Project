@@ -76,8 +76,8 @@ const Profile = () => {
   const handleSaveProfile = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`/api/admins/${user.id}`, {
-        method: 'PUT',
+      const response = await fetch('/api/profile/update', {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -86,20 +86,19 @@ const Profile = () => {
         body: JSON.stringify({
           name: editForm.name,
           email: editForm.email,
-          contact: editForm.contact,
         }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        const updatedUser = await response.json();
-        setUser(updatedUser.user || updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser.user || updatedUser));
+        setUser(data.user);
+        localStorage.setItem('user', JSON.stringify(data.user));
         setIsEditing(false);
         alert('Profile updated successfully!');
-        // Refresh to get latest data
         fetchUserData();
       } else {
-        alert('Failed to update profile');
+        alert(data.message || 'Failed to update profile');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -119,8 +118,8 @@ const Profile = () => {
       return;
     }
 
-    if (passwordForm.newPassword.length < 8) {
-      alert('New password must be at least 8 characters long');
+    if (passwordForm.newPassword.length < 6) {
+      alert('New password must be at least 6 characters long');
       return;
     }
 
@@ -131,8 +130,8 @@ const Profile = () => {
 
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`/api/admins/${user.id}/change-password`, {
-        method: 'PUT',
+      const response = await fetch('/api/profile/update', {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -156,7 +155,7 @@ const Profile = () => {
         });
         setShowPasswordSection(false);
       } else {
-        alert(data.message || 'Failed to change password');
+        alert(data.message || data.error || 'Failed to change password');
       }
     } catch (error) {
       console.error('Error changing password:', error);
@@ -284,7 +283,7 @@ const Profile = () => {
               </div>
               {user?.access_level === 'admin' && (
                 <p className="text-xs text-blue-600 mt-2">
-                  ℹ️ Admin accounts have full access to all components
+                  Admin accounts have full access to all components
                 </p>
               )}
             </div>

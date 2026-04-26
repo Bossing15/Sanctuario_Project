@@ -1,0 +1,399 @@
+/* ============================================
+   MODERN TABLE STYLES - REFINED & POLISHED
+   ============================================ */
+
+:root {
+  /* Spacing System (8px Grid) */
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 1rem;       /* 16px */
+  --spacing-lg: 1.5rem;     /* 24px */
+  --spacing-xl: 2rem;       /* 32px */
+  
+  /* Border Radius */
+  --radius-sm: 0.5rem;      /* 8px */
+  --radius-md: 0.75rem;     /* 12px */
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Transitions */
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   TABLE WRAPPER
+   ============================================ */
+
+.table-wrapper {
+  background: white;
+  border-radius: var(--radius-md);
+  border: 1px solid #f0f0f0;
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  transition: all var(--transition-base);
+}
+
+.table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+  transition: background var(--transition-base);
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.table-wrapper:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: #e5e7eb;
+}
+
+/* ============================================
+   TABLE BASE
+   ============================================ */
+
+table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+  background: white;
+}
+
+/* ============================================
+   TABLE HEADER
+   ============================================ */
+
+table thead {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  border-bottom: 1px solid #374151;
+}
+
+table thead tr th {
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* ============================================
+   TABLE BODY
+   ============================================ */
+
+table tbody {
+  background: white;
+}
+
+table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color var(--transition-base);
+}
+
+table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f8faff;
+}
+
+table tbody tr:last-child {
+  border-bottom: none;
+}
+
+table tbody tr:hover {
+  background-color: #f0f7ff;
+  box-shadow: inset 0 0 0 1px #e0e7ff;
+}
+
+table tbody td {
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: 0.8125rem;
+  color: #4b5563;
+  vertical-align: middle;
+  font-weight: 500;
+}
+
+/* ============================================
+   TABLE CELL VARIANTS
+   ============================================ */
+
+table tbody tr td.font-mono {
+  font-family: 'Courier New', monospace;
+  color: #6b7280;
+  font-size: 0.8125rem;
+}
+
+table tbody tr td.font-bold {
+  font-weight: 700;
+  color: #111827;
+}
+
+table tbody tr td.font-semibold {
+  font-weight: 600;
+  color: #111827;
+}
+
+table tbody tr td.text-center {
+  text-align: center;
+}
+
+table tbody tr td.text-right {
+  text-align: right;
+}
+
+table tbody tr td.date-cell {
+  color: #374151;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+table tbody tr td.currency {
+  font-weight: 600;
+  color: #059669;
+  font-family: 'Courier New', monospace;
+}
+
+table tbody tr td.currency.negative {
+  color: #dc2626;
+}
+
+/* ============================================
+   STATUS BADGES
+   ============================================ */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border: none;
+  transition: all var(--transition-base);
+}
+
+.status-badge.active {
+  background-color: #dcfce7;
+  color: #065f46;
+}
+
+.status-badge.active:hover {
+  background-color: #a7f3d0;
+}
+
+.status-badge.inactive {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.inactive:hover {
+  background-color: #fecaca;
+}
+
+.status-badge.pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.pending:hover {
+  background-color: #fde68a;
+}
+
+.status-badge.completed {
+  background-color: #dcfce7;
+  color: #065f46;
+}
+
+.status-badge.completed:hover {
+  background-color: #a7f3d0;
+}
+
+.status-badge.responded {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.responded:hover {
+  background-color: #bfdbfe;
+}
+
+.status-badge.closed {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.closed:hover {
+  background-color: #fecaca;
+}
+
+.status-badge.info {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.status-badge.info:hover {
+  background-color: #c7d2fe;
+}
+
+/* ============================================
+   ACTION BUTTONS
+   ============================================ */
+
+.action-btn {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  white-space: nowrap;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn.primary {
+  background: #3b82f6;
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.action-btn.primary:hover {
+  background: #2563eb;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.action-btn.secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.action-btn.secondary:hover {
+  background: #d1d5db;
+}
+
+.action-btn.danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.action-btn.danger:hover {
+  background: #fecaca;
+}
+
+.action-btn.disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+table tbody tr.empty-row td {
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1024px) {
+  table thead tr th,
+  table tbody tr td {
+    padding: var(--spacing-md) var(--spacing-md);
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .table-wrapper {
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 800px;
+    width: 100%;
+  }
+
+  table thead tr th {
+    padding: var(--spacing-md) var(--spacing-md);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  table tbody tr td {
+    padding: var(--spacing-md) var(--spacing-md);
+    font-size: 0.8125rem;
+  }
+
+  .action-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75rem;
+    min-height: 32px;
+  }
+
+  .status-badge {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  table {
+    min-width: 700px;
+    width: 100%;
+  }
+
+  table thead tr th {
+    padding: var(--spacing-md) var(--spacing-md);
+    font-size: 0.75rem;
+  }
+
+  table tbody tr td {
+    padding: var(--spacing-md) var(--spacing-md);
+    font-size: 0.8125rem;
+  }
+
+  .action-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75rem;
+    min-height: 32px;
+  }
+
+  .status-badge {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75rem;
+  }
+}

@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Admin;
 use App\Models\Client;
 use App\Models\Grave;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -40,9 +41,23 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
+        \Illuminate\Support\Facades\Log::info('Admin login attempt', [
+            'username' => $credentials['username'],
+        ]);
+
         $admin = Admin::where('username', $credentials['username'])->first();
 
+        \Illuminate\Support\Facades\Log::info('Admin lookup result', [
+            'admin_found' => $admin ? true : false,
+            'admin_username' => $admin?->username,
+            'admin_email' => $admin?->email,
+        ]);
+
         if ($admin && Hash::check($credentials['password'], $admin->password)) {
+            \Illuminate\Support\Facades\Log::info('Admin login successful', [
+                'username' => $admin->username,
+            ]);
+            
             $token = $admin->createToken('auth_token')->plainTextToken;
             
             return response()->json([
@@ -51,6 +66,12 @@ class AuthController extends Controller
                 'role' => 'admin'
             ]);
         }
+
+        \Illuminate\Support\Facades\Log::warning('Admin login failed', [
+            'username' => $credentials['username'],
+            'admin_found' => $admin ? true : false,
+            'password_match' => $admin ? Hash::check($credentials['password'], $admin->password) : false,
+        ]);
 
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
@@ -73,6 +94,13 @@ class AuthController extends Controller
                 'role' => 'client'
             ]);
         }
+
+        // Log failed login attempt for debugging
+        \Illuminate\Support\Facades\Log::warning('Failed login attempt', [
+            'email' => $credentials['email'],
+            'client_exists' => $client ? true : false,
+            'password_matches' => $client && Hash::check($credentials['password'], $client->password) ? true : false,
+        ]);
 
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
@@ -131,8 +159,21 @@ class AuthController extends Controller
             ], 201);
         }
 
-        // Register as Admin (requires username)
+        // Register as Admin (requires username and admin permission)
         if ($validated['role'] === 'admin') {
+            // Check if user is authenticated and is an admin
+            $user = $request->user();
+            if (!$user || ($user->access_level !== 'admin' && $user->role !== 'admin')) {
+                \Illuminate\Support\Facades\Log::warning('Unauthorized attempt to create admin account', [
+                    'user_id' => $user->id ?? null,
+                    'user_role' => $user->access_level ?? $user->role ?? null,
+                ]);
+                return response()->json([
+                    'message' => 'Forbidden',
+                    'error' => 'Only admins can create admin accounts'
+                ], 403);
+            }
+
             $validated['username'] = $validated['username'] ?? null;
             
             if (!$validated['username']) {
@@ -158,6 +199,12 @@ class AuthController extends Controller
                 'contact' => $validated['contact'] ?? null,
                 'permissions' => $validated['permissions'] ?? [],
                 'status' => 'Active',
+            ]);
+
+            \Illuminate\Support\Facades\Log::info('Admin account created', [
+                'created_by' => $user->id,
+                'admin_id' => $admin->id,
+                'access_level' => $admin->access_level,
             ]);
 
             $token = $admin->createToken('auth_token')->plainTextToken;
@@ -222,41 +269,40 @@ class AuthController extends Controller
     public function getAllGraves()
     {
         try {
-            // Get all graves that have been purchased (have bookings)
-            $graves = Grave::whereHas('bookings')
-                ->with(['bookings' => function($query) {
-                    $query->with(['product', 'service', 'user']);
-                }])
+            // Get all purchased products (lawn lots, columbariums, family estates) from reservations
+            $graves = Reservation::where('status', 'paid')
+                ->orWhere('status', 'completed')
+                ->with(['user', 'product', 'lot'])
                 ->get()
-                ->map(function($grave) {
-                    // Get the first booking to determine product type
-                    $booking = $grave->bookings->first();
+                ->map(function($reservation) {
                     $productType = 'Unknown';
                     
-                    if ($booking) {
-                        if ($booking->product) {
-                            $productType = $booking->product->title ?? $booking->product->name ?? 'Product';
-                        } elseif ($booking->service) {
-                            $productType = $booking->service->title ?? $booking->service->name ?? 'Service';
-                        }
+                    if ($reservation->product) {
+                        $productType = $reservation->product->title ?? $reservation->product->name ?? 'Product';
+                    }
+                    
+                    // Determine lot location based on lot_type
+                    $lotLocation = 'N/A';
+                    if ($reservation->lot) {
+                        $lotLocation = $reservation->lot->grave_location ?? $reservation->lot->plot_number ?? 'N/A';
                     }
                     
                     return [
-                        'id' => $grave->id,
-                        'plot_number' => $grave->plot_number,
-                        'grave_location' => $grave->grave_location,
-                        'status' => $grave->status,
-                        'deceased_name' => $grave->deceased_name,
-                        'burial_date' => $grave->burial_date,
-                        'section' => $grave->section,
-                        'relationship_to_deceased' => $grave->relationship_to_deceased,
-                        'notes' => $grave->notes,
-                        'customer' => $booking->user->name ?? 'N/A',
-                        'customer_email' => $booking->user->email ?? 'N/A',
-                        'customer_phone' => $booking->user->phone ?? 'N/A',
+                        'id' => $reservation->id,
+                        'plot_number' => $reservation->lot->plot_number ?? 'N/A',
+                        'grave_location' => $lotLocation,
+                        'status' => $reservation->status === 'paid' ? 'Active' : 'Active',
+                        'deceased_name' => $reservation->deceased_name ?? 'N/A',
+                        'burial_date' => $reservation->created_at,
+                        'section' => $reservation->lot->section ?? 'N/A',
+                        'relationship_to_deceased' => $reservation->deceased_relationship ?? 'N/A',
+                        'notes' => 'Lot Type: ' . ($reservation->lot_type ?? 'Unknown') . ' | Reservation Code: ' . ($reservation->reservation_code ?? 'N/A'),
+                        'customer' => $reservation->user->name ?? 'N/A',
+                        'customer_email' => $reservation->user->email ?? 'N/A',
+                        'customer_phone' => $reservation->user->phone ?? 'N/A',
                         'product_type' => $productType,
-                        'booking_id' => $booking->id,
-                        'date_added' => $grave->created_at,
+                        'reservation_id' => $reservation->id,
+                        'date_added' => $reservation->created_at,
                     ];
                 });
             
@@ -275,7 +321,37 @@ class AuthController extends Controller
     public function getGraveById($id)
     {
         try {
-            $grave = Grave::findOrFail($id);
+            // Get the reservation (which represents a purchased grave/lot)
+            $reservation = Reservation::with(['user', 'product', 'lot'])->findOrFail($id);
+            
+            $productType = 'Unknown';
+            if ($reservation->product) {
+                $productType = $reservation->product->title ?? $reservation->product->name ?? 'Product';
+            }
+            
+            // Determine lot location based on lot_type
+            $lotLocation = 'N/A';
+            if ($reservation->lot) {
+                $lotLocation = $reservation->lot->grave_location ?? $reservation->lot->plot_number ?? 'N/A';
+            }
+            
+            $grave = [
+                'id' => $reservation->id,
+                'plot_number' => $reservation->lot->plot_number ?? 'N/A',
+                'grave_location' => $lotLocation,
+                'status' => $reservation->status === 'paid' ? 'Active' : 'Active',
+                'deceased_name' => $reservation->deceased_name ?? 'N/A',
+                'burial_date' => $reservation->created_at,
+                'section' => $reservation->lot->section ?? 'N/A',
+                'relationship_to_deceased' => $reservation->deceased_relationship ?? 'N/A',
+                'notes' => 'Lot Type: ' . ($reservation->lot_type ?? 'Unknown') . ' | Reservation Code: ' . ($reservation->reservation_code ?? 'N/A'),
+                'customer' => $reservation->user->name ?? 'N/A',
+                'customer_email' => $reservation->user->email ?? 'N/A',
+                'customer_phone' => $reservation->user->phone ?? 'N/A',
+                'product_type' => $productType,
+                'reservation_id' => $reservation->id,
+                'date_added' => $reservation->created_at,
+            ];
             
             return response()->json([
                 'grave' => $grave
@@ -305,9 +381,23 @@ class AuthController extends Controller
         }
     }
 
-    public function getAllAdmins()
+    public function getAllAdmins(Request $request)
     {
         try {
+            $user = $request->user();
+
+            // Only admins can view all admins
+            if (!$user || ($user->access_level !== 'admin' && $user->role !== 'admin')) {
+                \Illuminate\Support\Facades\Log::warning('Unauthorized attempt to view all admins', [
+                    'user_id' => $user->id ?? null,
+                    'user_role' => $user->access_level ?? $user->role ?? null,
+                ]);
+                return response()->json([
+                    'message' => 'Forbidden',
+                    'error' => 'Only admins can view all admins'
+                ], 403);
+            }
+
             $admins = Admin::all();
             
             return response()->json([
@@ -315,6 +405,9 @@ class AuthController extends Controller
                 'count' => $admins->count()
             ]);
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error fetching admins', [
+                'error' => $e->getMessage(),
+            ]);
             return response()->json([
                 'message' => 'Failed to fetch admins',
                 'error' => $e->getMessage()

@@ -105,18 +105,23 @@ const Billing = () => {
 
   const filteredPaymentData = payments
     .filter((row) => {
-      // Filter by status - for management tab, exclude completed payments
+      // Filter by status - Payment Management tab should only show unpaid payments
       const status = (row.status || '').toLowerCase();
       
-      // Never show completed payments in management tab
+      // Never show completed/paid payments in Payment Management tab
       if (status === 'completed' || status === 'paid') {
         return false;
+      }
+      
+      if (statusFilter === 'all') {
+        // Show all unpaid payments (pending, unpaid, overdue)
+        return status === 'pending' || status === 'unpaid' || status === 'overdue';
       }
       
       if (statusFilter === 'overdue') {
         return status === 'overdue';
       }
-      // 'all' - show all unpaid (pending, unpaid, overdue)
+      // 'unpaid' - show all unpaid (pending, unpaid, overdue)
       return status === 'pending' || status === 'unpaid' || status === 'overdue';
     })
     .filter((row) => {
@@ -201,6 +206,16 @@ const Billing = () => {
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   statusFilter === 'all'
                     ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                All Payments
+              </button>
+              <button
+                onClick={() => setStatusFilter('unpaid')}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  statusFilter === 'unpaid'
+                    ? 'bg-yellow-600 text-white shadow-md'
                     : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                 }`}
               >
@@ -309,19 +324,19 @@ const Billing = () => {
                       <td className="text-center">
                         {status.toLowerCase() === 'paid' || status.toLowerCase() === 'completed' ? (
                           <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
-                            ✅ Paid
+                            Paid
                           </span>
                         ) : status.toLowerCase() === 'overdue' ? (
                           <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
-                            ❌ Overdue
+                            Overdue
                           </span>
                         ) : status.toLowerCase() === 'pending' || status.toLowerCase() === 'unpaid' ? (
                           <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
-                            ⏳ Unpaid
+                            Unpaid
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
-                            ℹ️ {status}
+                            {status}
                           </span>
                         )}
                       </td>
@@ -584,7 +599,7 @@ const Billing = () => {
               className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-semibold shadow-md transition-all"
               onClick={() => window.print()}
             >
-              🖨️ Print
+              Print
             </button>
             <form method="dialog">
               <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold shadow-md transition-all">

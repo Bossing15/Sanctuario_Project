@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './InternmentPage.css';
 import LoginPromptModal from '../components/LoginPromptModal';
 import PaymentModal from '../components/PaymentModal';
+import DeceasedInfoModal from '../components/DeceasedInfoModal';
 import heroBg from '../assets/images/Sanctuario3_1.jpg';
 import lawnLotsImg from '../assets/images/lawn_lots.jpg';
 import familyEstateImg from '../assets/images/familt_estate.jpg';
@@ -17,8 +18,10 @@ function InternmentPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [showDeceasedModal, setShowDeceasedModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [deceasedList, setDeceasedList] = useState(null);
 
   useEffect(() => {
     fetchProduct();
@@ -26,7 +29,7 @@ function InternmentPage() {
 
   const fetchProduct = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/public/products', {
+      const response = await fetch('http://localhost:8000/api/public/services', {
         headers: {
           'Accept': 'application/json',
         },
@@ -34,7 +37,7 @@ function InternmentPage() {
 
       if (response.ok) {
         const data = await response.json();
-        const interment = data.products?.find(p => p.title === 'Interment') || data.find(p => p.title === 'Interment');
+        const interment = data.services?.find(s => s.title.toLowerCase().includes('interment'));
         setProduct(interment);
       }
     } catch (error) {
@@ -59,12 +62,19 @@ function InternmentPage() {
   const handleSelectPlan = (planType, amount) => {
     setSelectedPlan({ planType, amount });
     setShowPricingModal(false);
+    setShowDeceasedModal(true);
+  };
+
+  const handleDeceasedSubmit = (deceased) => {
+    setDeceasedList(deceased);
+    setShowDeceasedModal(false);
     setShowPaymentModal(true);
   };
 
   const handleClosePaymentModal = () => {
     setShowPaymentModal(false);
     setSelectedPlan(null);
+    setDeceasedList(null);
   };
 
 
@@ -271,8 +281,20 @@ function InternmentPage() {
           planType={selectedPlan.planType}
           amount={selectedPlan.amount}
           onClose={handleClosePaymentModal}
-          isLawnLotProduct={true}
+          isLawnLotProduct={false}
           productSlug="interment"
+          deceasedList={deceasedList}
+        />
+      )}
+
+      {/* Deceased Info Modal */}
+      {showDeceasedModal && (
+        <DeceasedInfoModal
+          onSubmit={handleDeceasedSubmit}
+          onClose={() => setShowDeceasedModal(false)}
+          allowMultiple={false}
+          maxDeceased={1}
+          isService={true}
         />
       )}
     </div>

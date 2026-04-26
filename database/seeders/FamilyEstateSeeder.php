@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\FamilyEstate;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\FamilyEstate;
 
 class FamilyEstateSeeder extends Seeder
 {
@@ -13,50 +13,18 @@ class FamilyEstateSeeder extends Seeder
      */
     public function run(): void
     {
-        // Define family estates with 20 plots in one location
-        $lotsPerLocation = 20;
-        $locationName = 'Family Estate';
-
-        // Define estate sections and their properties
-        $sections = [
-            'Standard' => ['color' => '#FFB6C1', 'percentage' => 0.40],      // 40% = 8 estates
-            'Deluxe' => ['color' => '#87CEEB', 'percentage' => 0.30],        // 30% = 6 estates
-            'Premium' => ['color' => '#FFD700', 'percentage' => 0.20],       // 20% = 4 estates
-            'Super Premium' => ['color' => '#8B7355', 'percentage' => 0.10], // 10% = 2 estates
-        ];
-
-        $defaultClientId = 1;
-        $totalEstatesCreated = 0;
-        $plotNumber = 1;
-
-        foreach ($sections as $section => $config) {
-            $estatesInSection = (int)($lotsPerLocation * $config['percentage']);
-            
-            for ($i = 1; $i <= $estatesInSection; $i++) {
-                $plotNumberFormatted = 'ESTATE-' . str_pad($plotNumber, 3, '0', STR_PAD_LEFT);
-                
-                // Check if estate already exists
-                $exists = FamilyEstate::where('plot_number', $plotNumberFormatted)->exists();
-                
-                if (!$exists) {
-                    FamilyEstate::create([
-                        'plot_number' => $plotNumberFormatted,
-                        'location' => $locationName . ' - Section ' . $section . ' - Plot ' . $i,
-                        'section' => $section,
-                        'status' => 'Inactive', // Use 'Inactive' to indicate available
-                        'client_id' => $defaultClientId,
-                        'deceased_name' => 'Available',
-                        'relationship_to_deceased' => 'N/A',
-                        'burial_date' => null,
-                        'notes' => 'Available for purchase',
-                    ]);
-                    $totalEstatesCreated++;
-                }
-
-                $plotNumber++;
-            }
+        // Family Estates: 1 section with 25 estates
+        $section = 'Main';
+        for ($i = 1; $i <= 25; $i++) {
+            FamilyEstate::firstOrCreate(
+                ['plot_number' => 'FE-' . str_pad($i, 3, '0', STR_PAD_LEFT)],
+                [
+                    'section' => $section,
+                    'location' => 'Main - Estate ' . str_pad($i, 2, '0', STR_PAD_LEFT),
+                    'status' => 'Inactive', // Inactive = available
+                    'deceased_name' => 'Available',
+                ]
+            );
         }
-
-        $this->command->info('Family estates seeded successfully! Total: ' . $totalEstatesCreated . ' estates');
     }
 }

@@ -12,6 +12,7 @@ import menuIcon from "../assets/icons/icons8-hamburger-menu-50.png";
 import productsIcon from "../assets/icons/icons8-services-50.png";
 import maintenanceIcon from "../assets/icons/Maintenance.png";
 import requirementIcon from "../assets/icons/Requirements.png";
+import activityIcon from "../assets/icons/icons8-invoice-50.png";
 
 const appLogo = "/Sanctuario_Logo_Good.png";
 
@@ -48,19 +49,18 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     { label: "Products", icon: productsIcon, path: "/products", key: 'graves' },
     { label: "Services", icon: maintenanceIcon, path: "/services", key: 'graves' },
     { label: "Messages", icon: messageIcon, path: "/messages", key: 'messages' },
+    { label: "Activity Logs", icon: activityIcon, path: "/activity-logs", key: 'activity_logs' },
     { label: "Admin", icon: adminIcon, path: "/admin", key: 'admin' },
   ];
 
   const menuItems = useMemo(() => {
     return allMenuItems.map(item => {
-      const permission = permissions[item.key];
-      const canPerformActions = typeof permission === 'object' 
-        ? permission?.can_perform_actions !== false 
-        : permission !== false;
+      // Simplified RBAC: if permission is false, component is disabled (view-only)
+      const isDisabled = permissions[item.key] === false;
       
       return {
         ...item,
-        canPerformActions
+        isDisabled
       };
     });
   }, [permissions]);
@@ -129,7 +129,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
             to={item.path}
             end={item.path === "/admin"}
             className={({ isActive }) =>
-              `sidebar-item ${isActive ? 'active' : ''} ${!item.canPerformActions ? 'opacity-60' : ''}`
+              `sidebar-item ${isActive ? 'active' : ''} ${item.isDisabled ? 'opacity-60' : ''}`
             }
           >
             <div className="sidebar-item-icon">
@@ -137,7 +137,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
             </div>
             <span className="sidebar-item-label">
               {item.label}
-              {!item.canPerformActions && !collapsed && (
+              {item.isDisabled && !collapsed && (
                 <span className="ml-1 text-xs text-warning-600">(View Only)</span>
               )}
             </span>

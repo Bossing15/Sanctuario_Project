@@ -140,9 +140,9 @@ function SubmissionReviewCard({ booking, onReviewComplete, canManageRequirements
                         submission.validation_status === 'flagged' ? 'bg-red-100 text-red-800' :
                         'bg-yellow-100 text-yellow-800'
                       }`}>
-                        {submission.validation_status === 'auto_approved' ? '✓ AUTO-APPROVED' :
-                         submission.validation_status === 'flagged' ? '⚠ FLAGGED' :
-                         '⚡ NEEDS REVIEW'}
+                        {submission.validation_status === 'auto_approved' ? 'AUTO-APPROVED' :
+                         submission.validation_status === 'flagged' ? 'FLAGGED' :
+                         'NEEDS REVIEW'}
                       </span>
                     )}
                     {submission.similarity_score !== null && (
@@ -534,7 +534,6 @@ export default function RequirementManagement() {
               <div className="modal max-w-2xl" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
                   <div className="modal-header-title">
-                    <span className="modal-header-icon">📋</span>
                     <span>{editingRequirement ? 'Edit Requirement' : 'Create New Requirement'}</span>
                   </div>
                   <button className="modal-close" onClick={handleCancelEdit}>×</button>
@@ -713,26 +712,26 @@ export default function RequirementManagement() {
                         <td className="text-center">
                           {requirement.file_type === 'image' ? (
                             <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
-                              🖼️ Image
+                              Image
                             </span>
                           ) : requirement.file_type === 'pdf' ? (
                             <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-700 rounded-lg shadow-sm">
-                              📄 PDF
+                              PDF
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
-                              ℹ️ {requirement.file_type.toUpperCase()}
+                              {requirement.file_type.toUpperCase()}
                             </span>
                           )}
                         </td>
                         <td className="text-center">
                           {requirement.sample_image_path ? (
                             <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
-                              ✅ Has Sample
+                              Has Sample
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
-                              ❌ No Sample
+                              No Sample
                             </span>
                           )}
                         </td>

@@ -30,7 +30,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
       message: 'Maria Dela Cruz completed payment for Grave Maintenance service',
       time: '5 minutes ago',
       read: false,
-      icon: '💰',
+      icon: 'Payment',
       color: 'bg-green-100 text-green-600'
     },
     {
@@ -40,7 +40,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
       message: 'Juan Santos registered as a new client',
       time: '1 hour ago',
       read: false,
-      icon: '👤',
+      icon: 'Client',
       color: 'bg-blue-100 text-blue-600'
     },
     {
@@ -50,7 +50,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
       message: 'Pedro Garcia requested Grave Restoration service',
       time: '2 hours ago',
       read: true,
-      icon: '🔧',
+      icon: 'Service',
       color: 'bg-purple-100 text-purple-600'
     },
     {
@@ -60,7 +60,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
       message: 'Ana Martinez has a pending payment for Monthly Plan',
       time: '3 hours ago',
       read: true,
-      icon: '⏳',
+      icon: 'Pending',
       color: 'bg-yellow-100 text-yellow-600'
     },
     {
@@ -70,7 +70,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
       message: 'Database backup completed successfully',
       time: '5 hours ago',
       read: true,
-      icon: '⚙️',
+      icon: 'System',
       color: 'bg-gray-100 text-gray-600'
     },
     {
@@ -80,7 +80,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
       message: 'Rosa Cruz updated their profile information',
       time: '1 day ago',
       read: true,
-      icon: '📝',
+      icon: 'Update',
       color: 'bg-indigo-100 text-indigo-600'
     }
   ];

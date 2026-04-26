@@ -27,6 +27,7 @@ class PropertyController extends Controller
                 return [
                     'id' => $property->id,
                     'plot_number' => $property->plot_number ?? $property->niche_number ?? null,
+                    'grave_location' => $property->grave_location ?? $property->location ?? null,
                     'location' => $property->grave_location ?? $property->location ?? null,
                     'section' => $property->section,
                     'status' => $property->status,
@@ -37,6 +38,9 @@ class PropertyController extends Controller
             
             return response()->json([
                 'properties' => $formatted,
+                'lawn_lots' => $formatted,
+                'columbariums' => $formatted,
+                'family_estates' => $formatted,
                 'total' => $formatted->count(),
                 'occupied' => count($occupiedIds),
                 'available' => $formatted->count() - count($occupiedIds),
@@ -55,15 +59,39 @@ class PropertyController extends Controller
     public function selectProperty(Request $request, $type)
     {
         try {
-            $validated = $request->validate([
-                'property_id' => 'required|integer',
-            ]);
+            // Validate based on property type
+            $validationRules = [];
+            switch ($type) {
+                case 'columbariums':
+                    $validationRules = ['columbarium_id' => 'required|integer'];
+                    break;
+                case 'family-estates':
+                    $validationRules = ['estate_id' => 'required|integer'];
+                    break;
+                case 'lawn-lots':
+                default:
+                    $validationRules = ['lot_id' => 'required|integer'];
+                    break;
+            }
+
+            $validated = $request->validate($validationRules);
 
             $model = $this->getPropertyModel($type);
-            $property = $model::findOrFail($validated['property_id']);
+            
+            // Get the ID from the validated data
+            $propertyId = $validated['lot_id'] ?? $validated['columbarium_id'] ?? $validated['estate_id'] ?? null;
+            
+            if (!$propertyId) {
+                return response()->json([
+                    'message' => "Invalid property ID for {$type}",
+                    'error' => 'Missing property ID'
+                ], 422);
+            }
+            
+            $property = $model::findOrFail($propertyId);
 
             // Check if property is already occupied
-            $existingBooking = Booking::where('grave_id', $validated['property_id'])->first();
+            $existingBooking = Booking::where('grave_id', $propertyId)->first();
 
             if ($existingBooking) {
                 return response()->json([
@@ -74,7 +102,10 @@ class PropertyController extends Controller
 
             return response()->json([
                 'message' => "{$type} selected successfully",
-                'property' => $property
+                'property' => $property,
+                'lot' => $property,
+                'columbarium' => $property,
+                'estate' => $property
             ], 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([

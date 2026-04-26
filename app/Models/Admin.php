@@ -36,6 +36,11 @@ class Admin extends Model
 
     public function setPasswordAttribute($value)
     {
-        $this->attributes['password'] = Hash::make($value);
+        // Only hash if it's not already hashed
+        if (!Hash::needsRehash($value)) {
+            $this->attributes['password'] = $value;
+        } else {
+            $this->attributes['password'] = Hash::make($value);
+        }
     }
 }

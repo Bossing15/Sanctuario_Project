@@ -2,12 +2,18 @@ import { useState, useEffect } from "react";
 import maintenanceIcon from '../assets/icons/Maintenance.png';
 import { TableSkeleton } from "./SkeletonLoader";
 import StatsCards from "./StatsCards";
+import CrudActions from "./CrudActions";
+import crudUtils from "../utils/crudUtils";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 const Maintenance = () => {
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [requestToDelete, setRequestToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchMaintenanceRequests();
@@ -47,6 +53,43 @@ const Maintenance = () => {
     }
   };
 
+  const handleDeleteRequest = (id) => {
+    setRequestToDelete(id);
+    setShowDeleteConfirmModal(true);
+  };
+
+  const confirmDeleteRequest = async () => {
+    if (!requestToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const result = await crudUtils.deleteItem(
+        "/api/maintenance-requests",
+        requestToDelete,
+        token
+      );
+      
+      if (result.success) {
+        fetchMaintenanceRequests();
+        setShowDeleteConfirmModal(false);
+        setRequestToDelete(null);
+      } else {
+        alert(result.error || "Failed to delete request");
+      }
+    } catch (error) {
+      console.error("Error deleting request:", error);
+      alert("Error deleting request");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const closeDeleteConfirmModal = () => {
+    setShowDeleteConfirmModal(false);
+    setRequestToDelete(null);
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <div className="p-8 min-h-screen flex-grow">
@@ -67,7 +110,7 @@ const Maintenance = () => {
           <TableSkeleton rows={8} columns={7} />
         ) : error ? (
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
-            <div className="text-red-600 text-xl mb-4">⚠️ Error</div>
+            <div className="text-red-600 text-xl mb-4">Error</div>
             <p className="text-red-600">{error}</p>
             <button 
               onClick={fetchMaintenanceRequests}
@@ -161,21 +204,31 @@ const Maintenance = () => {
                         <td className="text-center">
                           {request.status === 'completed' ? (
                             <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
-                              ✅ Completed
+                              Completed
                             </span>
                           ) : request.status === 'pending' ? (
                             <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
-                              ⏳ Pending
+                              Pending
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
-                              🔄 Active
+                              Active
                             </span>
                           )}
                         </td>
                         <td className="date-cell">{new Date(request.created_at).toLocaleDateString()}</td>
                         <td className="text-center">
-                          <button className="action-btn primary">View</button>
+                          <CrudActions
+                            onView={() => {}}
+                            onEdit={() => {}}
+                            onDelete={() => handleDeleteRequest(request.id)}
+                            onToggleStatus={() => handleToggleStatus(request.id, request.status)}
+                            showView={false}
+                            showEdit={false}
+                            showDelete={true}
+                            showToggle={false}
+                            size="sm"
+                          />
                         </td>
                       </tr>
                     ))
@@ -186,6 +239,16 @@ const Maintenance = () => {
           </>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        show={showDeleteConfirmModal}
+        message="Are you sure you want to delete this maintenance request?"
+        itemName="this request"
+        onConfirm={confirmDeleteRequest}
+        onCancel={closeDeleteConfirmModal}
+        isLoading={isDeleting}
+      />
     </div>
   );
 };

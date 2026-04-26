@@ -2,76 +2,82 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Service;
 
 class ServiceSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $services = [
+        // Create core burial services
+        Service::firstOrCreate(
+            ['slug' => 'interment-service'],
             [
-                'title' => 'Grave Maintenance',
-                'slug' => 'grave-maintenance',
+                'title' => 'Interment Service',
+                'description' => 'Honoring your departed loved ones with professional interment services',
+                'category' => 'Burial Services',
+                'price_monthly' => 6000,
+                'price_quarterly' => 17000,
+                'price_yearly' => 60000,
+                'status' => 'active',
+            ]
+        );
+
+        Service::firstOrCreate(
+            ['slug' => 'cremation-service'],
+            [
+                'title' => 'Cremation Service',
+                'description' => 'Respectful cremation services for your loved ones',
+                'category' => 'Burial Services',
+                'price_monthly' => 4000,
+                'price_quarterly' => 11000,
+                'price_yearly' => 40000,
+                'status' => 'active',
+            ]
+        );
+
+        // Create grave maintenance services
+        Service::firstOrCreate(
+            ['slug' => 'grave-cleaning'],
+            [
+                'title' => 'Grave Cleaning',
+                'description' => 'Professional cleaning and maintenance of grave sites to keep them looking respectful and well-maintained.',
                 'category' => 'Grave Maintenance',
-                'description' => 'Trusted to perfection, every step. Our Grave Maintenance service provides respectful and thorough bundle of care, including diligent cleaning, precise grass cutting, careful flower watering, and complete debris removal. We ensure existing is treated with the care it deserves. We trim the grass evenly, apply fertilizer to maintain a vibrant growth, remove debris, sweep the area clean, and treat the gravesite with the honor it deserves. The result is a pristine memorial that families can visit with comfort and pride.',
-                'image_path' => 'uploads/services/grave-maintenance.webp',
+                'price_monthly' => 500.00,
+                'price_quarterly' => 1400.00,
+                'price_yearly' => 5500.00,
+                'status' => 'active',
+            ]
+        );
+
+        Service::firstOrCreate(
+            ['slug' => 'grave-painting'],
+            [
+                'title' => 'Grave Painting',
+                'description' => 'Professional repainting and restoration of grave markers and monuments to maintain their appearance and protect against weathering.',
+                'category' => 'Grave Maintenance',
                 'price_monthly' => 800.00,
-                'price_quarterly' => 2400.00,
-                'price_yearly' => 9600.00,
-                'status' => 'Active',
-            ],
-            [
-                'title' => 'Grave Repainting',
-                'slug' => 'grave-repainting',
-                'category' => 'Grave Maintenance',
-                'description' => 'Restore with dignity, painted with care. Our Grave Repainting service ensures that the final resting place of your loved ones remains in pristine condition. We provide professional repainting services to preserve the dignity and beauty of the memorial site.',
-                'image_path' => 'uploads/services/grave-repainting.jpg',
-                'price_monthly' => 1000.00,
-                'price_quarterly' => 3000.00,
-                'price_yearly' => 12000.00,
-                'status' => 'Active',
-            ],
+                'price_quarterly' => 2200.00,
+                'price_yearly' => 8500.00,
+                'status' => 'active',
+            ]
+        );
+
+        Service::firstOrCreate(
+            ['slug' => 'grave-restoration'],
             [
                 'title' => 'Grave Restoration',
-                'slug' => 'grave-restoration',
+                'description' => 'Comprehensive restoration service including structural repairs, stone replacement, and complete refurbishment of grave sites.',
                 'category' => 'Grave Maintenance',
-                'description' => 'Bringing honor through proper restoration. Our Grave Restoration service focuses on the preservation and maintenance of headstones, monuments, and other memorial structures. We clean, polish, and protect these important tributes to ensure they remain beautiful and legible for generations to come.',
-                'image_path' => 'uploads/services/grave-restoration.jpg',
                 'price_monthly' => 1200.00,
-                'price_quarterly' => 3600.00,
-                'price_yearly' => 14400.00,
-                'status' => 'Active',
-            ],
-            [
-                'title' => 'Interment',
-                'slug' => 'interment',
-                'category' => 'Services',
-                'description' => 'Honoring your departed loved ones with dignity and respect. Our interment services provide a compassionate and professional approach to laying your loved ones to rest. We handle every detail with care and reverence.',
-                'image_path' => 'uploads/services/interment.jpg',
-                'price_monthly' => null,
-                'price_quarterly' => null,
-                'price_yearly' => null,
-                'status' => 'Active',
-            ],
-            [
-                'title' => 'Cremation',
-                'slug' => 'cremation',
-                'category' => 'Services',
-                'description' => 'Respectful cremation services for your loved ones. At the time to embrace a modern way in the country, we are proud to offer our cremation services with dignity and respect for your loved ones.',
-                'image_path' => 'uploads/services/cremation.jpg',
-                'price_monthly' => null,
-                'price_quarterly' => null,
-                'price_yearly' => null,
-                'status' => 'Active',
-            ],
-        ];
-
-        foreach ($services as $service) {
-            Service::updateOrCreate(
-                ['slug' => $service['slug']],
-                $service
-            );
-        }
+                'price_quarterly' => 3300.00,
+                'price_yearly' => 12000.00,
+                'status' => 'active',
+            ]
+        );
     }
 }
