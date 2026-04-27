@@ -442,7 +442,11 @@ function SignupPage() {
               className={`btn-signup ${loading ? 'loading' : ''}`}
               disabled={loading}
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? (
+                <><span className="spinner"></span>Creating Account...</>
+              ) : (
+                'Create Account'
+              )}
             </button>
             
             <div className="login-prompt">
