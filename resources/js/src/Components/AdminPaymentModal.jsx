@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { FaCreditCard, FaMobile, FaUniversity, FaTimes, FaCheck, FaArrowLeft } from 'react-icons/fa';
 import AlertModal from './AlertModal';
-import './AdminPaymentModal.css';
+import '../styles/modern-modal.css';
+import { useModalScrollLock } from '../hooks/useModalScrollLock';
 
 function AdminPaymentModal({ payment, onClose }) {
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [selectedMethod, setSelectedMethod] = useState('');
   const [loading, setLoading] = useState(false);
   const [alertModal, setAlertModal] = useState({ show: false, type: 'info', message: '' });
+
+  // Lock scroll when modal is open
+  useModalScrollLock(!!payment);
 
   useEffect(() => {
     fetchPaymentMethods();
@@ -127,92 +131,120 @@ function AdminPaymentModal({ payment, onClose }) {
   };
 
   return (
-    <div className="payment-modal-overlay">
-      <div className="payment-modal-container">
-        <button className="payment-modal-back" onClick={onClose}>
-          <FaArrowLeft />
-          <span>Back</span>
-        </button>
-        
-        <button className="payment-modal-close" onClick={onClose}>
-          <FaTimes />
-        </button>
+    <div className="modal-overlay">
+      <div className="modern-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modern-modal-header">
+          <h2>Process Payment for Customer</h2>
+          <button className="modern-modal-close" onClick={onClose}>×</button>
+        </div>
 
-        <div className="payment-modal-content">
-          <h2 className="payment-modal-title">Process Payment for Customer</h2>
-          
+        <div className="modern-modal-content">
           {/* Customer Info */}
-          <div className="customer-info-box">
-            <h3>Customer Information</h3>
-            <div className="info-row">
-              <span>Name:</span>
-              <span>{payment.customer_name || payment.client?.name || 'N/A'}</span>
-            </div>
-            <div className="info-row">
-              <span>Payment ID:</span>
-              <span>#{payment.id}</span>
-            </div>
-            {payment.payment_reference && (
-              <div className="info-row">
-                <span>Reference:</span>
-                <span>{payment.payment_reference}</span>
+          <div className="modal-section">
+            <span className="modal-section-title">Customer Information</span>
+            <div className="modal-info-grid">
+              <div className="modal-info-item">
+                <label>Name</label>
+                <span>{payment.customer_name || payment.client?.name || 'N/A'}</span>
               </div>
-            )}
+              <div className="modal-info-item">
+                <label>Payment ID</label>
+                <span>#{payment.id}</span>
+              </div>
+              {payment.payment_reference && (
+                <div className="modal-info-item">
+                  <label>Reference</label>
+                  <span>{payment.payment_reference}</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Payment Summary */}
-          <div className="payment-summary-box">
-            <h3>Payment Summary</h3>
-            <div className="summary-row">
-              <span>Description:</span>
-              <span>{payment.description || 'Payment'}</span>
-            </div>
-            <div className="summary-row">
-              <span>Plan:</span>
-              <span>{payment.payment_type || 'One-time'}</span>
-            </div>
-            <div className="summary-row total">
-              <span>Total Amount:</span>
-              <span className="amount">{formatCurrency(payment.amount)}</span>
+          <div className="modal-section">
+            <span className="modal-section-title">Payment Summary</span>
+            <div className="modal-info-grid">
+              <div className="modal-info-item">
+                <label>Description</label>
+                <span>{payment.description || 'Payment'}</span>
+              </div>
+              <div className="modal-info-item">
+                <label>Plan</label>
+                <span>{payment.payment_type || 'One-time'}</span>
+              </div>
+              <div className="modal-info-item">
+                <label>Total Amount</label>
+                <span className="highlight">{formatCurrency(payment.amount)}</span>
+              </div>
             </div>
           </div>
 
           {/* Payment Methods */}
-          <div className="payment-methods-section">
-            <h3>Select Payment Method</h3>
+          <div className="modal-section">
+            <span className="modal-section-title">Select Payment Method</span>
             
-            <div className="payment-methods-grid">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {paymentMethods.map((method) => (
                 <div
                   key={method.type}
-                  className={`payment-method-option ${selectedMethod === method.type ? 'selected' : ''}`}
                   onClick={() => setSelectedMethod(method.type)}
+                  style={{
+                    padding: '12px',
+                    border: selectedMethod === method.type ? '2px solid #1B3022' : '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    backgroundColor: selectedMethod === method.type ? '#f0fdf4' : '#f9fafb',
+                    cursor: 'pointer',
+                    transition: 'all 200ms ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedMethod !== method.type) {
+                      e.currentTarget.style.backgroundColor = '#f3f4f6';
+                      e.currentTarget.style.borderColor = '#d1d5db';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedMethod !== method.type) {
+                      e.currentTarget.style.backgroundColor = '#f9fafb';
+                      e.currentTarget.style.borderColor = '#e5e7eb';
+                    }
+                  }}
                 >
-                  <div className="method-icon-box">
+                  <div style={{ fontSize: '20px', color: '#1B3022' }}>
                     {getMethodIcon(method.type)}
                   </div>
-                  <div className="method-info-box">
-                    <h4>{method.name}</h4>
-                    <p>{method.description}</p>
+                  <div style={{ flex: 1 }}>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{method.name}</h4>
+                    <p style={{ margin: '0', fontSize: '12px', color: '#9ca3af' }}>{method.description}</p>
                   </div>
-                  <div className="method-check-box">
-                    {selectedMethod === method.type && <FaCheck />}
-                  </div>
+                  {selectedMethod === method.type && (
+                    <div style={{ color: '#1B3022', fontSize: '18px' }}>
+                      <FaCheck />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
+        </div>
 
-          {/* Payment Button */}
-          <div className="payment-actions-section">
-            <button
-              className={`pay-now-button ${loading ? 'loading' : ''}`}
-              onClick={handlePayment}
-              disabled={loading || !selectedMethod}
-            >
-              {loading ? 'Processing...' : `Process ${formatCurrency(payment.amount)}`}
-            </button>
-          </div>
+        <div className="modern-modal-footer">
+          <button
+            className="modal-btn-secondary"
+            onClick={onClose}
+            disabled={loading}
+          >
+            Cancel
+          </button>
+          <button
+            className="modal-btn-primary"
+            onClick={handlePayment}
+            disabled={loading || !selectedMethod}
+          >
+            {loading ? 'Processing...' : `Process ${formatCurrency(payment.amount)}`}
+          </button>
         </div>
       </div>
       

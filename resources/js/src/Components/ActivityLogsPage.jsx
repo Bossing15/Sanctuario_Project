@@ -92,7 +92,7 @@ function ActivityLogsPage() {
   const getActionColor = (action) => {
     const colors = {
       'payment_processed': 'bg-green-100 text-green-700',
-      'reservation_approved': 'bg-blue-100 text-blue-700',
+      'reservation_approved': 'bg-green-100 text-green-700',
       'reservation_rejected': 'bg-red-100 text-red-700',
       'requirement_reviewed': 'bg-purple-100 text-purple-700',
       'booking_authorized': 'bg-indigo-100 text-indigo-700',
@@ -119,7 +119,7 @@ function ActivityLogsPage() {
               placeholder="Search by description or user..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
             />
           </div>
 
@@ -129,7 +129,7 @@ function ActivityLogsPage() {
             <select
               value={filterAction}
               onChange={(e) => setFilterAction(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
             >
               <option value="">All Actions</option>
               {actions.map((action) => (

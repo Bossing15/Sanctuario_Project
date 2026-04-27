@@ -129,7 +129,7 @@ const Purchases = () => {
     const statusConfig = {
       'ReadyForPayment': { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pending Payment' },
       'Paid': { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid' },
-      'Completed': { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Completed' },
+      'Completed': { bg: 'bg-[#f0f5f2]', text: 'text-[#1B3022]', label: 'Completed' },
       'Cancelled': { bg: 'bg-red-100', text: 'text-red-700', label: 'Cancelled' }
     };
     
@@ -205,7 +205,7 @@ const Purchases = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white p-4 rounded-lg shadow-md border border-gray-100">
             <p className="text-gray-600 text-sm font-medium">Total Purchases</p>
-            <p className="text-2xl font-bold text-blue-600">{purchases.length}</p>
+            <p className="text-2xl font-bold text-[#1B3022]">{purchases.length}</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow-md border border-gray-100">
             <p className="text-gray-600 text-sm font-medium">Pending Payment</p>

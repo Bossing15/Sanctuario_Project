@@ -4,7 +4,7 @@ import AlertModal from './AlertModal';
 import LotSelector from './LotSelector';
 import './PaymentModal.css';
 
-function PaymentModal({ service, planType, amount, bookingId, paymentId, onClose, isLawnLotProduct = false, productSlug = 'lawn-lots', reservationId = null, isApprovedReservation = false, deceasedList = null }) {
+function PaymentModal({ service, planType, amount, bookingId, paymentId, onClose, isLawnLotProduct = false, productSlug = 'lawn-lots', reservationId = null, isApprovedReservation = false, deceasedList = null, requestPurpose = null, idFile = null }) {
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [selectedMethod, setSelectedMethod] = useState('');
   const [loading, setLoading] = useState(false);
@@ -179,31 +179,71 @@ function PaymentModal({ service, planType, amount, bookingId, paymentId, onClose
       const isProduct = isLawnLotProduct || ['lawn-lots', 'columbariums', 'family-estates'].includes(productSlug);
       const isService = !isProduct;
       
-      // Build reservation data - same structure for both products and services
-      const reservationData = {
-        product_id: isProduct ? service?.id || null : null,
-        service_id: isService ? service?.id || null : null,
-        lot_id: isProduct ? (selectedGraveId || null) : null,
-        lot_type: isProduct ? getLotType() : null,
-        deceased_name: primaryDeceased.deceasedName || 'To Be Verified',
-        deceased_date_of_death: primaryDeceased.dateOfDeath || new Date().toISOString().split('T')[0],
-        deceased_relationship: primaryDeceased.relationship || null,
-        additional_deceased: deceasedList && deceasedList.length > 1 ? deceasedList.slice(1) : null,
-        plan_type: planType || null,
-        amount: amount,
-      };
+      // Create FormData to handle file upload
+      const formData = new FormData();
+      
+      // Only append non-null values to avoid FormData converting null to "null" string
+      if (isProduct && service?.id) {
+        formData.append('product_id', service.id);
+      }
+      if (isService && service?.id) {
+        formData.append('service_id', service.id);
+      }
+      if (isProduct && selectedGraveId) {
+        formData.append('lot_id', selectedGraveId);
+      }
+      if (isProduct) {
+        formData.append('lot_type', getLotType());
+      }
+      
+      // For services, only send deceased_name if provided (optional)
+      // For products, always send deceased_name (required)
+      if (isService) {
+        // For services, only append if deceased name is provided
+        if (primaryDeceased.deceasedName && primaryDeceased.deceasedName.trim()) {
+          formData.append('deceased_name', primaryDeceased.deceasedName.trim());
+        }
+        // Don't append date of death for services
+      } else {
+        // For products, always append deceased info
+        formData.append('deceased_name', primaryDeceased.deceasedName || 'To Be Verified');
+        formData.append('deceased_date_of_death', primaryDeceased.dateOfDeath || new Date().toISOString().split('T')[0]);
+      }
+      
+      if (primaryDeceased.relationship) {
+        formData.append('deceased_relationship', primaryDeceased.relationship);
+      }
+      
+      if (planType) {
+        formData.append('plan_type', planType);
+      }
+      
+      formData.append('amount', amount);
+      
+      // Only append request_purpose for products, not for services
+      if (isProduct && requestPurpose) {
+        formData.append('request_purpose', requestPurpose);
+      }
+      
+      // Add ID file if present
+      if (idFile) {
+        formData.append('id_file', idFile);
+      }
 
-      console.log('Creating reservation with data:', reservationData);
+      console.log('Creating reservation with FormData');
+      console.log('Request purpose:', requestPurpose);
+      console.log('ID file:', idFile ? idFile.name : 'none');
+      console.log('Is product:', isProduct);
+      console.log('Service ID:', service?.id);
       
       const reservationResponse = await fetch('http://localhost:8000/api/reservations', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
         },
         credentials: 'include',
-        body: JSON.stringify(reservationData)
+        body: formData
       });
 
       console.log('Reservation response status:', reservationResponse.status);
@@ -231,6 +271,9 @@ function PaymentModal({ service, planType, amount, bookingId, paymentId, onClose
         const errorData = await reservationResponse.json();
         console.error('Reservation error:', errorData);
         setError(errorData.message || 'Failed to create reservation');
+        if (errorData.errors) {
+          console.error('Validation errors:', errorData.errors);
+        }
         setLoading(false);
       }
     } catch (err) {

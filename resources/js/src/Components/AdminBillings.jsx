@@ -140,7 +140,7 @@ const AdminBillings = () => {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
           <div className="bg-white p-4 rounded-lg shadow-md border border-gray-100">
             <p className="text-gray-600 text-sm font-medium">Total Payments</p>
-            <p className="text-2xl font-bold text-blue-600">{stats.totalPayments}</p>
+            <p className="text-2xl font-bold text-[#1B3022]">{stats.totalPayments}</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow-md border border-gray-100">
             <p className="text-gray-600 text-sm font-medium">Paid</p>

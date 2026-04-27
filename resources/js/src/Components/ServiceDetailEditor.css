@@ -130,7 +130,7 @@
   text-transform: uppercase;
   letter-spacing: 2px;
   text-align: center;
-  border: 2px solid #3b82f6;
+  border: 2px solid #1B3022;
   border-radius: 6px;
   padding: 10px 20px;
   width: 100%;
@@ -172,7 +172,7 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   text-align: center;
-  border: 2px solid #3b82f6;
+  border: 2px solid #1B3022;
   border-radius: 6px;
   padding: 10px 20px;
   width: 100%;
@@ -335,12 +335,12 @@
 }
 
 .thumbnail:hover {
-  border-color: #3b82f6;
+  border-color: #1B3022;
 }
 
 .thumbnail.active {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px #3b82f6;
+  border-color: #1B3022;
+  box-shadow: 0 0 0 2px #1B3022;
 }
 
 .remove-thumbnail {
@@ -385,9 +385,9 @@
 
 .add-thumbnail:hover,
 .add-gallery-label:hover {
-  border-color: #3b82f6;
-  background: #eff6ff;
-  color: #3b82f6;
+  border-color: #1B3022;
+  background: #f0f5f2;
+  color: #1B3022;
 }
 
 .add-gallery-label {
@@ -444,7 +444,7 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   text-align: center;
-  border: 2px solid #3b82f6;
+  border: 2px solid #1B3022;
   border-radius: 6px;
   padding: 10px 20px;
   width: 100%;
@@ -454,7 +454,7 @@
 
 .pricing-title-input:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(27, 48, 34, 0.1);
 }
 
 .pricing-subtitle {
@@ -481,7 +481,7 @@
   color: #1f2937;
   font-size: 14px;
   text-align: center;
-  border: 2px solid #3b82f6;
+  border: 2px solid #1B3022;
   border-radius: 6px;
   padding: 8px 16px;
   width: 100%;
@@ -493,7 +493,7 @@
 
 .pricing-subtitle-input:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(27, 48, 34, 0.1);
 }
 
 /* Prices Section */
@@ -570,7 +570,7 @@
 .package-title-input,
 .package-description-input,
 .package-note-input {
-  border: 2px solid #3b82f6;
+  border: 2px solid #1B3022;
   border-radius: 6px;
   padding: 8px 12px;
   font-family: inherit;
@@ -600,7 +600,7 @@
 .package-description-input:focus,
 .package-note-input:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(27, 48, 34, 0.1);
 }
 
 .pricing-fields {
@@ -644,7 +644,7 @@
 .price-input {
   width: 100%;
   padding: 12px;
-  border: 2px solid #3b82f6;
+  border: 2px solid #1B3022;
   border-radius: 6px;
   font-size: 16px;
   font-weight: 600;
@@ -653,7 +653,7 @@
 
 .price-input:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(27, 48, 34, 0.1);
 }
 
 /* Status Section */
@@ -683,8 +683,8 @@
 
 .status-select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #1B3022;
+  box-shadow: 0 0 0 3px rgba(27, 48, 34, 0.1);
 }
 
 /* Form Actions */
@@ -828,3 +828,4 @@
     height: 60px;
   }
 }
+

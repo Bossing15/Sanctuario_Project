@@ -276,13 +276,13 @@ table tbody tr td.currency.negative {
 }
 
 .action-btn.primary {
-  background: #3b82f6;
+  background: #1B3022;
   color: white;
   box-shadow: var(--shadow-sm);
 }
 
 .action-btn.primary:hover {
-  background: #2563eb;
+  background: #2A4D36;
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }

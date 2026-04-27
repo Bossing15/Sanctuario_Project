@@ -247,7 +247,7 @@ const MessagesManagement = () => {
                 onClick={() => setActiveTab(tab.key)}
                 className={`px-6 py-3 rounded-xl text-sm font-semibold transition-colors duration-150 cursor-pointer ${
                   activeTab === tab.key
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                    ? 'bg-gradient-to-r from-[#1B3022] to-[#2A4D36] text-white shadow-md'
                     : 'bg-white text-gray-700 hover:bg-gray-50 shadow-sm border border-gray-200'
                 }`}
               >
@@ -354,7 +354,7 @@ const MessagesManagement = () => {
               onClick={() => setActiveTab(tab.key)}
               className={`px-6 py-3 rounded-xl text-sm font-semibold transition-colors duration-150 cursor-pointer ${
                 activeTab === tab.key
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                  ? 'bg-gradient-to-r from-[#1B3022] to-[#2A4D36] text-white shadow-md'
                   : 'bg-white text-gray-700 hover:bg-gray-50 shadow-sm border border-gray-200'
               }`}
             >
@@ -484,7 +484,7 @@ const MessagesManagement = () => {
                         Responded
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                      <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg shadow-sm">
                         {message.status}
                       </span>
                     )}

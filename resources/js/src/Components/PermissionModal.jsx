@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import '../styles/modern-modal.css';
+import { useModalScrollLock } from '../hooks/useModalScrollLock';
 
 const PermissionModal = ({ isOpen, onClose, admin, onSave }) => {
   const [permissions, setPermissions] = useState({
@@ -14,17 +16,8 @@ const PermissionModal = ({ isOpen, onClose, admin, onSave }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Add blur effect to background
-  useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add('modal-open');
-    } else {
-      document.body.classList.remove('modal-open');
-    }
-    return () => {
-      document.body.classList.remove('modal-open');
-    };
-  }, [isOpen]);
+  // Lock scroll when modal is open
+  useModalScrollLock(isOpen);
 
   useEffect(() => {
     if (isOpen && admin) {
@@ -103,13 +96,11 @@ const PermissionModal = ({ isOpen, onClose, admin, onSave }) => {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal max-w-md" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <div className="modal-header-title">
-            <span>Manage Permissions</span>
-          </div>
+      <div className="modern-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modern-modal-header">
+          <h2>Manage Permissions</h2>
           <button
-            className="modal-close"
+            className="modern-modal-close"
             onClick={onClose}
             aria-label="Close modal"
           >
@@ -117,50 +108,66 @@ const PermissionModal = ({ isOpen, onClose, admin, onSave }) => {
           </button>
         </div>
 
-        <div className="modal-body">
+        <div className="modern-modal-content">
           {loading ? (
-            <div className="text-center py-8">
-              <p className="text-gray-600">Loading permissions...</p>
+            <div style={{ textAlign: 'center', padding: '32px 0', color: '#9ca3af' }}>
+              <p>Loading permissions...</p>
             </div>
           ) : (
             <>
-              <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-3">
-                  <strong>Admin:</strong> {admin?.name}
-                  <br />
-                  <strong>Role:</strong> {admin?.role}
-                  <br />
-                  <span className="text-xs text-gray-500 block mt-2">Toggle permissions to grant or revoke access to perform actions in each component.</span>
+              <div className="modal-section">
+                <span className="modal-section-title">Admin Information</span>
+                <div className="modal-info-grid">
+                  <div className="modal-info-item">
+                    <label>Name</label>
+                    <span>{admin?.name}</span>
+                  </div>
+                  <div className="modal-info-item">
+                    <label>Role</label>
+                    <span>{admin?.role}</span>
+                  </div>
+                </div>
+                <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '12px', lineHeight: '1.5' }}>
+                  Toggle permissions to grant or revoke access to perform actions in each component.
                 </p>
               </div>
-              
-              <div className="space-y-2">
-                {Object.keys(permissions).map((key) => (
-                  <label key={key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
-                    <div>
-                      <span className="text-gray-800 font-medium text-sm">{permissionLabels[key]}</span>
-                      {!permissions[key] && (
-                        <span className="block text-xs text-red-600 mt-1">View Only</span>
-                      )}
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={permissions[key]}
-                      onChange={(e) => setPermissions({ ...permissions, [key]: e.target.checked })}
-                      className="w-5 h-5 text-blue-600 rounded cursor-pointer"
-                    />
-                  </label>
-                ))}
+
+              <div className="modal-section">
+                <span className="modal-section-title">Component Permissions</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {Object.keys(permissions).map((key) => (
+                    <label key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', backgroundColor: '#f9fafb', borderRadius: '8px', cursor: 'pointer', transition: 'all 200ms ease', border: '1px solid #f0f0f0' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}>
+                      <div>
+                        <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937', display: 'block' }}>{permissionLabels[key]}</span>
+                        {!permissions[key] && (
+                          <span style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px', display: 'block' }}>View Only</span>
+                        )}
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={permissions[key]}
+                        onChange={(e) => setPermissions({ ...permissions, [key]: e.target.checked })}
+                        style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: '#1B3022' }}
+                      />
+                    </label>
+                  ))}
+                </div>
               </div>
             </>
           )}
         </div>
 
-        <div className="modal-footer">
+        <div className="modern-modal-footer">
+          <button
+            className="modal-btn-secondary"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
           <button
             onClick={handleSave}
             disabled={saving || loading}
-            className="modal-btn primary"
+            className="modal-btn-primary"
           >
             {saving ? 'Saving...' : 'Save Permissions'}
           </button>

@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import './AuthorizationModal.css';
+import '../styles/modern-modal.css';
+import { useModalScrollLock } from '../hooks/useModalScrollLock';
 
 function AuthorizationModal({ request, onClose, onApprove, onReject }) {
   const [rejectionReason, setRejectionReason] = useState('');
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Lock scroll when modal is open
+  useModalScrollLock(!!request);
 
   const handleApprove = async () => {
     setLoading(true);
@@ -82,33 +86,29 @@ function AuthorizationModal({ request, onClose, onApprove, onReject }) {
   };
 
   return (
-    <div className="authorization-modal-overlay" onClick={onClose}>
-      <div className="authorization-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="auth-modal-header">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modern-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modern-modal-header">
           <h2>Authorization Request Review</h2>
-          <button className="auth-modal-close" onClick={onClose}>×</button>
+          <button className="modern-modal-close" onClick={onClose}>×</button>
         </div>
 
-        {/* Content */}
-        <div className="auth-modal-content">
+        <div className="modern-modal-content">
           {/* Request Details */}
-          <div className="auth-details-section">
-            <h3>Request Details</h3>
-            <div className="details-grid">
-              <div className="detail-item">
-                <label>Request ID:</label>
-                <span className="detail-value">#{request.id}</span>
+          <div className="modal-section">
+            <span className="modal-section-title">Request Details</span>
+            <div className="modal-info-grid">
+              <div className="modal-info-item">
+                <label>Request ID</label>
+                <span>#{request.id}</span>
               </div>
-              <div className="detail-item">
-                <label>Status:</label>
-                <span className="detail-value status-badge pending">
-                  {request.authorization_status_label}
-                </span>
+              <div className="modal-info-item">
+                <label>Status</label>
+                <span className="badge warning">{request.authorization_status_label}</span>
               </div>
-              <div className="detail-item">
-                <label>Requested Date:</label>
-                <span className="detail-value">
+              <div className="modal-info-item">
+                <label>Requested Date</label>
+                <span>
                   {new Date(request.created_at).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -122,123 +122,114 @@ function AuthorizationModal({ request, onClose, onApprove, onReject }) {
           </div>
 
           {/* Customer Information */}
-          <div className="auth-customer-section">
-            <h3>Customer Information</h3>
-            <div className="customer-card">
-              <div className="customer-info">
-                <div className="info-row">
-                  <label>Name:</label>
-                  <span>{request.user?.name || request.customer?.name || 'N/A'}</span>
-                </div>
-                <div className="info-row">
-                  <label>Email:</label>
-                  <span>{request.user?.email || request.customer?.email || 'N/A'}</span>
-                </div>
-                <div className="info-row">
-                  <label>Phone:</label>
-                  <span>{request.user?.phone || request.customer?.phone || 'N/A'}</span>
-                </div>
-                <div className="info-row">
-                  <label>Address:</label>
-                  <span>{request.user?.address || request.customer?.address || 'N/A'}</span>
-                </div>
-                <div className="info-row">
-                  <label>Plot Number:</label>
-                  <span>{request.user?.plot_number || request.customer?.plot_number || 'N/A'}</span>
-                </div>
-                <div className="info-row">
-                  <label>Registered Date:</label>
-                  <span>
-                    {request.user?.registered_date 
-                      ? new Date(request.user.registered_date).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })
-                      : 'N/A'
-                    }
-                  </span>
-                </div>
+          <div className="modal-section">
+            <span className="modal-section-title">Customer Information</span>
+            <div className="modal-info-grid">
+              <div className="modal-info-item">
+                <label>Name</label>
+                <span>{request.user?.name || request.customer?.name || 'N/A'}</span>
+              </div>
+              <div className="modal-info-item">
+                <label>Email</label>
+                <span>{request.user?.email || request.customer?.email || 'N/A'}</span>
+              </div>
+              <div className="modal-info-item">
+                <label>Phone</label>
+                <span>{request.user?.phone || request.customer?.phone || 'N/A'}</span>
+              </div>
+              <div className="modal-info-item">
+                <label>Address</label>
+                <span>{request.user?.address || request.customer?.address || 'N/A'}</span>
+              </div>
+              <div className="modal-info-item">
+                <label>Plot Number</label>
+                <span>{request.user?.plot_number || request.customer?.plot_number || 'N/A'}</span>
+              </div>
+              <div className="modal-info-item">
+                <label>Registered Date</label>
+                <span>
+                  {request.user?.registered_date 
+                    ? new Date(request.user.registered_date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })
+                    : 'N/A'
+                  }
+                </span>
               </div>
             </div>
           </div>
 
           {/* Service/Product Information */}
-          <div className="auth-service-section">
-            <h3>Service/Product Information</h3>
-            <div className="service-card">
-              <div className="service-info">
-                <div className="info-row">
-                  <label>Type:</label>
-                  <span>
-                    {request.product?.title || request.product?.name || request.service?.title || request.service?.name || 'N/A'}
-                  </span>
-                </div>
-                <div className="info-row">
-                  <label>Category:</label>
-                  <span>
-                    {request.product?.category || request.service?.category || 'N/A'}
-                  </span>
-                </div>
-                <div className="info-row">
-                  <label>Description:</label>
-                  <span>
-                    {request.product?.description || request.service?.description || 'N/A'}
-                  </span>
-                </div>
-                <div className="info-row">
-                  <label>Plan:</label>
-                  <span>{request.plan_type || 'N/A'}</span>
-                </div>
-                <div className="info-row">
-                  <label>Amount:</label>
-                  <span className="amount-value">
-                    ₱{parseFloat(request.total_amount || request.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-                <div className="info-row">
-                  <label>Booking Date:</label>
-                  <span>
-                    {request.booking_date 
-                      ? new Date(request.booking_date).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })
-                      : 'N/A'
-                    }
-                  </span>
-                </div>
+          <div className="modal-section">
+            <span className="modal-section-title">Service/Product Information</span>
+            <div className="modal-info-grid">
+              <div className="modal-info-item">
+                <label>Type</label>
+                <span>
+                  {request.product?.title || request.product?.name || request.service?.title || request.service?.name || 'N/A'}
+                </span>
+              </div>
+              <div className="modal-info-item">
+                <label>Category</label>
+                <span>
+                  {request.product?.category || request.service?.category || 'N/A'}
+                </span>
+              </div>
+              <div className="modal-info-item">
+                <label>Plan</label>
+                <span>{request.plan_type || 'N/A'}</span>
+              </div>
+              <div className="modal-info-item">
+                <label>Amount</label>
+                <span className="highlight">
+                  ₱{parseFloat(request.total_amount || request.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className="modal-info-item">
+                <label>Booking Date</label>
+                <span>
+                  {request.booking_date 
+                    ? new Date(request.booking_date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })
+                    : 'N/A'
+                  }
+                </span>
               </div>
             </div>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="auth-error-message">
+            <div className="modal-error-message">
               {error}
             </div>
           )}
 
           {/* Rejection Form */}
           {showRejectForm && (
-            <div className="auth-reject-form">
-              <h3>Rejection Reason</h3>
-              <textarea
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="Enter reason for rejection..."
-                rows="4"
-                className="rejection-textarea"
-              />
+            <div className="modal-section">
+              <span className="modal-section-title">Rejection Reason</span>
+              <div className="modal-form-group">
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder="Enter reason for rejection..."
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontFamily: 'inherit', fontSize: '14px', minHeight: '100px', resize: 'vertical' }}
+                />
+              </div>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="auth-modal-footer">
+        <div className="modern-modal-footer">
           <button
-            className="auth-btn cancel"
+            className="modal-btn-secondary"
             onClick={onClose}
             disabled={loading}
           >
@@ -248,14 +239,14 @@ function AuthorizationModal({ request, onClose, onApprove, onReject }) {
           {!showRejectForm ? (
             <>
               <button
-                className="auth-btn reject"
+                className="modal-btn-danger"
                 onClick={() => setShowRejectForm(true)}
                 disabled={loading}
               >
                 Reject Request
               </button>
               <button
-                className="auth-btn approve"
+                className="modal-btn-primary"
                 onClick={handleApprove}
                 disabled={loading}
               >
@@ -265,14 +256,14 @@ function AuthorizationModal({ request, onClose, onApprove, onReject }) {
           ) : (
             <>
               <button
-                className="auth-btn cancel"
+                className="modal-btn-secondary"
                 onClick={() => setShowRejectForm(false)}
                 disabled={loading}
               >
                 Back
               </button>
               <button
-                className="auth-btn reject"
+                className="modal-btn-danger"
                 onClick={handleReject}
                 disabled={loading || !rejectionReason.trim()}
               >

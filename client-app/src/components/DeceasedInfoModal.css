@@ -247,6 +247,79 @@
   transform: translateY(0);
 }
 
+/* ID Upload Section */
+.id-upload-section {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.id-upload-section h3 {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  color: #1f2937;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.id-upload-description {
+  margin: 0 0 16px 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.file-input-wrapper {
+  position: relative;
+}
+
+.file-input {
+  display: none;
+}
+
+.file-input-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-input-label:hover {
+  border-color: #1B3022;
+  background: #f0f9f7;
+}
+
+.file-input:focus + .file-input-label {
+  border-color: #1B3022;
+  background: #f0f9f7;
+}
+
+.file-input-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.file-input-text {
+  font-size: 14px;
+  color: #6b7280;
+  text-align: center;
+  font-weight: 500;
+}
+
+.file-input:valid + .file-input-label .file-input-text {
+  color: #1B3022;
+  font-weight: 600;
+}
+
 @media (max-width: 600px) {
   .deceased-info-modal {
     width: 95%;
@@ -269,5 +342,17 @@
 
   .btn-remove {
     align-self: flex-end;
+  }
+
+  .file-input-label {
+    padding: 16px;
+  }
+
+  .file-input-icon {
+    font-size: 24px;
+  }
+
+  .file-input-text {
+    font-size: 12px;
   }
 }

@@ -66,7 +66,7 @@
 
 /* Refresh Button */
 .refresh-button {
-  background: #3b82f6;
+  background: #1B3022;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -81,9 +81,9 @@
 }
 
 .refresh-button:hover:not(:disabled) {
-  background: #2563eb;
+  background: #2A4D36;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(27, 48, 34, 0.3);
 }
 
 .refresh-button:disabled {
@@ -155,7 +155,7 @@
 }
 
 .browse-btn {
-  background: #3b82f6;
+  background: #1B3022;
   color: white;
   border: none;
   padding: 14px 32px;
@@ -167,9 +167,9 @@
 }
 
 .browse-btn:hover {
-  background: #2563eb;
+  background: #2A4D36;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(27, 48, 34, 0.3);
 }
 
 /* Requests List */
@@ -217,7 +217,7 @@
 }
 
 .plan-badge {
-  background: #3b82f6;
+  background: #1B3022;
   color: white;
   padding: 6px 16px;
   border-radius: 20px;
@@ -299,7 +299,7 @@
   padding: 20px;
   background: #f8f9fa;
   border-radius: 10px;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #1B3022;
 }
 
 .request-message h4 {
@@ -478,7 +478,7 @@
 
 .section-icon {
   font-size: 1.5rem;
-  color: #3b82f6;
+  color: #1B3022;
 }
 
 .section-header h2 {
@@ -633,7 +633,7 @@
 
 /* Pay Now Button */
 .pay-now-btn {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #1B3022 0%, #2A4D36 100%);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -649,9 +649,9 @@
 }
 
 .pay-now-btn:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #2A4D36 0%, #1B3022 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(27, 48, 34, 0.3);
 }
 
 .pay-now-btn:active {
@@ -691,3 +691,4 @@
 .cancel-btn:active {
   transform: translateY(0);
 }
+

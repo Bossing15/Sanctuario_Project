@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import revenueIcon from "../assets/icons/icons8-revenue-50.png";
-import invoiceIcon from "../assets/icons/icons8-invoice-50.png";
-import customerIcon from "../assets/icons/Customers.png";
-import pending from "../assets/icons/icons8-pending-50.png";
+import totalRevenueIcon from "../assets/icons/totalrevenue.png";
+import unpaidInvoiceIcon from "../assets/icons/unpaidinvoice.png";
+import totalCustomersIcon from "../assets/icons/totalcustomers.png";
+import pendingRequestsIcon from "../assets/icons/pendinfrequests.png";
 import dashboardIcon from "../assets/icons/Dashboard.png";
 import usePermissions from '../utils/usePermissions';
 import { TableSkeleton } from './SkeletonLoader';
@@ -474,7 +474,7 @@ const Dashboard = () => {
     const statusConfig = {
       'ReadyForPayment': { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pending Payment' },
       'Paid': { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid' },
-      'Completed': { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Completed' },
+      'Completed': { bg: 'bg-[#f0f5f2]', text: 'text-[#1B3022]', label: 'Completed' },
       'Cancelled': { bg: 'bg-red-100', text: 'text-red-700', label: 'Cancelled' }
     };
     
@@ -510,7 +510,7 @@ const Dashboard = () => {
       "Active": { bg: "bg-green-100", text: "text-green-700", dot: "bg-green-500" },
       "Inactive": { bg: "bg-red-100", text: "text-red-700", dot: "bg-red-500" },
       "Pending": { bg: "bg-yellow-100", text: "text-yellow-700", dot: "bg-yellow-500" },
-      "In Progress": { bg: "bg-blue-100", text: "text-blue-700", dot: "bg-blue-500" },
+      "In Progress": { bg: "bg-[#f0f5f2]", text: "text-[#1B3022]", dot: "bg-[#1B3022]" },
       "Closed": { bg: "bg-gray-100", text: "text-gray-700", dot: "bg-gray-500" },
       "Paid": { bg: "bg-green-100", text: "text-green-700", dot: "bg-green-500" },
       "Overdue": { bg: "bg-red-100", text: "text-red-700", dot: "bg-red-500" },
@@ -541,10 +541,10 @@ const Dashboard = () => {
             className="stat-card bg-white text-center p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-100 hover:scale-105 transition-all duration-300 cursor-pointer"
           >
             <div className="flex items-center justify-center mb-3">
-              <img src={customerIcon} alt="Customer Icon" className="w-10 h-10" />
+              <img src={totalCustomersIcon} alt="Total Customers Icon" className="w-10 h-10" />
             </div>
             <h6 className="text-gray-600 mb-1 text-sm font-medium">Total Customers</h6>
-            <h5 className="font-bold text-2xl text-blue-600">
+            <h5 className="font-bold text-2xl text-[#1B3022]">
               {loading ? '...' : totalCustomers}
             </h5>
           </div>
@@ -552,7 +552,7 @@ const Dashboard = () => {
           {/* Pending Maintenance */}
           <div className="stat-card bg-white text-center p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-100 hover:scale-105 transition-all duration-300">
             <div className="flex items-center justify-center mb-3">
-              <img src={pending} alt="Pending Icon" className="w-10 h-10" />
+              <img src={pendingRequestsIcon} alt="Pending Requests Icon" className="w-10 h-10" />
             </div>
             <h6 className="text-gray-600 mb-1 text-sm font-medium">Pending Requests</h6>
             <h5 className="font-bold text-2xl text-yellow-600">
@@ -566,7 +566,7 @@ const Dashboard = () => {
             className="stat-card bg-white text-center p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-100 hover:scale-105 transition-all duration-300 cursor-pointer"
           >
             <div className="flex items-center justify-center mb-3">
-              <img src={revenueIcon} alt="Revenue Icon" className="w-10 h-10" />
+              <img src={totalRevenueIcon} alt="Total Revenue Icon" className="w-10 h-10" />
             </div>
             <h6 className="text-gray-600 mb-1 text-sm font-medium">Total Revenue This Month</h6>
             <h5 className="font-bold text-2xl text-green-600">
@@ -580,7 +580,7 @@ const Dashboard = () => {
             className="stat-card bg-white text-center p-6 rounded-xl shadow-md hover:shadow-xl border border-gray-100 hover:scale-105 transition-all duration-300 cursor-pointer"
           >
             <div className="flex items-center justify-center mb-3">
-              <img src={invoiceIcon} alt="Invoice Icon" className="w-10 h-10" />
+              <img src={unpaidInvoiceIcon} alt="Unpaid Invoice Icon" className="w-10 h-10" />
             </div>
             <h6 className="text-gray-600 mb-1 text-sm font-medium">Unpaid Invoices</h6>
             <h5 className="font-bold text-2xl text-red-600">10</h5>
@@ -599,7 +599,7 @@ const Dashboard = () => {
               fetchReservations();
             }}
             disabled={loadingMaintenance || loadingPurchases || loadingReservations}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-[#1B3022] text-white rounded-lg hover:bg-[#2A4D36] transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loadingMaintenance || loadingPurchases || loadingReservations ? 'Loading...' : 'Refresh'}
           </button>
@@ -748,7 +748,7 @@ const Dashboard = () => {
                                     Pending
                                   </span>
                                 ) : item.status === 'In Progress' ? (
-                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-[#f0f5f2] text-[#1B3022] rounded-lg shadow-sm">
                                     In Progress
                                   </span>
                                 ) : item.status === 'Responded' ? (
@@ -760,7 +760,7 @@ const Dashboard = () => {
                                     Closed
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-[#f0f5f2] text-[#1B3022] rounded-lg shadow-sm">
                                     {item.status}
                                   </span>
                                 )}
@@ -819,7 +819,7 @@ const Dashboard = () => {
                                         setSelectedBooking(item);
                                         setShowAuthorizationModal(true);
                                       }}
-                                      className="px-2 py-1 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                      className="px-2 py-1 text-xs font-semibold bg-[#1B3022] text-white rounded hover:bg-[#2A4D36] transition-colors"
                                     >
                                       Review
                                     </button>
@@ -879,7 +879,7 @@ const Dashboard = () => {
                                         setSelectedServiceBooking(item);
                                         setShowServiceCompletionModal(true);
                                       }}
-                                      className="px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                      className="px-3 py-1 text-xs font-semibold bg-[#1B3022] text-white rounded hover:bg-[#2A4D36] transition-colors"
                                       title="Mark service completion status"
                                     >
                                       Status
@@ -933,7 +933,7 @@ const Dashboard = () => {
                                     Rejected
                                   </span>
                                 ) : item.status === 'paid' ? (
-                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
                                     Paid
                                   </span>
                                 ) : (
@@ -949,7 +949,7 @@ const Dashboard = () => {
                                       setSelectedReservationDetails(item);
                                       setShowReservationDetailsModal(true);
                                     }}
-                                    className="px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                    className="px-3 py-1 text-xs font-semibold bg-[#1B3022] text-white rounded hover:bg-[#2A4D36] transition-colors"
                                     title="View service details"
                                   >
                                     View
@@ -978,7 +978,7 @@ const Dashboard = () => {
                                         setSelectedServiceBooking(item);
                                         setShowServiceCompletionModal(true);
                                       }}
-                                      className="px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                      className="px-3 py-1 text-xs font-semibold bg-[#1B3022] text-white rounded hover:bg-[#2A4D36] transition-colors"
                                       title="Mark service completion status"
                                     >
                                       Status
@@ -1026,7 +1026,7 @@ const Dashboard = () => {
                                     Rejected
                                   </span>
                                 ) : item.status === 'paid' ? (
-                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
                                     Paid
                                   </span>
                                 ) : (
@@ -1042,7 +1042,7 @@ const Dashboard = () => {
                                       setSelectedReservationDetails(item);
                                       setShowReservationDetailsModal(true);
                                     }}
-                                    className="px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                    className="px-3 py-1 text-xs font-semibold bg-[#1B3022] text-white rounded hover:bg-[#2A4D36] transition-colors"
                                     title="View reservation details"
                                   >
                                     View
@@ -1090,7 +1090,7 @@ const Dashboard = () => {
                 <small className="text-gray-600">New maintenance request or pending payment</small>
               </li>
               <li className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded-lg">
+                <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold bg-[#1B3022] text-white rounded-lg">
                   In Progress
                 </span>
                 <small className="text-gray-600">Currently being worked on</small>

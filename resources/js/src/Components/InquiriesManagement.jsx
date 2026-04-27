@@ -358,14 +358,14 @@ function InquiriesManagement() {
                             ? 'bg-green-100 text-green-700' 
                             : inquiry.status === 'Closed' 
                             ? 'bg-red-100 text-red-700' 
-                            : 'bg-blue-100 text-blue-700'
+                            : 'bg-[#f0f5f2] text-[#1B3022]'
                         }`}>
                           {inquiry.status}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <button
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm"
+                          className="px-4 py-2 bg-[#1B3022] text-white rounded-lg hover:bg-[#2A4D36] transition-colors font-semibold text-sm"
                           onClick={(e) => {
                             e.stopPropagation();
                             openDetailModal(inquiry);

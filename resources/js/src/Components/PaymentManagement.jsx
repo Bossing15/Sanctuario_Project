@@ -305,15 +305,15 @@ const PaymentManagement = ({ canManageBilling = true }) => {
             {/* Receipt Content */}
             <div className="modal-body" id="receipt-content">
               {/* Company Header */}
-              <div className="text-center border-b-4 border-blue-900 pb-6 mb-8">
-                <h1 className="text-3xl font-bold text-blue-900 mb-2">Sanctuario De Carmona Memorial Park</h1>
+              <div className="text-center border-b-4 border-[#1B3022] pb-6 mb-8">
+                <h1 className="text-3xl font-bold text-[#1B3022] mb-2">Sanctuario De Carmona Memorial Park</h1>
                 <p className="text-gray-600">Carmona, Cavite, Philippines</p>
                 <p className="text-gray-600">Phone: 0912-345-6789 | Email: info@sanctuario.com</p>
               </div>
 
               {/* Receipt Title */}
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-blue-900">OFFICIAL RECEIPT</h2>
+                <h2 className="text-2xl font-bold text-[#1B3022]">OFFICIAL RECEIPT</h2>
               </div>
 
               {/* Receipt Details */}
@@ -340,7 +340,7 @@ const PaymentManagement = ({ canManageBilling = true }) => {
 
               {/* Customer Information */}
               <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                <h3 className="font-bold text-blue-900 mb-3">Customer Information</h3>
+                <h3 className="font-bold text-[#1B3022] mb-3">Customer Information</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">Name:</p>
@@ -361,7 +361,7 @@ const PaymentManagement = ({ canManageBilling = true }) => {
 
               {/* Payment Information */}
               <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                <h3 className="font-bold text-blue-900 mb-3">Payment Information</h3>
+                <h3 className="font-bold text-[#1B3022] mb-3">Payment Information</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Description:</span>
@@ -379,9 +379,9 @@ const PaymentManagement = ({ canManageBilling = true }) => {
               </div>
 
               {/* Amount Section */}
-              <div className="bg-blue-50 p-6 rounded-lg text-center mb-8">
+              <div className="bg-[#f0f5f2] p-6 rounded-lg text-center mb-8">
                 <p className="text-sm text-gray-600 mb-2">TOTAL AMOUNT PAID</p>
-                <p className="text-4xl font-bold text-blue-900">₱{parseFloat(selectedPayment.amount).toFixed(2)}</p>
+                <p className="text-4xl font-bold text-[#1B3022]">₱{parseFloat(selectedPayment.amount).toFixed(2)}</p>
               </div>
 
               {/* Signature Section */}

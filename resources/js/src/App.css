@@ -1,4 +1,20 @@
 /* ============================================
+   COLOR PALETTE
+   ============================================ */
+:root {
+  --color-sidebar: #0D1A12;
+  --color-navbar: #141A16;
+  --color-bg-main: #F5F7F5;
+  --color-card-bg: #FFFFFF;
+  --color-accent-gold: #D4C4A8;
+  --color-text-primary: #1a202c;
+  --color-text-secondary: #64748b;
+  --color-border: #e2e8f0;
+  --color-shadow: rgba(0, 0, 0, 0.08);
+  --color-hover-bg: #f8fafc;
+}
+
+/* ============================================
    DESKTOP LAYOUT (Default)
    ============================================ */
 
@@ -8,11 +24,11 @@
   top: 0;
   height: 100vh;
   width: 280px;
-  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  background: var(--color-sidebar);
   color: white;
   padding: 0;
   overflow-y: auto;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
   z-index: 100;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -32,7 +48,7 @@
   gap: 1rem !important;
   height: 70px !important;
   padding: 0 1rem !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-bottom: 1px solid rgba(212, 196, 168, 0.1) !important;
   margin-bottom: 0 !important;
 }
 
@@ -41,6 +57,7 @@
   width: auto;
   object-fit: contain;
   margin-left: -1rem;
+  filter: brightness(1.1);
 }
 
 .sidebar.collapsed .sidebar-logo {
@@ -50,7 +67,7 @@
 .sidebar-toggle {
   background: none !important;
   border: none !important;
-  color: white !important;
+  color: var(--color-accent-gold) !important;
   cursor: pointer !important;
   padding: 0.75rem 1rem !important;
   display: flex !important;
@@ -74,12 +91,13 @@
   display: block !important;
   margin: 0 !important;
   padding: 0 !important;
+  filter: brightness(1.5);
 }
 
 .sidebar-toggle:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: rgba(212, 196, 168, 0.08) !important;
   border-radius: 0.5rem !important;
-  color: white !important;
+  color: var(--color-accent-gold) !important;
   transition: all 0.2s ease !important;
 }
 
@@ -96,13 +114,15 @@
   align-items: center;
   gap: 1rem;
   padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  color: rgba(255, 255, 255, 0.8);
+  transition: all 0.2s ease;
+  color: rgba(212, 196, 168, 0.7);
   text-decoration: none;
   font-weight: 500;
   font-size: 0.875rem;
+  position: relative;
+  border-left: 3px solid transparent;
 }
 
 .sidebar.collapsed .sidebar-item {
@@ -112,20 +132,26 @@
 }
 
 .sidebar-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
+  background-color: rgba(212, 196, 168, 0.08);
+  color: var(--color-accent-gold);
+  transition: all 0.2s ease;
+}
+
+.sidebar-item:hover .sidebar-item-icon {
+  filter: brightness(1.3);
 }
 
 .sidebar-item.active {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  border-left: 3px solid white;
+  background-color: rgba(212, 196, 168, 0.12);
+  color: var(--color-accent-gold);
+  border-left: 3px solid var(--color-accent-gold);
   padding-left: calc(1rem - 3px);
 }
 
 .sidebar.collapsed .sidebar-item.active {
   border-left: none;
   border-radius: 0.5rem;
+  background-color: rgba(212, 196, 168, 0.15);
 }
 
 .sidebar-item-icon {
@@ -135,6 +161,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  filter: brightness(1.2);
+  transition: filter 0.2s ease;
 }
 
 .sidebar-item-label {
@@ -152,7 +180,7 @@
   bottom: 1.5rem;
   left: 0;
   right: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid rgba(212, 196, 168, 0.1);
   padding: 1rem 1rem 0 1rem;
 }
 
@@ -166,8 +194,8 @@
   right: 0;
   left: 280px;
   height: 70px;
-  background: #1a1f3a;
-  border-bottom: 1px solid #0f1419;
+  background: var(--color-navbar);
+  border-bottom: 1px solid rgba(212, 196, 168, 0.1);
   padding: 0 2rem;
   display: flex;
   align-items: center;
@@ -175,7 +203,7 @@
   z-index: 99;
   transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   margin: 0;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .navbar.no-transition {
@@ -191,7 +219,7 @@ main {
   margin-left: 280px;
   padding: 0;
   margin-bottom: 0;
-  background-color: var(--bg-primary) !important;
+  background-color: var(--color-bg-main) !important;
   background-attachment: fixed;
   transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -213,6 +241,7 @@ main.collapsed {
   width: auto;
   object-fit: contain;
   display: none;
+  filter: brightness(1.1);
 }
 
 .navbar.collapsed .navbar-logo {
@@ -226,15 +255,70 @@ main.collapsed {
 .graves-legend {
   margin-top: 2rem;
   padding: 1.5rem;
-  background-color: #f9fafb;
-  border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  box-shadow: 0 1px 3px var(--color-shadow);
 }
 
-/* Settings Component Mobile Styles */
+/* ============================================
+   CARD STYLING
+   ============================================ */
+
+.card {
+  background: var(--color-card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px var(--color-shadow);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   STATS CARDS ANIMATION
+   ============================================ */
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stats-card {
+  animation: slideUpFade 0.5s ease-out forwards;
+}
+
+.stats-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.stats-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.stats-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.stats-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+/* ============================================
+   SETTINGS COMPONENT MOBILE STYLES
+   ============================================ */
+
 @media (max-width: 768px) {
   .settings-tabs {
     display: flex;
@@ -251,12 +335,12 @@ main.collapsed {
   }
 
   .settings-tabs::-webkit-scrollbar-track {
-    background: #f3f4f6;
+    background: var(--color-hover-bg);
     margin-top: 10px;
   }
 
   .settings-tabs::-webkit-scrollbar-thumb {
-    background: #d1d5db;
+    background: var(--color-border);
     border-radius: 4px;
   }
 
@@ -280,7 +364,6 @@ main.collapsed {
   }
 }
 
-/* Settings Component Mobile Styles */
 .settings-tabs {
   display: flex;
   gap: 0;
@@ -403,8 +486,8 @@ main.collapsed {
     left: 0;
     right: 0;
     height: 70px;
-    background: white;
-    border-top: 1px solid #e5e7eb;
+    background: var(--color-card-bg);
+    border-top: 1px solid var(--color-border);
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -425,7 +508,7 @@ main.collapsed {
   }
 
   .mobile-nav::-webkit-scrollbar-thumb {
-    background: #d1d5db;
+    background: var(--color-border);
     border-radius: 2px;
   }
 
@@ -438,7 +521,7 @@ main.collapsed {
     padding: 0.5rem;
     cursor: pointer;
     text-decoration: none;
-    color: #6b7280;
+    color: var(--color-text-secondary);
     transition: all 0.2s ease;
     flex: 0 0 auto;
     min-width: 60px;
@@ -448,8 +531,8 @@ main.collapsed {
 
   .mobile-nav-item:hover,
   .mobile-nav-item.active {
-    color: #16a34a;
-    background-color: #f0fdf4;
+    color: var(--color-accent-gold);
+    background-color: rgba(212, 196, 168, 0.08);
   }
 
   .mobile-nav-item img {
@@ -457,6 +540,11 @@ main.collapsed {
     height: 24px;
     object-fit: contain;
     pointer-events: none;
+    filter: brightness(1.1);
+  }
+
+  .mobile-nav-item.active img {
+    filter: brightness(1.5);
   }
 
   .mobile-nav-item span {
@@ -501,7 +589,6 @@ main.collapsed {
    RESPONSIVE SEARCH BAR STYLES
    ============================================ */
 
-/* Search bar container - responsive */
 @media (max-width: 1024px) {
   div[style*="display: flex"][style*="alignItems: center"][style*="border: 1px solid"] {
     padding: 0.5rem 0.75rem !important;

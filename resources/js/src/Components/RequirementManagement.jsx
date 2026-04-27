@@ -146,7 +146,7 @@ function SubmissionReviewCard({ booking, onReviewComplete, canManageRequirements
                       </span>
                     )}
                     {submission.similarity_score !== null && (
-                      <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                      <span className="px-2 py-1 text-xs rounded-full bg-[#f0f5f2] text-[#1B3022]">
                         Score: {submission.similarity_score}%
                       </span>
                     )}
@@ -170,7 +170,7 @@ function SubmissionReviewCard({ booking, onReviewComplete, canManageRequirements
                       console.log('File path:', submission.file_path);
                       setViewingImage(imagePath);
                     }}
-                    className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                    className="bg-[#1B3022] text-white px-3 py-1 rounded text-sm hover:bg-[#2A4D36]"
                   >
                     View
                   </button>
@@ -495,7 +495,7 @@ export default function RequirementManagement() {
             border: 'none',
             cursor: 'pointer',
             transition: 'background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease',
-            background: activeTab === 'requirements' ? 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)' : '#ffffff',
+            background: activeTab === 'requirements' ? 'linear-gradient(135deg, #1B3022 0%, #2A4D36 100%)' : '#ffffff',
             color: activeTab === 'requirements' ? '#ffffff' : '#374151',
             boxShadow: activeTab === 'requirements' ? '0 4px 6px rgba(0, 0, 0, 0.1)' : '0 1px 3px rgba(0, 0, 0, 0.1)',
             display: 'inline-block',
@@ -514,7 +514,7 @@ export default function RequirementManagement() {
             border: 'none',
             cursor: 'pointer',
             transition: 'background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease',
-            background: activeTab === 'review' ? 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)' : '#ffffff',
+            background: activeTab === 'review' ? 'linear-gradient(135deg, #1B3022 0%, #2A4D36 100%)' : '#ffffff',
             color: activeTab === 'review' ? '#ffffff' : '#374151',
             boxShadow: activeTab === 'review' ? '0 4px 6px rgba(0, 0, 0, 0.1)' : '0 1px 3px rgba(0, 0, 0, 0.1)',
             display: 'inline-block',
@@ -617,7 +617,7 @@ export default function RequirementManagement() {
                   <button
                     type="submit"
                     onClick={handleCreateRequirement}
-                    className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                    className="px-6 py-2.5 bg-[#1B3022] text-white rounded-lg hover:bg-[#2A4D36] transition-colors font-semibold"
                   >
                     {editingRequirement ? 'Update' : 'Create'}
                   </button>
@@ -711,7 +711,7 @@ export default function RequirementManagement() {
                         </td>
                         <td className="text-center">
                           {requirement.file_type === 'image' ? (
-                            <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                            <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-[#f0f5f2] text-[#1B3022] rounded-lg shadow-sm">
                               Image
                             </span>
                           ) : requirement.file_type === 'pdf' ? (
@@ -719,7 +719,7 @@ export default function RequirementManagement() {
                               PDF
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                            <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-[#f0f5f2] text-[#1B3022] rounded-lg shadow-sm">
                               {requirement.file_type.toUpperCase()}
                             </span>
                           )}

@@ -79,11 +79,11 @@ class AuthController extends Controller
     public function clientLogin(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'username' => 'required|string',
             'password' => 'required',
         ]);
 
-        $client = Client::where('email', $credentials['email'])->first();
+        $client = Client::where('username', $credentials['username'])->first();
 
         if ($client && Hash::check($credentials['password'], $client->password)) {
             $token = $client->createToken('auth_token')->plainTextToken;
@@ -97,7 +97,7 @@ class AuthController extends Controller
 
         // Log failed login attempt for debugging
         \Illuminate\Support\Facades\Log::warning('Failed login attempt', [
-            'email' => $credentials['email'],
+            'username' => $credentials['username'],
             'client_exists' => $client ? true : false,
             'password_matches' => $client && Hash::check($credentials['password'], $client->password) ? true : false,
         ]);
@@ -138,9 +138,15 @@ class AuthController extends Controller
                 return response()->json(['message' => 'Email already registered'], 422);
             }
 
+            // Check if username already exists
+            if ($validated['username'] && Client::where('username', $validated['username'])->exists()) {
+                return response()->json(['message' => 'Username already taken'], 422);
+            }
+
             $client = Client::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
+                'username' => $validated['username'] ?? null,
                 'password' => Hash::make($validated['password']),
                 'deceased_name' => $validated['deceased_name'] ?? null,
                 'grave_location' => $validated['grave_location'] ?? null,

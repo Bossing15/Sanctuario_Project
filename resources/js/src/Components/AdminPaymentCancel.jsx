@@ -41,7 +41,7 @@ function AdminPaymentCancel() {
         <div className="flex flex-col gap-3">
           <button
             onClick={() => navigate('/billing', { state: { tab: 'management' } })}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all"
+            className="bg-[#1B3022] hover:bg-[#2A4D36] text-white px-8 py-3 rounded-lg font-semibold transition-all"
           >
             Return to Billing
           </button>

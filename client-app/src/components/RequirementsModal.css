@@ -80,8 +80,8 @@ body.modal-open {
 }
 
 .requirements-info {
-  background: #f0f9ff;
-  border-left: 4px solid #3b82f6;
+  background: #f0f5f2;
+  border-left: 4px solid #1B3022;
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 25px;
@@ -98,7 +98,7 @@ body.modal-open {
 
 .requirements-info p {
   margin: 0;
-  color: #1e3a8a;
+  color: #0D1A12;
   line-height: 1.6;
   font-size: 14px;
 }
@@ -149,7 +149,7 @@ body.modal-open {
 
 .upload-section:hover {
   border-color: #667eea;
-  background: #f0f9ff;
+  background: #f0f5f2;
 }
 
 .upload-icon {
@@ -247,13 +247,13 @@ body.modal-open {
 }
 
 .submit-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1B3022 0%, #2A4D36 100%);
   color: white;
 }
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 10px 25px rgba(27, 48, 34, 0.4);
 }
 
 .submit-btn:disabled {
@@ -297,3 +297,4 @@ body.modal-open {
     width: 100%;
   }
 }
+

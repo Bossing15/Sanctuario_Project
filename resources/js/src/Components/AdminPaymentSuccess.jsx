@@ -46,11 +46,11 @@ function AdminPaymentSuccess() {
   }, [paymentId, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
         {processing ? (
           <>
-            <FaSpinner className="text-6xl text-blue-600 mx-auto mb-6 animate-spin" />
+            <FaSpinner className="text-6xl text-[#1B3022] mx-auto mb-6 animate-spin" />
             <h1 className="text-2xl font-bold text-gray-800 mb-4">Processing Payment...</h1>
             <p className="text-gray-600">Please wait while we confirm your payment.</p>
           </>
@@ -60,7 +60,7 @@ function AdminPaymentSuccess() {
             <p className="text-gray-600 mb-6">{error}</p>
             <button
               onClick={() => navigate('/billing')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all"
+              className="bg-[#1B3022] hover:bg-[#2A4D36] text-white px-8 py-3 rounded-lg font-semibold transition-all"
             >
               Return to Billing
             </button>

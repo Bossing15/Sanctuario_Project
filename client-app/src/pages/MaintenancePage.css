@@ -327,7 +327,7 @@
   display: block;
   margin: 30px auto 0;
   padding: 12px 40px;
-  background-color: #003d7a;
+  background-color: #1B3022;
   color: white;
   border: none;
   border-radius: 0;
@@ -340,7 +340,7 @@
 }
 
 .submit-btn:hover {
-  background-color: #002a54;
+  background-color: #2A4D36;
 }
 
 .submit-btn:active {
@@ -621,8 +621,8 @@
 }
 
 .requirements-notice.info {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  border-left: 5px solid #3b82f6;
+  background: linear-gradient(135deg, #f0f5f2 0%, #e8f0eb 100%);
+  border-left: 5px solid #1B3022;
 }
 
 .requirements-notice.success {
@@ -708,3 +708,4 @@
     width: 100%;
   }
 }
+

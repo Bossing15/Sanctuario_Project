@@ -183,7 +183,7 @@ const Profile = () => {
       <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
         {/* Profile Header */}
         <div className="flex items-center mb-8 pb-6 border-b border-gray-200">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mr-4">
+          <div className="w-20 h-20 bg-gradient-to-br from-[#1B3022] to-[#2A4D36] rounded-full flex items-center justify-center mr-4">
             <span className="text-white text-2xl font-bold">
               {user?.name?.charAt(0).toUpperCase() || 'U'}
             </span>
@@ -282,7 +282,7 @@ const Profile = () => {
                 })}
               </div>
               {user?.access_level === 'admin' && (
-                <p className="text-xs text-blue-600 mt-2">
+                <p className="text-xs text-[#1B3022] mt-2">
                   Admin accounts have full access to all components
                 </p>
               )}
@@ -294,7 +294,7 @@ const Profile = () => {
         <div className="mt-8 pt-6 border-t border-gray-200">
           <button
             onClick={() => setShowPasswordSection(!showPasswordSection)}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold mb-4"
+            className="flex items-center gap-2 text-[#1B3022] hover:text-[#2A4D36] font-semibold mb-4"
           >
             <span>{showPasswordSection ? '▼' : '▶'}</span>
             Change Password
@@ -393,7 +393,7 @@ const Profile = () => {
           ) : (
             <button 
               onClick={() => setIsEditing(true)}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+              className="px-6 py-2 bg-[#1B3022] text-white rounded-lg hover:bg-[#2A4D36] transition-all"
             >
               Edit Profile
             </button>

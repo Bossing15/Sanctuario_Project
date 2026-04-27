@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FaCheckCircle, FaTimesCircle, FaClock, FaUser, FaCalendar, FaDollarSign } from 'react-icons/fa';
 import './ReservationManagement.css';
+import '../styles/modern-modal.css';
+import { useModalScrollLock } from '../hooks/useModalScrollLock';
 
 const ReservationManagement = () => {
   const [reservations, setReservations] = useState([]);
@@ -12,6 +14,9 @@ const ReservationManagement = () => {
   const [notes, setNotes] = useState('');
   const [action, setAction] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Lock scroll when modal is open
+  useModalScrollLock(showModal);
 
   useEffect(() => {
     fetchReservations();
@@ -223,24 +228,26 @@ const ReservationManagement = () => {
                   </div>
                 </div>
 
-                {/* Deceased Information */}
-                <div className="section">
-                  <h4>Deceased Information</h4>
-                  <div className="info-grid">
-                    <div className="info-item">
-                      <span className="label">Name:</span>
-                      <span className="value">{reservation.deceased_name}</span>
-                    </div>
-                    <div className="info-item">
-                      <span className="label"><FaCalendar /> Date of Death:</span>
-                      <span className="value">{new Date(reservation.deceased_date_of_death).toLocaleDateString()}</span>
-                    </div>
-                    <div className="info-item">
-                      <span className="label">Relationship:</span>
-                      <span className="value">{reservation.deceased_relationship || 'N/A'}</span>
+                {/* Deceased Information - Only show if purpose is deceased */}
+                {reservation.request_purpose === 'deceased' && (
+                  <div className="section">
+                    <h4>Deceased Information</h4>
+                    <div className="info-grid">
+                      <div className="info-item">
+                        <span className="label">Name:</span>
+                        <span className="value">{reservation.deceased_name}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="label"><FaCalendar /> Date of Death:</span>
+                        <span className="value">{new Date(reservation.deceased_date_of_death).toLocaleDateString()}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="label">Relationship:</span>
+                        <span className="value">{reservation.deceased_relationship || 'N/A'}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Reservation Details */}
                 <div className="section">
@@ -264,6 +271,25 @@ const ReservationManagement = () => {
                       <span className="label"><FaDollarSign /> Amount:</span>
                       <span className="value">₱{parseFloat(reservation.amount).toFixed(2)}</span>
                     </div>
+                    <div className="info-item">
+                      <span className="label">Request Purpose:</span>
+                      <span className={`purpose-badge purpose-${reservation.request_purpose}`}>
+                        {reservation.request_purpose === 'deceased' ? '👤 Deceased' : '📅 Reservation'}
+                      </span>
+                    </div>
+                    {reservation.id_file && (
+                      <div className="info-item">
+                        <span className="label">ID Document:</span>
+                        <a 
+                          href={`http://localhost:8000/api/files/${reservation.id_file}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="id-file-link-small"
+                        >
+                          📄 View
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -318,43 +344,53 @@ const ReservationManagement = () => {
       {/* Action Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{action === 'approve' ? 'Approve Reservation' : 'Reject Reservation'}</h3>
-              <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
+          <div className="modern-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modern-modal-header">
+              <h2>{action === 'approve' ? 'Approve Reservation' : 'Reject Reservation'}</h2>
+              <button className="modern-modal-close" onClick={() => setShowModal(false)}>×</button>
             </div>
 
-            <div className="modal-body">
-              <p className="reservation-info">
-                Reservation #{selectedReservation?.id} - {selectedReservation?.deceased_name}
-              </p>
+            <div className="modern-modal-content">
+              <div className="modal-section">
+                <span className="modal-section-title">Reservation Details</span>
+                <div className="modal-info-grid">
+                  <div className="modal-info-item">
+                    <label>Reservation ID</label>
+                    <span>#{selectedReservation?.id}</span>
+                  </div>
+                  <div className="modal-info-item">
+                    <label>{selectedReservation?.request_purpose === 'deceased' ? 'Deceased Name' : 'Customer Name'}</label>
+                    <span>{selectedReservation?.deceased_name || selectedReservation?.user?.name}</span>
+                  </div>
+                </div>
+              </div>
 
-              <div className="form-group">
-                <label>
-                  {action === 'approve' ? 'Approval Notes (Optional)' : 'Rejection Reason (Required)'}
-                </label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder={action === 'approve' ? 'Add any notes...' : 'Please provide a reason for rejection...'}
-                  rows="4"
-                  className="form-textarea"
-                />
+              <div className="modal-section">
+                <span className="modal-section-title">{action === 'approve' ? 'Approval Notes' : 'Rejection Reason'}</span>
+                <div className="modal-form-group">
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder={action === 'approve' ? 'Add any notes (optional)...' : 'Please provide a reason for rejection...'}
+                    className="modal-form-group"
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontFamily: 'inherit', fontSize: '14px', minHeight: '100px', resize: 'vertical' }}
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="modal-footer">
+            <div className="modern-modal-footer">
               <button 
-                className="btn btn-secondary"
+                className="modal-btn-secondary"
                 onClick={() => setShowModal(false)}
               >
                 Cancel
               </button>
               <button 
-                className={`btn ${action === 'approve' ? 'btn-approve' : 'btn-reject'}`}
+                className={`modal-btn-${action === 'approve' ? 'primary' : 'danger'}`}
                 onClick={submitAction}
               >
-                {action === 'approve' ? 'Approve' : 'Reject'}
+                {action === 'approve' ? 'Approve Reservation' : 'Reject Reservation'}
               </button>
             </div>
           </div>

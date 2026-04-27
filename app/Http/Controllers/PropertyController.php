@@ -19,8 +19,19 @@ class PropertyController extends Controller
             $model = $this->getPropertyModel($type);
             $properties = $model::all();
             
-            // Get occupied properties (those with bookings)
-            $occupiedIds = Booking::whereNotNull('grave_id')->pluck('grave_id')->toArray();
+            // Get occupied properties from Bookings (grave_id field)
+            $occupiedFromBookings = Booking::whereNotNull('grave_id')->pluck('grave_id')->toArray();
+            
+            // Get reserved properties from Reservations (lot_id field) - only pending and approved
+            // IMPORTANT: Filter by lot_type to only get reservations for this specific property type
+            $reservedFromReservations = \App\Models\Reservation::whereIn('status', ['pending', 'approved'])
+                ->where('lot_type', $type)  // Only get reservations for this specific property type
+                ->whereNotNull('lot_id')
+                ->pluck('lot_id')
+                ->toArray();
+            
+            // Combine both occupied and reserved IDs
+            $occupiedIds = array_unique(array_merge($occupiedFromBookings, $reservedFromReservations));
             
             // Format properties with availability status
             $formatted = $properties->map(function ($property) use ($occupiedIds) {
@@ -129,13 +140,23 @@ class PropertyController extends Controller
             $model = $this->getPropertyModel($type);
             $property = $model::findOrFail($propertyId);
             
-            // Check if occupied
+            // Check if occupied by a booking
             $booking = Booking::where('grave_id', $propertyId)->first();
+            
+            // Check if reserved by a reservation (pending or approved status)
+            // IMPORTANT: Filter by lot_type to only get reservations for this specific property type
+            $reservation = \App\Models\Reservation::whereIn('status', ['pending', 'approved'])
+                ->where('lot_type', $type)  // Only get reservations for this specific property type
+                ->where('lot_id', $propertyId)
+                ->first();
+            
+            $isOccupied = $booking || $reservation;
             
             return response()->json([
                 'property' => $property,
-                'is_occupied' => $booking ? true : false,
+                'is_occupied' => $isOccupied ? true : false,
                 'booking' => $booking,
+                'reservation' => $reservation,
             ]);
         } catch (\Exception $e) {
             return response()->json([

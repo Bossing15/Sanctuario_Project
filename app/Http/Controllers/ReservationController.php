@@ -25,8 +25,10 @@ class ReservationController extends Controller
                 'service_id' => 'nullable|integer|exists:services,id',
                 'lot_id' => 'nullable|integer',
                 'lot_type' => 'nullable|string|in:lawn-lots,columbariums,family-estates,LawnLot,Columbarium,FamilyEstate',
-                'deceased_name' => 'required|string|max:255',
-                'deceased_date_of_death' => 'required|date|before_or_equal:today',
+                'request_purpose' => 'nullable|string|in:deceased,reservation',
+                'id_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:5120',
+                'deceased_name' => 'nullable|string|max:255',
+                'deceased_date_of_death' => 'nullable|date|before_or_equal:today',
                 'deceased_relationship' => 'nullable|string|max:100',
                 'plan_type' => 'nullable|string|in:Monthly,Quarterly,Yearly',
                 'amount' => 'required|numeric|min:0',
@@ -41,26 +43,49 @@ class ReservationController extends Controller
                 ], 401);
             }
 
-            // Create reservation (works for both products and services)
-            $reservation = Reservation::create([
+            // Handle file upload
+            $idFilePath = null;
+            if ($request->hasFile('id_file')) {
+                $file = $request->file('id_file');
+                $fileName = 'id_' . $userId . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $idFilePath = $file->storeAs('id_uploads', $fileName, 'public');
+                \Log::info('ID file uploaded', ['path' => $idFilePath, 'user_id' => $userId]);
+            }
+
+            // Clean up null values from FormData
+            $reservationData = [
                 'user_id' => $userId,
                 'product_id' => $validated['product_id'] ?? null,
                 'service_id' => $validated['service_id'] ?? null,
                 'lot_id' => $validated['lot_id'] ?? null,
                 'lot_type' => $validated['lot_type'] ?? null,
-                'deceased_name' => $validated['deceased_name'],
-                'deceased_date_of_death' => $validated['deceased_date_of_death'],
+                'request_purpose' => $validated['request_purpose'] ?? null, // Don't default to 'deceased' - let it be null for services
+                'id_file' => $idFilePath,
+                'deceased_name' => $validated['deceased_name'] ?? null,
+                'deceased_date_of_death' => $validated['deceased_date_of_death'] ?? null,
                 'deceased_relationship' => $validated['deceased_relationship'] ?? null,
                 'plan_type' => $validated['plan_type'] ?? null,
                 'amount' => $validated['amount'],
                 'status' => 'pending',
-            ]);
+            ];
+
+            // Remove null values from FormData (they come as string 'null')
+            foreach ($reservationData as $key => $value) {
+                if ($value === 'null' || $value === null) {
+                    $reservationData[$key] = null;
+                }
+            }
+
+            // Create reservation (works for both products and services)
+            $reservation = Reservation::create($reservationData);
 
             Log::info('Reservation created', [
                 'reservation_id' => $reservation->id,
                 'user_id' => $userId,
                 'product_id' => $validated['product_id'] ?? null,
                 'service_id' => $validated['service_id'] ?? null,
+                'request_purpose' => $validated['request_purpose'] ?? null,
+                'id_file' => $idFilePath,
                 'status' => 'pending',
             ]);
 
@@ -70,6 +95,7 @@ class ReservationController extends Controller
                 'status' => 'pending',
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error', ['errors' => $e->errors()]);
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $e->errors(),
@@ -228,7 +254,7 @@ class ReservationController extends Controller
 
             // Create a payment record for the approved reservation
             $payment = \App\Models\Payment::create([
-                'user_id' => $reservation->user_id,
+                'client_id' => $reservation->user_id,
                 'reservation_id' => $reservation->id,
                 'reservation_code' => $reservation->reservation_code,
                 'invoice_number' => $reservation->invoice_number,
@@ -480,7 +506,7 @@ class ReservationController extends Controller
 
             // Create payment record with pending status
             $payment = \App\Models\Payment::create([
-                'user_id' => $request->user()->id,
+                'client_id' => $request->user()->id,
                 'reservation_id' => $reservation->id,
                 'reservation_code' => $reservation->reservation_code,
                 'product_id' => $reservation->product_id,

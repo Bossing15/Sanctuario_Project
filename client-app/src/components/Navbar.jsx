@@ -161,7 +161,7 @@ function Navbar() {
           
           <div className="nav-contact-search">
             {isLoggedIn ? (
-              <>
+              <div className="right-section">
                 <div ref={notificationRef}>
                   <button
                     className="notification-icon-btn"
@@ -240,8 +240,8 @@ function Navbar() {
                   </div>
                 </div>
               )}
-            </div>
-              </>
+              </div>
+              </div>
             ) : (
               <div className="auth-buttons">
                 <button className="login-btn" onClick={() => navigate('/login')}>{getSetting('nav_login', 'Login')}</button>

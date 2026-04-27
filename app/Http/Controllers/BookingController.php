@@ -34,10 +34,22 @@ class BookingController extends Controller
                 'notes' => 'nullable|string',
             ]);
 
-            // Use user_id if provided, otherwise use client_id for backward compatibility
-            if (!$validated['user_id'] && $validated['client_id']) {
-                $validated['user_id'] = $validated['client_id'];
+            // SECURITY FIX: Always use the authenticated user's ID, never trust user_id or client_id from request
+            $authenticatedUserId = $request->user()->id;
+            
+            // Log if there's a mismatch (potential security issue)
+            if (($validated['user_id'] && $validated['user_id'] != $authenticatedUserId) || 
+                ($validated['client_id'] && $validated['client_id'] != $authenticatedUserId)) {
+                \Log::warning('Booking create: user_id/client_id mismatch', [
+                    'authenticated_user_id' => $authenticatedUserId,
+                    'provided_user_id' => $validated['user_id'] ?? null,
+                    'provided_client_id' => $validated['client_id'] ?? null,
+                    'ip' => $request->ip()
+                ]);
             }
+
+            // Override with authenticated user's ID
+            $validated['user_id'] = $authenticatedUserId;
             
             // Remove client_id to avoid conflicts
             unset($validated['client_id']);
@@ -364,6 +376,20 @@ class BookingController extends Controller
     {
         try {
             $booking = Booking::findOrFail($bookingId);
+
+            // SECURITY FIX: Verify the booking belongs to the authenticated user
+            $authenticatedUserId = auth()->id();
+            if ($booking->user_id != $authenticatedUserId) {
+                \Log::warning('Unauthorized booking access attempt', [
+                    'authenticated_user_id' => $authenticatedUserId,
+                    'booking_user_id' => $booking->user_id,
+                    'booking_id' => $bookingId,
+                    'ip' => request()->ip()
+                ]);
+                return response()->json([
+                    'message' => 'Unauthorized access to booking',
+                ], 403);
+            }
 
             \Log::info('Getting or creating payment for booking', [
                 'booking_id' => $bookingId,

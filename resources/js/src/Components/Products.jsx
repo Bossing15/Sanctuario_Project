@@ -190,7 +190,7 @@ const Products = () => {
   };
 
   return (
-    <div className="min-h-screen p-8">
+    <div className="min-h-screen p-8" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {notification && (
         <div className={`fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg text-white z-50 ${notification.type === "success" ? "bg-green-600" : "bg-red-600"}`}>
           <div className="flex items-center gap-2">
@@ -251,7 +251,7 @@ const Products = () => {
               className={`px-6 py-3 rounded-xl text-sm font-semibold transition-colors duration-150 cursor-pointer
                 ${
                   viewMode === tab
-                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
+                    ? "bg-gradient-to-r from-[#1B3022] to-[#2A4D36] text-white shadow-md"
                     : "bg-white text-gray-700 hover:bg-gray-50 shadow-sm border border-gray-200"
                 }`}
               onClick={() => setViewMode(tab)}

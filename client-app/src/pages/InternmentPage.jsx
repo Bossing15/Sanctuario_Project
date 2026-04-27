@@ -62,6 +62,7 @@ function InternmentPage() {
   const handleSelectPlan = (planType, amount) => {
     setSelectedPlan({ planType, amount });
     setShowPricingModal(false);
+    // Skip purpose selection for services - go directly to deceased info
     setShowDeceasedModal(true);
   };
 
@@ -180,7 +181,7 @@ function InternmentPage() {
             className="submit-btn"
             onClick={handleBuyNow}
           >
-            Buy Now
+            Request Now
           </button>
         </div>
       </div>
@@ -283,7 +284,8 @@ function InternmentPage() {
           onClose={handleClosePaymentModal}
           isLawnLotProduct={false}
           productSlug="interment"
-          deceasedList={deceasedList}
+          deceasedList={deceasedList.deceasedList}
+          idFile={deceasedList.idFile}
         />
       )}
 
@@ -295,6 +297,7 @@ function InternmentPage() {
           allowMultiple={false}
           maxDeceased={1}
           isService={true}
+          requestPurpose={null}
         />
       )}
     </div>

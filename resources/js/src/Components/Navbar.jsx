@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import adminIcon from "../assets/icons/icons8-admin-50.png";
 import logoutIcon from "../assets/icons/Logout.png";
 import NotificationModal from "./NotificationModal";
+import "./Navbar.css";
 const logo = "/Sanctuario_Logo_Good.png";
 
 const Navbar = ({ collapsed }) => {
@@ -49,7 +50,7 @@ const Navbar = ({ collapsed }) => {
   };
 
   return (
-    <div className={`navbar ${collapsed ? "collapsed" : ""} ${mounted ? "no-transition" : ""}`} style={{ background: '#1a1f3a' }}>
+    <div className={`navbar ${collapsed ? "collapsed" : ""} ${mounted ? "no-transition" : ""}`}>
       <div className="flex items-center">
         <img
           src={logo}
@@ -61,11 +62,13 @@ const Navbar = ({ collapsed }) => {
         />
       </div>
 
-      <div className="flex items-center gap-4 ml-auto">
+      <div className="flex items-center gap-6 ml-auto">
+        {/* Notification Bell */}
         <button 
           onClick={() => setShowNotifications(!showNotifications)}
-          className="relative p-2 hover:bg-gray-700 rounded-lg transition-all text-gray-300 pointer-events-auto"
+          className="relative p-2 hover:bg-opacity-10 hover:bg-white rounded-lg transition-all text-gray-300 pointer-events-auto"
           title="Notifications"
+          style={{ color: '#D4C4A8' }}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -83,40 +86,41 @@ const Navbar = ({ collapsed }) => {
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
 
+        {/* Profile Menu */}
         <div className="relative pointer-events-auto">
           <button 
             onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="flex items-center gap-2 hover:bg-gray-700 px-3 py-2 rounded-lg transition-all"
+            className="flex items-center gap-2 hover:bg-opacity-20 hover:bg-gray-600 px-3 py-2 rounded-lg transition-all"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center">
               <img
                 src={adminIcon}
                 alt="Admin Icon"
                 className="w-5 h-5 object-contain"
               />
             </div>
-            <div className="flex sm:flex flex-col items-start">
-              <strong className="text-sm font-semibold text-white">{user?.name || 'User'}</strong>
+            <div className="flex flex-col items-start">
+              <strong className="text-sm font-semibold text-white">{user?.name || 'Administrator'}</strong>
               <small className="text-xs text-gray-400">
-                {user?.access_level ? user.access_level.charAt(0).toUpperCase() + user.access_level.slice(1) : 'Staff'}
+                {user?.access_level ? user.access_level.charAt(0).toUpperCase() + user.access_level.slice(1) : 'Admin'}
               </small>
             </div>
-            <svg className={`w-4 h-4 text-gray-300 transition-all duration-200 transform ${showProfileMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+            <svg className={`w-4 h-4 transition-all duration-200 transform`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5} style={{ color: '#D4C4A8', transform: showProfileMenu ? 'rotate(180deg)' : 'rotate(0deg)' }}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M7 10l5 5 5-5" />
             </svg>
           </button>
 
           {showProfileMenu && (
-            <ul className="absolute right-0 mt-2 w-56 bg-white text-gray-800 rounded-xl shadow-xl border border-gray-100 overflow-hidden z-[9999]">
-              <li className="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-transparent">
+            <ul className="profile-menu-dropdown">
+              <li className="profile-menu-header">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center">
                     <img src={adminIcon} alt="Profile" className="w-6 h-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">{user?.name || 'User'}</p>
+                    <p className="text-sm font-semibold text-gray-900 truncate">{user?.name || 'Administrator'}</p>
                     <p className="text-xs text-gray-500">
-                      {user?.access_level ? user.access_level.charAt(0).toUpperCase() + user.access_level.slice(1) : 'Staff'}
+                      {user?.access_level ? user.access_level.charAt(0).toUpperCase() + user.access_level.slice(1) : 'Admin'}
                     </p>
                   </div>
                 </div>
@@ -127,7 +131,7 @@ const Navbar = ({ collapsed }) => {
                     navigate("/profile");
                     setShowProfileMenu(false);
                   }}
-                  className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition-colors text-gray-700 font-medium"
+                  className="profile-menu-item"
                 >
                   <img src={adminIcon} alt="Profile" className="w-5 h-5 object-contain" />
                   My Profile
@@ -139,7 +143,7 @@ const Navbar = ({ collapsed }) => {
                     handleLogout();
                     setShowProfileMenu(false);
                   }}
-                  className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm hover:bg-red-50 text-red-600 font-medium border-t border-gray-100"
+                  className="profile-menu-item profile-menu-logout"
                 >
                   <img src={logoutIcon} alt="Logout" className="w-5 h-5 object-contain" />
                   Logout

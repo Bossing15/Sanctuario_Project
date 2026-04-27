@@ -4,6 +4,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContactMessageController;
+use App\Http\Controllers\FileController;
+
+// Public file serving route (no auth required)
+Route::get('/files/{path}', [FileController::class, 'serve'])->where('path', '.*');
 
 // Test route without any middleware
 Route::post('/test', function() {
@@ -60,6 +64,30 @@ Route::prefix('payments')->group(function () {
                 'paid_date' => 'nullable|date',
                 'description' => 'nullable|string'
             ]);
+
+            // SECURITY FIX: This endpoint should only be used by authenticated admins
+            // If user is authenticated, verify they are admin or the client_id matches their ID
+            if ($request->user()) {
+                $authenticatedUserId = $request->user()->id;
+                
+                // Log if there's a mismatch (potential security issue)
+                if ($validated['client_id'] != $authenticatedUserId) {
+                    \Illuminate\Support\Facades\Log::warning('Payment record: client_id mismatch', [
+                        'authenticated_user_id' => $authenticatedUserId,
+                        'provided_client_id' => $validated['client_id'],
+                        'ip' => $request->ip()
+                    ]);
+                    
+                    // Only allow if user is admin
+                    $user = $request->user();
+                    if (!($user instanceof \App\Models\Admin)) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Unauthorized: You can only record payments for your own account',
+                        ], 403);
+                    }
+                }
+            }
 
             $validated['payment_reference'] = 'PAY-' . strtoupper(uniqid());
 

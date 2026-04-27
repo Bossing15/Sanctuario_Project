@@ -62,6 +62,7 @@ function CremationPage() {
   const handleSelectPlan = (planType, amount) => {
     setSelectedPlan({ planType, amount });
     setShowPricingModal(false);
+    // Skip purpose selection for services - go directly to deceased info
     setShowDeceasedModal(true);
   };
 
@@ -151,7 +152,7 @@ function CremationPage() {
             className="submit-btn"
             onClick={handleBuyNow}
           >
-            Buy Now
+            Request Now
           </button>
         </div>
       </div>
@@ -233,7 +234,8 @@ function CremationPage() {
           onClose={handleClosePaymentModal}
           isLawnLotProduct={false}
           productSlug="cremation"
-          deceasedList={deceasedList}
+          deceasedList={deceasedList.deceasedList}
+          idFile={deceasedList.idFile}
         />
       )}
 
@@ -245,6 +247,7 @@ function CremationPage() {
           allowMultiple={false}
           maxDeceased={1}
           isService={true}
+          requestPurpose={null}
         />
       )}
     </div>

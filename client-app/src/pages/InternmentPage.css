@@ -326,7 +326,7 @@
   display: block;
   margin: 30px auto 0;
   padding: 12px 40px;
-  background-color: #28a745;
+  background-color: #1B3022;
   color: white;
   border: none;
   border-radius: 0;
@@ -339,7 +339,7 @@
 }
 
 .submit-btn:hover {
-  background-color: #1e7e34;
+  background-color: #2A4D36;
 }
 
 .submit-btn:active {

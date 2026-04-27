@@ -1,10 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import '../styles/modern-modal.css';
+import { useModalScrollLock } from '../hooks/useModalScrollLock';
 
 const NotificationModal = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('all');
   const [readNotifications, setReadNotifications] = useState(new Set());
   const modalRef = useRef(null);
+
+  // Lock scroll when modal is open
+  useModalScrollLock(isOpen);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -30,8 +35,8 @@ const NotificationModal = ({ isOpen, onClose }) => {
       message: 'Maria Dela Cruz completed payment for Grave Maintenance service',
       time: '5 minutes ago',
       read: false,
-      icon: 'Payment',
-      color: 'bg-green-100 text-green-600'
+      icon: 'payment',
+      color: 'forest-green'
     },
     {
       id: 2,
@@ -40,8 +45,8 @@ const NotificationModal = ({ isOpen, onClose }) => {
       message: 'Juan Santos registered as a new client',
       time: '1 hour ago',
       read: false,
-      icon: 'Client',
-      color: 'bg-blue-100 text-blue-600'
+      icon: 'client',
+      color: 'blue'
     },
     {
       id: 3,
@@ -50,18 +55,18 @@ const NotificationModal = ({ isOpen, onClose }) => {
       message: 'Pedro Garcia requested Grave Restoration service',
       time: '2 hours ago',
       read: true,
-      icon: 'Service',
-      color: 'bg-purple-100 text-purple-600'
+      icon: 'service',
+      color: 'purple'
     },
     {
       id: 4,
-      type: 'payment',
+      type: 'pending',
       title: 'Payment Pending',
       message: 'Ana Martinez has a pending payment for Monthly Plan',
       time: '3 hours ago',
       read: true,
-      icon: 'Pending',
-      color: 'bg-yellow-100 text-yellow-600'
+      icon: 'pending',
+      color: 'orange'
     },
     {
       id: 5,
@@ -70,8 +75,8 @@ const NotificationModal = ({ isOpen, onClose }) => {
       message: 'Database backup completed successfully',
       time: '5 hours ago',
       read: true,
-      icon: 'System',
-      color: 'bg-gray-100 text-gray-600'
+      icon: 'system',
+      color: 'forest-green'
     },
     {
       id: 6,
@@ -80,8 +85,8 @@ const NotificationModal = ({ isOpen, onClose }) => {
       message: 'Rosa Cruz updated their profile information',
       time: '1 day ago',
       read: true,
-      icon: 'Update',
-      color: 'bg-indigo-100 text-indigo-600'
+      icon: 'client',
+      color: 'blue'
     }
   ];
 
@@ -98,88 +103,191 @@ const NotificationModal = ({ isOpen, onClose }) => {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  const renderIcon = (iconType) => {
+    switch (iconType) {
+      case 'payment':
+        return (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h10m4 0a1 1 0 11-2 0 1 1 0 012 0zM7 6h.01M7 3h5c.582 0 1.063.213 1.367.573m-6.367 5.428V9m0 0a1 1 0 10-2 0m2 0a1 1 0 11-2 0m0-5a1 1 0 10-2 0 1 1 0 012 0z" />
+          </svg>
+        );
+      case 'client':
+        return (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+          </svg>
+        );
+      case 'service':
+        return (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      case 'pending':
+        return (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4v2m0-10a9 9 0 110 18 9 9 0 010-18z" />
+          </svg>
+        );
+      case 'system':
+        return (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      default:
+        return null;
+    }
+  };
+
   if (!isOpen) return null;
 
   return createPortal(
     <div 
       ref={modalRef}
-      className="fixed top-16 right-4 w-96 max-h-[600px] bg-white rounded-xl shadow-xl z-[9999] overflow-hidden border border-gray-100"
+      style={{
+        position: 'fixed',
+        top: '60px',
+        right: '20px',
+        width: '400px',
+        maxHeight: '600px',
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        boxShadow: '0 20px 50px -12px rgba(13, 20, 16, 0.3)',
+        border: '2px solid #2A4D36',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        animation: 'scaleIn 300ms cubic-bezier(0.34, 1.56, 0.64, 1)'
+      }}
     >
-        <div className="bg-gradient-to-r from-gray-600 to-gray-700 text-white p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-bold">Notifications</h3>
-          </div>
-          
-          <div className="flex gap-2">
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                activeTab === 'all' 
-                  ? 'bg-white text-gray-700' 
-                  : 'bg-gray-700 text-white hover:bg-gray-800'
-              }`}
-            >
-              All ({notifications.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('unread')}
-              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                activeTab === 'unread' 
-                  ? 'bg-white text-gray-700' 
-                  : 'bg-gray-700 text-white hover:bg-gray-800'
-              }`}
-            >
-              Unread ({unreadCount})
-            </button>
-          </div>
-        </div>
-
-        <div className="overflow-y-auto max-h-[480px]">
-          {filterNotifications().length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              <div className="text-4xl mb-2">🔔</div>
-              <p className="text-sm">No notifications</p>
-            </div>
-          ) : (
-            filterNotifications().map((notification) => (
-              <div
-                key={notification.id}
-                onClick={() => handleNotificationClick(notification.id)}
-                className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer ${
-                  readNotifications.has(notification.id) ? '!bg-gray-50' : 'bg-white'
-                }`}
-              >
-                <div className="flex gap-3">
-                  <div className={`flex-shrink-0 w-10 h-10 rounded-full ${notification.color} flex items-center justify-center text-xl`}>
-                    {notification.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <h4 className="text-sm font-semibold text-gray-900 truncate">
-                        {notification.title}
-                      </h4>
-                      {!notification.read && (
-                        <span className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-1"></span>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                      {notification.message}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-2">
-                      {notification.time}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        <div className="p-3 bg-gray-50 border-t border-gray-100">
-          <button className="w-full text-center text-sm text-gray-600 hover:text-gray-700 font-medium py-2 hover:bg-gray-100 rounded-lg transition-colors">
-            Mark all as read
+      {/* Header */}
+      <div style={{
+        padding: '16px 20px',
+        borderBottom: '1px solid #f0f0f0',
+        backgroundColor: 'linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)'
+      }}>
+        <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '700', color: '#0D1A12' }}>Notifications</h3>
+        
+        {/* Segmented Controller */}
+        <div style={{ display: 'flex', gap: '8px', backgroundColor: '#f3f4f6', padding: '4px', borderRadius: '6px' }}>
+          <button
+            onClick={() => setActiveTab('all')}
+            style={{
+              flex: 1,
+              padding: '6px 12px',
+              border: 'none',
+              borderRadius: '4px',
+              backgroundColor: activeTab === 'all' ? 'white' : 'transparent',
+              color: activeTab === 'all' ? '#1B3022' : '#9ca3af',
+              fontSize: '12px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 200ms ease'
+            }}
+          >
+            All ({notifications.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('unread')}
+            style={{
+              flex: 1,
+              padding: '6px 12px',
+              border: 'none',
+              borderRadius: '4px',
+              backgroundColor: activeTab === 'unread' ? 'white' : 'transparent',
+              color: activeTab === 'unread' ? '#1B3022' : '#9ca3af',
+              fontSize: '12px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 200ms ease'
+            }}
+          >
+            Unread ({unreadCount})
           </button>
         </div>
+      </div>
+
+      {/* Notifications List */}
+      <div style={{ flex: 1, overflowY: 'auto', maxHeight: '400px' }}>
+        {filterNotifications().length === 0 ? (
+          <div style={{ padding: '40px 20px', textAlign: 'center', color: '#9ca3af' }}>
+            <p style={{ margin: '0', fontSize: '14px' }}>No notifications</p>
+          </div>
+        ) : (
+          filterNotifications().map((notification) => (
+            <div
+              key={notification.id}
+              onClick={() => handleNotificationClick(notification.id)}
+              style={{
+                padding: '12px 16px',
+                borderBottom: '1px solid #f0f0f0',
+                backgroundColor: readNotifications.has(notification.id) ? '#ffffff' : '#f9fafb',
+                cursor: 'pointer',
+                transition: 'all 200ms ease',
+                display: 'flex',
+                gap: '12px',
+                alignItems: 'flex-start'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = readNotifications.has(notification.id) ? '#ffffff' : '#f9fafb'}
+            >
+              {/* Icon Circle */}
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                backgroundColor: notification.color === 'forest-green' ? '#d1fae5' : notification.color === 'blue' ? '#dbeafe' : '#fef3c7',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: notification.color === 'forest-green' ? '#065f46' : notification.color === 'blue' ? '#1e40af' : '#92400e',
+                flexShrink: 0
+              }}>
+                {renderIcon(notification.icon)}
+              </div>
+
+              {/* Content */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '700', color: '#1f2937' }}>
+                  {notification.title}
+                </h4>
+                <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: '#6b7280', lineHeight: '1.4' }}>
+                  {notification.message}
+                </p>
+                <p style={{ margin: '0', fontSize: '11px', color: '#9ca3af' }}>
+                  {notification.time}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Footer */}
+      <div style={{
+        padding: '12px 16px',
+        borderTop: '1px solid #f0f0f0',
+        backgroundColor: '#f9fafb'
+      }}>
+        <button style={{
+          width: '100%',
+          padding: '8px 12px',
+          border: 'none',
+          borderRadius: '6px',
+          backgroundColor: 'transparent',
+          color: '#1B3022',
+          fontSize: '12px',
+          fontWeight: '600',
+          cursor: 'pointer',
+          transition: 'all 200ms ease'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+        >
+          Mark all as read
+        </button>
+      </div>
     </div>,
     document.body
   );

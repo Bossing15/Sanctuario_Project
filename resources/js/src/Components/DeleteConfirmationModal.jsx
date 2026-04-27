@@ -1,3 +1,6 @@
+import '../styles/modern-modal.css';
+import { useModalScrollLock } from '../hooks/useModalScrollLock';
+
 export default function DeleteConfirmationModal({ 
   show, 
   itemName = 'this item',
@@ -5,34 +8,37 @@ export default function DeleteConfirmationModal({
   onCancel,
   isLoading = false 
 }) {
+  // Lock scroll when modal is open
+  useModalScrollLock(show);
+
   if (!show) return null;
 
   return (
     <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal max-w-md" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <div className="modal-header-title">
-            <span>Delete Confirmation</span>
+      <div className="modern-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modern-modal-header">
+          <h2>Delete Confirmation</h2>
+          <button className="modern-modal-close" onClick={onCancel}>×</button>
+        </div>
+        <div className="modern-modal-content">
+          <div className="modal-section">
+            <p style={{ color: '#6b7280', lineHeight: '1.6', fontSize: '14px', margin: '0' }}>
+              Are you sure you want to delete <strong>{itemName}</strong>? This action cannot be undone.
+            </p>
           </div>
-          <button className="modal-close" onClick={onCancel}>×</button>
         </div>
-        <div className="modal-body">
-          <p className="text-gray-700 text-center mb-6">
-            Are you sure you want to delete {itemName}? This action cannot be undone.
-          </p>
-        </div>
-        <div className="modal-footer">
+        <div className="modern-modal-footer">
           <button 
             onClick={onCancel}
             disabled={isLoading}
-            className="px-6 py-2.5 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="modal-btn-secondary"
           >
             Cancel
           </button>
           <button 
             onClick={onConfirm}
             disabled={isLoading}
-            className="px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="modal-btn-danger"
           >
             {isLoading ? 'Deleting...' : 'Delete'}
           </button>

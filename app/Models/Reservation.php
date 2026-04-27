@@ -13,6 +13,8 @@ class Reservation extends Model
         'service_id',
         'lot_id',
         'lot_type',
+        'request_purpose',
+        'id_file',
         'deceased_name',
         'deceased_date_of_death',
         'deceased_relationship',

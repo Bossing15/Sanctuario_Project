@@ -155,7 +155,7 @@ export default function Settings() {
       case 'textarea':
         return (
           <textarea
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
             rows="4"
             value={value}
             onChange={(e) => handleInputChange(key, e.target.value)}
@@ -173,7 +173,7 @@ export default function Settings() {
                 const file = e.target.files[0];
                 if (file) handleImageUpload(key, file);
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
             />
             {value && (
               <div className="mt-2">
@@ -195,7 +195,7 @@ export default function Settings() {
         return (
           <input
             type="email"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
             value={value}
             onChange={(e) => handleInputChange(key, e.target.value)}
             placeholder={setting.description}
@@ -206,7 +206,7 @@ export default function Settings() {
         return (
           <input
             type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
             value={value}
             onChange={(e) => handleInputChange(key, e.target.value)}
             placeholder={setting.description}
@@ -219,7 +219,7 @@ export default function Settings() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1B3022] mx-auto mb-4"></div>
           <p className="text-gray-600">Loading settings...</p>
         </div>
       </div>
@@ -241,11 +241,11 @@ export default function Settings() {
         </div>
 
         {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="bg-[#f0f5f2] border border-[#1B3022] rounded-lg p-4 mb-6">
           <div className="flex items-start">
             <div>
-              <h4 className="font-semibold text-blue-900">How to use Site Settings</h4>
-              <p className="text-blue-800 text-sm mt-1">
+              <h4 className="font-semibold text-[#1B3022]">How to use Site Settings</h4>
+              <p className="text-[#2A4D36] text-sm mt-1">
                 Use these settings to customize the content displayed on the client website. Changes are saved to the database and will be reflected on the client portal immediately after saving.
               </p>
             </div>
@@ -262,7 +262,7 @@ export default function Settings() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors cursor-pointer ${
                     activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
+                      ? 'border-[#1B3022] text-[#1B3022]'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
@@ -315,7 +315,7 @@ export default function Settings() {
           className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
             saving 
               ? 'bg-gray-400 text-gray-700 cursor-not-allowed' 
-              : 'bg-blue-600 text-white hover:bg-blue-700'
+              : 'bg-[#1B3022] text-white hover:bg-[#2A4D36]'
           }`}
         >
           {saving ? 'Saving...' : 'Save Changes'}

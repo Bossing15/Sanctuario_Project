@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import './ServiceCompletionModal.css';
+import '../styles/modern-modal.css';
+import { useModalScrollLock } from '../hooks/useModalScrollLock';
 
 function ServiceCompletionModal({ booking, onClose, onUpdate }) {
   const [completionStatus, setCompletionStatus] = useState(booking?.service_completion_status || 'pending');
@@ -7,6 +8,9 @@ function ServiceCompletionModal({ booking, onClose, onUpdate }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Lock scroll when modal is open
+  useModalScrollLock(!!booking);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -73,113 +77,92 @@ function ServiceCompletionModal({ booking, onClose, onUpdate }) {
   };
 
   return (
-    <div className="service-completion-overlay" onClick={onClose}>
-      <div className="service-completion-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modern-modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="completion-modal-header">
+        <div className="modern-modal-header">
           <h2>Service Completion Status</h2>
-          <button className="completion-modal-close" onClick={onClose}>×</button>
+          <button className="modern-modal-close" onClick={onClose}>×</button>
         </div>
 
         {/* Content */}
-        <div className="completion-modal-content">
+        <div className="modern-modal-content">
           {/* Service Info */}
-          <div className="completion-info-section">
-            <h3>Service Information</h3>
-            <div className="info-grid">
-              <div className="info-item">
-                <label>Service/Product:</label>
+          <div className="modal-section">
+            <span className="modal-section-title">Service Information</span>
+            <div className="modal-info-grid">
+              <div className="modal-info-item">
+                <label>Service/Product</label>
                 <span>{booking?.service?.title || booking?.product?.title || 'N/A'}</span>
               </div>
-              <div className="info-item">
-                <label>Customer:</label>
+              <div className="modal-info-item">
+                <label>Customer</label>
                 <span>{booking?.user?.name || 'N/A'}</span>
               </div>
-              <div className="info-item">
-                <label>Amount:</label>
-                <span className="amount">₱{parseFloat(booking?.total_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+              <div className="modal-info-item">
+                <label>Amount</label>
+                <span className="highlight">₱{parseFloat(booking?.total_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>
 
           {/* Status Selection */}
-          <div className="completion-status-section">
-            <h3>Mark Service Status</h3>
-            <div className="status-options">
-              <label className={`status-option ${completionStatus === 'pending' ? 'active' : ''}`}>
-                <input
-                  type="radio"
-                  name="status"
-                  value="pending"
-                  checked={completionStatus === 'pending'}
-                  onChange={(e) => setCompletionStatus(e.target.value)}
-                />
-                <span className="status-label">
-                  <span className="status-text">Pending</span>
-                </span>
-              </label>
-
-              <label className={`status-option ${completionStatus === 'ongoing' ? 'active' : ''}`}>
-                <input
-                  type="radio"
-                  name="status"
-                  value="ongoing"
-                  checked={completionStatus === 'ongoing'}
-                  onChange={(e) => setCompletionStatus(e.target.value)}
-                />
-                <span className="status-label">
-                  <span className="status-text">Ongoing</span>
-                </span>
-              </label>
-
-              <label className={`status-option ${completionStatus === 'done' ? 'active' : ''}`}>
-                <input
-                  type="radio"
-                  name="status"
-                  value="done"
-                  checked={completionStatus === 'done'}
-                  onChange={(e) => setCompletionStatus(e.target.value)}
-                />
-                <span className="status-label">
-                  <span className="status-text">Done</span>
-                </span>
-              </label>
+          <div className="modal-section">
+            <span className="modal-section-title">Mark Service Status</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {['pending', 'ongoing', 'done'].map((status) => (
+                <label key={status} style={{ display: 'flex', alignItems: 'center', padding: '12px', backgroundColor: completionStatus === status ? '#f0fdf4' : '#f9fafb', border: `1px solid ${completionStatus === status ? '#86efac' : '#e5e7eb'}`, borderRadius: '8px', cursor: 'pointer', transition: 'all 200ms ease' }}>
+                  <input
+                    type="radio"
+                    name="status"
+                    value={status}
+                    checked={completionStatus === status}
+                    onChange={(e) => setCompletionStatus(e.target.value)}
+                    style={{ marginRight: '12px', cursor: 'pointer', accentColor: '#1B3022' }}
+                  />
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937', textTransform: 'capitalize' }}>
+                    {status}
+                  </span>
+                </label>
+              ))}
             </div>
           </div>
 
           {/* Image Upload Section - Only show for "Done" status */}
           {completionStatus === 'done' && (
-            <div className="completion-images-section">
-              <h3>Upload Service Completion Photos</h3>
-              <p className="section-description">Upload photos to prove the service has been completed</p>
+            <div className="modal-section">
+              <span className="modal-section-title">Upload Service Completion Photos</span>
+              <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>Upload photos to prove the service has been completed</p>
               
-              <div className="image-upload-area">
+              <div style={{ border: '2px dashed #d1d5db', borderRadius: '8px', padding: '24px', textAlign: 'center', backgroundColor: '#f9fafb', cursor: 'pointer', transition: 'all 200ms ease' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#1B3022'; e.currentTarget.style.backgroundColor = '#f0fdf4'; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#d1d5db'; e.currentTarget.style.backgroundColor = '#f9fafb'; }}>
                 <input
                   type="file"
                   id="image-input"
                   multiple
                   accept="image/*"
                   onChange={handleImageUpload}
-                  className="image-input"
+                  style={{ display: 'none' }}
                 />
-                <label htmlFor="image-input" className="upload-label">
-                  <span className="upload-text">Click to upload or drag and drop</span>
-                  <span className="upload-hint">PNG, JPG, GIF up to 10MB</span>
+                <label htmlFor="image-input" style={{ cursor: 'pointer', display: 'block' }}>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937', display: 'block' }}>Click to upload or drag and drop</span>
+                  <span style={{ fontSize: '12px', color: '#9ca3af', display: 'block', marginTop: '4px' }}>PNG, JPG, GIF up to 10MB</span>
                 </label>
               </div>
 
               {/* Uploaded Images Preview */}
               {uploadedImages.length > 0 && (
-                <div className="images-preview">
-                  <h4>Uploaded Images ({uploadedImages.length})</h4>
-                  <div className="preview-grid">
+                <div style={{ marginTop: '16px' }}>
+                  <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Uploaded Images ({uploadedImages.length})</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '12px' }}>
                     {uploadedImages.map((image, index) => (
-                      <div key={index} className="preview-item">
-                        <img src={image} alt={`Preview ${index + 1}`} />
+                      <div key={index} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#f0f0f0' }}>
+                        <img src={image} alt={`Preview ${index + 1}`} style={{ width: '100%', height: '100px', objectFit: 'cover' }} />
                         <button
                           type="button"
-                          className="remove-image-btn"
                           onClick={() => removeImage(index)}
+                          style={{ position: 'absolute', top: '4px', right: '4px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 200ms ease' }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#991b1b'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = '#dc2626'}
                           title="Remove image"
                         >
                           ×
@@ -194,30 +177,30 @@ function ServiceCompletionModal({ booking, onClose, onUpdate }) {
 
           {/* Error Message */}
           {error && (
-            <div className="completion-error-message">
+            <div className="modal-error-message">
               {error}
             </div>
           )}
 
           {/* Success Message */}
           {success && (
-            <div className="completion-success-message">
+            <div className="modal-success-message">
               {success}
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="completion-modal-footer">
+        <div className="modern-modal-footer">
           <button
-            className="completion-btn cancel"
+            className="modal-btn-secondary"
             onClick={onClose}
             disabled={loading}
           >
             Cancel
           </button>
           <button
-            className="completion-btn submit"
+            className="modal-btn-primary"
             onClick={handleSubmit}
             disabled={loading || (completionStatus === 'done' && uploadedImages.length === 0)}
           >

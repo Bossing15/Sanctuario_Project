@@ -112,8 +112,8 @@ function LotSelector({ bookingId, onClose, onLotSelected, lotType = 'lawn-lots',
           setLots(lotsData);
           setStats({
             total: lotsData.length,
-            occupied: lotsData.filter(lot => lot.status === 'Active' || lot.status === 'occupied').length,
-            available: lotsData.filter(lot => lot.status !== 'Active' && lot.status !== 'occupied').length
+            occupied: lotsData.filter(lot => lot.is_occupied).length,
+            available: lotsData.filter(lot => !lot.is_occupied).length
           });
         } else if (lotType === 'lawn-lots' && uniqueLocations.length > 0) {
           // For lawn lots with multiple sections, set first location as default
@@ -126,15 +126,15 @@ function LotSelector({ bookingId, onClose, onLotSelected, lotType = 'lawn-lots',
           setLots(filteredLots);
           setStats({
             total: filteredLots.length,
-            occupied: filteredLots.filter(lot => lot.status === 'Active' || lot.status === 'occupied').length,
-            available: filteredLots.filter(lot => lot.status !== 'Active' && lot.status !== 'occupied').length
+            occupied: filteredLots.filter(lot => lot.is_occupied).length,
+            available: filteredLots.filter(lot => !lot.is_occupied).length
           });
         } else {
           setLots(lotsData);
           setStats({
             total: lotsData.length,
-            occupied: lotsData.filter(lot => lot.status === 'Active' || lot.status === 'occupied').length,
-            available: lotsData.filter(lot => lot.status !== 'Active' && lot.status !== 'occupied').length
+            occupied: lotsData.filter(lot => lot.is_occupied).length,
+            available: lotsData.filter(lot => !lot.is_occupied).length
           });
         }
       } else {
@@ -161,15 +161,15 @@ function LotSelector({ bookingId, onClose, onLotSelected, lotType = 'lawn-lots',
       setLots(filteredLots);
       setStats({
         total: filteredLots.length,
-        occupied: filteredLots.filter(lot => lot.status === 'Active' || lot.status === 'occupied').length,
-        available: filteredLots.filter(lot => lot.status !== 'Active' && lot.status !== 'occupied').length
+        occupied: filteredLots.filter(lot => lot.is_occupied).length,
+        available: filteredLots.filter(lot => !lot.is_occupied).length
       });
     }
   }, [selectedLocation, lotType, allLots]);
 
   const handleSelectLot = (lot) => {
     // Don't allow selection if lot is already selected by user or occupied
-    if (userSelectedLots.includes(lot.id) || lot.status === 'occupied' || lot.status === 'Active') {
+    if (userSelectedLots.includes(lot.id) || lot.is_occupied) {
       return;
     }
     
@@ -251,7 +251,7 @@ function LotSelector({ bookingId, onClose, onLotSelected, lotType = 'lawn-lots',
   const getLotColor = (lot) => {
     // Check if lot was previously selected by user
     if (userSelectedLots.includes(lot.id)) return '#d4a574';
-    if (lot.status === 'Active' || lot.status === 'occupied') return '#cccccc';
+    if (lot.is_occupied) return '#cccccc';
     if (selectedLot?.id === lot.id) return '#16a34a';
     
     // For lawn lots with multiple sections, use section-based colors
@@ -271,7 +271,7 @@ function LotSelector({ bookingId, onClose, onLotSelected, lotType = 'lawn-lots',
 
   const getLotStatus = (lot) => {
     if (userSelectedLots.includes(lot.id)) return 'Your Selection';
-    if (lot.status === 'Active' || lot.status === 'occupied') return 'Occupied';
+    if (lot.is_occupied) return 'Occupied';
     if (selectedLot?.id === lot.id) return 'Selected';
     return 'Available';
   };
@@ -370,17 +370,17 @@ function LotSelector({ bookingId, onClose, onLotSelected, lotType = 'lawn-lots',
                 {lots.map((lot) => (
                   <div
                     key={lot.id}
-                    className={`lot-item ${lot.status === 'Active' ? 'occupied' : ''} ${selectedLot?.id === lot.id ? 'selected' : ''} ${userSelectedLots.includes(lot.id) ? 'user-selected' : ''}`}
+                    className={`lot-item ${lot.is_occupied ? 'occupied' : ''} ${selectedLot?.id === lot.id ? 'selected' : ''} ${userSelectedLots.includes(lot.id) ? 'user-selected' : ''}`}
                     onClick={() => handleSelectLot(lot)}
                     style={{
                       backgroundColor: getLotColor(lot),
-                      cursor: (lot.status === 'Active' || userSelectedLots.includes(lot.id)) ? 'not-allowed' : 'pointer'
+                      cursor: (lot.is_occupied || userSelectedLots.includes(lot.id)) ? 'not-allowed' : 'pointer'
                     }}
                     title={`${lot.plot_number} - ${lot.section} - ${getLotStatus(lot)}`}
                   >
                     <div className="lot-content">
                       <span className="lot-number">{lot.plot_number}</span>
-                      {(lot.status === 'Active' || userSelectedLots.includes(lot.id)) && <FaLock className="lot-lock" />}
+                      {(lot.is_occupied || userSelectedLots.includes(lot.id)) && <FaLock className="lot-lock" />}
                       {selectedLot?.id === lot.id && <FaCheck className="lot-check" />}
                     </div>
                   </div>

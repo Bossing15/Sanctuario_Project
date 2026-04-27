@@ -260,7 +260,7 @@ const BillingManagement = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
         <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
           <h6 className="text-gray-600 mb-1 text-sm font-medium">Total Payments</h6>
-          <h5 className="font-bold text-2xl text-blue-600">{stats.totalPayments}</h5>
+          <h5 className="font-bold text-2xl text-[#1B3022]">{stats.totalPayments}</h5>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
           <h6 className="text-gray-600 mb-1 text-sm font-medium">Paid</h6>
@@ -296,7 +296,7 @@ const BillingManagement = () => {
                 <div className="text-2xl mb-2">{getPaymentMethodIcon(method)}</div>
                 <p className="text-sm font-semibold text-gray-700 capitalize">{method}</p>
                 <p className="text-xs text-gray-500 mt-1">{data.count} transactions</p>
-                <p className="text-sm font-bold text-blue-600 mt-1">{formatCurrency(data.total)}</p>
+                <p className="text-sm font-bold text-[#1B3022] mt-1">{formatCurrency(data.total)}</p>
               </div>
             ))}
           </div>
@@ -310,7 +310,7 @@ const BillingManagement = () => {
             onClick={() => setFilterStatus('all')}
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
               filterStatus === 'all'
-                ? 'bg-blue-600 text-white shadow-md'
+                ? 'bg-[#1B3022] text-white shadow-md'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
             }`}
           >
@@ -407,7 +407,7 @@ const BillingManagement = () => {
                   <tr key={payment.id}>
                     <td className="font-bold">{payment.customer_name || 'N/A'}</td>
                     <td className="text-sm">{payment.customer_email || 'N/A'}</td>
-                    <td className="font-semibold text-blue-600">{formatCurrency(payment.amount)}</td>
+                    <td className="font-semibold text-[#1B3022]">{formatCurrency(payment.amount)}</td>
                     <td className="text-center">{getPaymentStatusBadge(payment.status)}</td>
                     <td className="text-center">
                       <span className="text-lg">{getPaymentMethodIcon(payment.payment_method)}</span>
@@ -472,7 +472,7 @@ const BillingManagement = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Amount</p>
-                  <p className="font-semibold text-blue-600 text-lg">{formatCurrency(selectedPayment.amount)}</p>
+                  <p className="font-semibold text-[#1B3022] text-lg">{formatCurrency(selectedPayment.amount)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Status</p>
@@ -499,7 +499,7 @@ const BillingManagement = () => {
             <div className="p-6 border-t border-gray-200 flex gap-3 justify-end">
               <button
                 onClick={() => handleGenerateReceipt(selectedPayment.id)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
+                className="px-4 py-2 bg-[#1B3022] text-white rounded-lg hover:bg-[#2A4D36] font-semibold"
               >
                 Generate Receipt
               </button>

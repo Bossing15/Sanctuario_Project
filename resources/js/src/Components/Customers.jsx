@@ -256,8 +256,8 @@ const CustomersPage = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col min-h-screen">
-        <div className="p-8 min-h-screen flex-grow">
+      <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
+        <div className="p-8 min-h-screen flex-grow" style={{ backgroundColor: 'var(--bg-primary)' }}>
           <div className="mb-8">
             <div className="flex items-center">
               <img
@@ -290,17 +290,17 @@ const CustomersPage = () => {
 
   if (error) {
     return (
-      <div className="flex flex-col min-h-screen">
-        <div className="p-8 min-h-screen flex-grow">
+      <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
+        <div className="p-8 min-h-screen flex-grow" style={{ backgroundColor: 'var(--bg-primary)' }}>
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
             <div className="text-red-600 text-xl mb-4">Error Loading Customers</div>
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
               <p className="text-red-700 font-semibold mb-2">Error Details:</p>
               <p className="text-red-600 text-sm whitespace-pre-wrap">{error}</p>
             </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <p className="text-blue-700 font-semibold mb-2">Debugging Information:</p>
-              <p className="text-blue-600 text-sm">
+            <div className="bg-[#f0f5f2] border border-[#1B3022] rounded-lg p-4 mb-4">
+              <p className="text-[#1B3022] font-semibold mb-2">Debugging Information:</p>
+              <p className="text-[#2A4D36] text-sm">
                 • Auth Token: {localStorage.getItem('authToken') ? 'Present' : 'Missing'}<br/>
                 • User Role: {localStorage.getItem('userRole') || 'Not set'}<br/>
                 • Current URL: {window.location.href}<br/>
@@ -319,7 +319,7 @@ const CustomersPage = () => {
                 console.log('Auth token:', localStorage.getItem('authToken'));
                 console.log('User role:', localStorage.getItem('userRole'));
               }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 bg-[#1B3022] text-white rounded-lg hover:bg-[#2A4D36] transition-colors"
             >
               Log Debug Info
             </button>
@@ -332,8 +332,8 @@ const CustomersPage = () => {
   // Check if user can view this component
   if (!canView('customers')) {
     return (
-      <div className="flex flex-col min-h-screen">
-        <div className="p-8 min-h-screen flex-grow">
+      <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
+        <div className="p-8 min-h-screen flex-grow" style={{ backgroundColor: 'var(--bg-primary)' }}>
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
             <div className="text-red-600 text-xl mb-4">Access Denied</div>
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -348,7 +348,7 @@ const CustomersPage = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Navbar is now handled globally in App.jsx */}
 
       {/* Customer Details Modal - Rendered at top level */}
@@ -462,7 +462,7 @@ const CustomersPage = () => {
                         placeholder="Enter full name"
                         value={formData.name}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
                         required
                       />
                     </div>
@@ -474,7 +474,7 @@ const CustomersPage = () => {
                         placeholder="Enter email"
                         value={formData.email}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
                         required
                       />
                     </div>
@@ -486,7 +486,7 @@ const CustomersPage = () => {
                         placeholder="Enter phone number"
                         value={formData.phone}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
                         required
                       />
                     </div>
@@ -498,7 +498,7 @@ const CustomersPage = () => {
                         placeholder="Enter address"
                         value={formData.address}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
                       />
                     </div>
                   </div>
@@ -516,7 +516,7 @@ const CustomersPage = () => {
                         placeholder="Enter deceased name"
                         value={formData.deceased_name}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
                         required
                       />
                     </div>
@@ -528,7 +528,7 @@ const CustomersPage = () => {
                         placeholder="e.g., Father, Mother, Spouse"
                         value={formData.relationship}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
                         required
                       />
                     </div>
@@ -539,7 +539,7 @@ const CustomersPage = () => {
                         name="date_of_burial"
                         value={formData.date_of_burial}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
                       />
                     </div>
                     <div>
@@ -550,7 +550,7 @@ const CustomersPage = () => {
                         placeholder="Enter plot number"
                         value={formData.plot_number}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
                       />
                     </div>
                     <div className="md:col-span-2">
@@ -561,7 +561,7 @@ const CustomersPage = () => {
                         placeholder="Enter grave location"
                         value={formData.grave_location}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3022]"
                       />
                     </div>
                   </div>

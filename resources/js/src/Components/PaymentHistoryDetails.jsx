@@ -38,7 +38,7 @@ const PaymentHistoryDetails = () => {
                   <td className="p-2 border">{payment.amount}</td>
                   <td className="p-2 border">{payment.method}</td>
                   <td className="p-2 border text-center">
-                    <button className="bg-blue-600 text-white px-3 py-1 text-sm rounded hover:bg-blue-700 transition">
+                    <button className="bg-[#1B3022] text-white px-3 py-1 text-sm rounded hover:bg-[#2A4D36] transition">
                       View Invoice
                     </button>
                   </td>

@@ -177,9 +177,9 @@
 }
 
 .status-option input[type="radio"]:checked + .status-label {
-  border-color: #3b82f6;
-  background: #f0f9ff;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+  border-color: #1B3022;
+  background: #f0f5f2;
+  box-shadow: 0 2px 8px rgba(27, 48, 34, 0.15);
 }
 
 .status-icon {
@@ -275,8 +275,8 @@
 }
 
 .preview-item:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+  border-color: #1B3022;
+  box-shadow: 0 2px 8px rgba(27, 48, 34, 0.15);
 }
 
 .preview-item img {
@@ -371,12 +371,12 @@
 }
 
 .completion-btn.submit {
-  background-color: #3b82f6;
+  background-color: #1B3022;
   color: white;
 }
 
 .completion-btn.submit:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: #2A4D36;
 }
 
 /* Responsive */

@@ -27,8 +27,9 @@ class PaymentManagementController extends Controller
     {
         try {
             $user = $request->user();
+            // SECURITY FIX: Only check client_id, not user_id, to prevent cross-user contamination
+            // All payments should use client_id as the primary user identifier
             $payments = Payment::where('client_id', $user->id)
-                ->orWhere('user_id', $user->id)
                 ->with('booking')
                 ->get()
                 ->map(function ($payment) {
@@ -114,6 +115,20 @@ class PaymentManagementController extends Controller
                 'description' => 'nullable|string'
             ]);
 
+            // SECURITY FIX: Always use the authenticated user's ID, never trust client_id from request
+            $authenticatedUserId = $request->user()->id;
+            
+            // Log if there's a mismatch (potential security issue)
+            if ($validated['client_id'] != $authenticatedUserId) {
+                \Log::warning('Payment store: client_id mismatch', [
+                    'authenticated_user_id' => $authenticatedUserId,
+                    'provided_client_id' => $validated['client_id'],
+                    'ip' => $request->ip()
+                ]);
+            }
+
+            // Override client_id with authenticated user's ID
+            $validated['client_id'] = $authenticatedUserId;
             $validated['payment_reference'] = 'PAY-' . strtoupper(uniqid());
             $payment = Payment::create($validated);
 

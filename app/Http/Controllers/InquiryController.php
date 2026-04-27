@@ -148,7 +148,7 @@ class InquiryController extends Controller
 
             // Create payment record for this inquiry
             $payment = \App\Models\Payment::create([
-                'user_id' => $request->user()->id,
+                'client_id' => $request->user()->id,
                 'request_id' => $inquiry->id,
                 'invoice_number' => $inquiry->invoice_number,
                 'amount' => $validated['amount'],

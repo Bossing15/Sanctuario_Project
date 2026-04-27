@@ -108,14 +108,14 @@ body.modal-open {
 }
 
 .confirm-btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #1B3022 0%, #2A4D36 100%);
   color: white;
 }
 
 .confirm-btn-primary:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #2A4D36 0%, #1B3022 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 4px 12px rgba(27, 48, 34, 0.4);
 }
 
 .confirm-btn-success {
@@ -177,3 +177,4 @@ body.modal-open {
     width: 100%;
   }
 }
+

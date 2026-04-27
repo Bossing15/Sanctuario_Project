@@ -83,7 +83,7 @@ const ForgotPassword = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#1B3022] focus:border-transparent"
               placeholder="Enter your email"
               required
             />
@@ -92,20 +92,20 @@ const ForgotPassword = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[#1B3022] text-white py-2 px-4 rounded-lg hover:bg-[#2A4D36] transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Sending...' : 'Send Reset Link'}
           </button>
         </form>
 
         <div className="text-center mt-6 space-y-2">
-          <Link to="/login" className="text-blue-600 hover:underline text-sm">
+          <Link to="/login" className="text-[#1B3022] hover:underline text-sm">
             Back to Login
           </Link>
           <br />
           <span className="text-gray-600 text-sm">
             Don't have an account?{" "}
-            <Link to="/register" className="text-blue-600 hover:underline">
+            <Link to="/register" className="text-[#1B3022] hover:underline">
               Sign up
             </Link>
           </span>

@@ -4,6 +4,7 @@ import './InternmentPage.css';
 import LoginPromptModal from '../components/LoginPromptModal';
 import PaymentModal from '../components/PaymentModal';
 import DeceasedInfoModal from '../components/DeceasedInfoModal';
+import PurposeSelectionModal from '../components/PurposeSelectionModal';
 import heroBg from '../assets/images/Sanctuario3_1.jpg';
 import lawnLotsImg from '../assets/images/lawn_lots.jpg';
 import familyEstateImg from '../assets/images/familt_estate.jpg';
@@ -17,9 +18,11 @@ function LawnLotsPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [showPurposeModal, setShowPurposeModal] = useState(false);
   const [showDeceasedInfoModal, setShowDeceasedInfoModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [requestPurpose, setRequestPurpose] = useState(null);
   const [deceasedInfo, setDeceasedInfo] = useState(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
@@ -82,6 +85,12 @@ function LawnLotsPage() {
   const handleSelectPlan = (planType, amount) => {
     setSelectedPlan({ planType, amount });
     setShowPricingModal(false);
+    setShowPurposeModal(true);
+  };
+
+  const handleSelectPurpose = (purpose) => {
+    setRequestPurpose(purpose);
+    setShowPurposeModal(false);
     setShowDeceasedInfoModal(true);
   };
 
@@ -94,6 +103,7 @@ function LawnLotsPage() {
   const handleClosePaymentModal = () => {
     setShowPaymentModal(false);
     setSelectedPlan(null);
+    setRequestPurpose(null);
     setDeceasedInfo(null);
   };
 
@@ -159,7 +169,7 @@ function LawnLotsPage() {
             className="submit-btn"
             onClick={handleBuyNow}
           >
-            Buy Now
+            Request Now
           </button>
         </div>
       </div>
@@ -232,6 +242,15 @@ function LawnLotsPage() {
           onSubmit={handleDeceasedInfoSubmit}
           onClose={() => setShowDeceasedInfoModal(false)}
           allowMultiple={false}
+          requestPurpose={requestPurpose}
+        />
+      )}
+
+      {/* Purpose Selection Modal */}
+      {showPurposeModal && (
+        <PurposeSelectionModal
+          onSelectPurpose={handleSelectPurpose}
+          onClose={() => setShowPurposeModal(false)}
         />
       )}
 
@@ -244,7 +263,9 @@ function LawnLotsPage() {
           onClose={handleClosePaymentModal}
           isLawnLotProduct={true}
           productSlug="lawn-lots"
-          deceasedList={deceasedInfo}
+          deceasedList={deceasedInfo.deceasedList}
+          requestPurpose={requestPurpose}
+          idFile={deceasedInfo.idFile}
         />
       )}
 

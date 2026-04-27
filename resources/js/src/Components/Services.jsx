@@ -203,7 +203,7 @@ const Services = () => {
   };
 
   return (
-    <div className="min-h-screen p-8">
+    <div className="min-h-screen p-8" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {notification && (
         <div className={`fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg text-white z-50 ${notification.type === "success" ? "bg-green-600" : "bg-red-600"}`}>
           <div className="flex items-center gap-2">
@@ -268,7 +268,7 @@ const Services = () => {
               className={`px-6 py-3 rounded-xl text-sm font-semibold transition-colors duration-150 cursor-pointer
                 ${
                   viewMode === tab
-                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
+                    ? "bg-gradient-to-r from-[#1B3022] to-[#2A4D36] text-white shadow-md"
                     : "bg-white text-gray-700 hover:bg-gray-50 shadow-sm border border-gray-200"
                 }`}
               onClick={() => setViewMode(tab)}
@@ -441,7 +441,7 @@ const Services = () => {
                       className={`px-6 py-3 rounded-xl text-sm font-semibold transition-colors duration-150 cursor-pointer
                         ${
                           activeServiceTab === tab
-                            ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md"
+                            ? "bg-gradient-to-r from-[#1B3022] to-[#2A4D36] text-white shadow-md"
                             : "bg-white text-gray-700 hover:bg-gray-50 shadow-sm border border-gray-200"
                         }`}
                       onClick={() => setActiveServiceTab(tab)}
@@ -479,7 +479,7 @@ const Services = () => {
                   {getCardViewServices().length > 0 ? (
                     getCardViewServices().map((service) => (
                       <div key={service.id} className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                        <div className="h-48 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                        <div className="h-48 bg-gradient-to-br from-[#1B3022] to-[#2A4D36] flex items-center justify-center">
                           <div className="text-white text-center">
                             <h6 className="text-lg font-bold">{service.title}</h6>
                           </div>
@@ -537,7 +537,7 @@ const Services = () => {
                               disabled={!canManageServices}
                               className={`flex-1 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
                                 canManageServices
-                                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                                  ? "bg-[#1B3022] text-white hover:bg-[#2A4D36]"
                                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
                               }`}
                             >

@@ -85,8 +85,8 @@
 }
 
 .editor-section.current-info {
-  background-color: #f0f9ff;
-  border: 2px solid #0ea5e9;
+  background-color: #f0f5f2;
+  border: 2px solid #1B3022;
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -102,7 +102,7 @@
   background: white;
   padding: 1rem;
   border-radius: 0.5rem;
-  border: 1px solid #e0f2fe;
+  border: 1px solid #e8f0eb;
 }
 
 .current-info-item label {
@@ -555,3 +555,4 @@ textarea.form-input {
     width: 100%;
   }
 }
+

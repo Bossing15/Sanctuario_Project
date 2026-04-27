@@ -211,7 +211,7 @@ const Register = () => {
               type="text"
               value={formData.name}
               onChange={handleChange}
-              className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#1B3022] focus:border-transparent"
               placeholder="Enter your full name"
               required
             />
@@ -230,7 +230,7 @@ const Register = () => {
               type="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#1B3022] focus:border-transparent"
               placeholder="Enter your email"
               required
             />
@@ -248,7 +248,7 @@ const Register = () => {
               name="access_level"
               value={formData.access_level}
               onChange={handleChange}
-              className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#1B3022] focus:border-transparent"
             >
               <option value="staff">Staff</option>
               <option value="caretaker">Caretaker</option>
@@ -269,7 +269,7 @@ const Register = () => {
               type="text"
               value={formData.username}
               onChange={handleChange}
-              className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#1B3022] focus:border-transparent"
               placeholder="Enter your username"
               required
             />
@@ -289,7 +289,7 @@ const Register = () => {
                 type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full mt-1 px-4 py-2 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full mt-1 px-4 py-2 pr-12 border rounded-lg focus:ring-2 focus:ring-[#1B3022] focus:border-transparent"
                 placeholder="Enter your password"
                 required
               />
@@ -326,7 +326,7 @@ const Register = () => {
                 type={showConfirmPassword ? "text" : "password"}
                 value={formData.password_confirmation}
                 onChange={handleChange}
-                className="w-full mt-1 px-4 py-2 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full mt-1 px-4 py-2 pr-12 border rounded-lg focus:ring-2 focus:ring-[#1B3022] focus:border-transparent"
                 placeholder="Confirm your password"
                 required
               />

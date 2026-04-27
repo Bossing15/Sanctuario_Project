@@ -244,7 +244,7 @@ const Admin = () => {
                 onClick={() => setActiveTab(t.key)}
                 className={`px-6 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
                   activeTab === t.key
-                    ? 'bg-blue-600 text-white shadow-md'
+                    ? 'bg-[#1B3022] text-white shadow-md'
                     : 'bg-white text-gray-700 hover:bg-gray-50 shadow-md border border-gray-200'
                 }`}
               >
@@ -255,13 +255,13 @@ const Admin = () => {
           {activeTab === "list" && (
             <button 
               onClick={fetchUsers}
-              style={{ padding: '0.75rem 1.5rem', background: '#2563eb', color: 'white', border: 'none', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: '600', fontSize: '0.875rem', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', whiteSpace: 'nowrap', transition: 'all 0.2s ease' }}
+              style={{ padding: '0.75rem 1.5rem', background: '#1B3022', color: 'white', border: 'none', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: '600', fontSize: '0.875rem', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', whiteSpace: 'nowrap', transition: 'all 0.2s ease' }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#1d4ed8';
+                e.target.style.backgroundColor = '#2A4D36';
                 e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#2563eb';
+                e.target.style.backgroundColor = '#1B3022';
                 e.target.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
               }}
             >
@@ -522,7 +522,7 @@ const Admin = () => {
                   type="submit" 
                   style={{
                     padding: '0.75rem 1.5rem',
-                    backgroundColor: '#2563eb',
+                    backgroundColor: '#1B3022',
                     color: 'white',
                     border: 'none',
                     borderRadius: '0.75rem',
@@ -533,11 +533,11 @@ const Admin = () => {
                     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#1d4ed8';
+                    e.target.style.backgroundColor = '#2A4D36';
                     e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = '#2563eb';
+                    e.target.style.backgroundColor = '#1B3022';
                     e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
                   }}
                 >
@@ -666,7 +666,7 @@ const Admin = () => {
                     type="submit" 
                     style={{
                       padding: '0.75rem 1.5rem',
-                      backgroundColor: '#2563eb',
+                      backgroundColor: '#1B3022',
                       color: 'white',
                       border: 'none',
                       borderRadius: '0.75rem',
@@ -677,11 +677,11 @@ const Admin = () => {
                       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#1d4ed8';
+                      e.target.style.backgroundColor = '#2A4D36';
                       e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = '#2563eb';
+                      e.target.style.backgroundColor = '#1B3022';
                       e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
                     }}
                   >

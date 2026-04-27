@@ -170,7 +170,7 @@ const Billing = () => {
                 onClick={() => setActiveTab(tab.key)}
                 className={`px-6 py-3 rounded-xl text-sm font-semibold transition-colors duration-150 cursor-pointer ${
                   activeTab === tab.key
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                    ? 'bg-gradient-to-r from-[#1B3022] to-[#2A4D36] text-white shadow-md'
                     : 'bg-white text-gray-700 hover:bg-gray-50 shadow-sm border border-gray-200'
                 }`}
               >
@@ -205,7 +205,7 @@ const Billing = () => {
                 onClick={() => setStatusFilter('all')}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   statusFilter === 'all'
-                    ? 'bg-blue-600 text-white shadow-md'
+                    ? 'bg-[#1B3022] text-white shadow-md'
                     : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                 }`}
               >
@@ -335,7 +335,7 @@ const Billing = () => {
                             Unpaid
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg shadow-sm">
+                          <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-[#f0f5f2] text-[#1B3022] rounded-lg shadow-sm">
                             {status}
                           </span>
                         )}
@@ -364,7 +364,7 @@ const Billing = () => {
             Process New Payment
           </button>
           <button
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold shadow-md hover:shadow-lg transition-all"
+            className="bg-[#1B3022] hover:bg-[#2A4D36] text-white px-8 py-3 rounded-xl font-bold shadow-md hover:shadow-lg transition-all"
             onClick={() => document.getElementById('soaModal').showModal()}
           >
             Generate SOA
@@ -372,7 +372,7 @@ const Billing = () => {
         </div>
         {/* Selected row */}
         {selectedRow && (
-          <div className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-600 rounded-lg text-blue-900 shadow-sm">
+          <div className="mt-6 p-4 bg-[#f0f5f2] border-l-4 border-[#1B3022] rounded-lg text-[#1B3022] shadow-sm">
             <div className="flex justify-between items-center">
               <div>
                 <strong className="font-semibold">Selected:</strong> {selectedRow.name} - ₱{Number(selectedRow.amount).toLocaleString()} ({selectedRow.status})
@@ -415,15 +415,15 @@ const Billing = () => {
         >
           <div className="p-8" id="soa-content">
             {/* Company Header */}
-            <div className="text-center border-b-4 border-blue-900 pb-6 mb-8">
-              <h1 className="text-3xl font-bold text-blue-900 mb-2">Sanctuario De Carmona Memorial Park</h1>
+            <div className="text-center border-b-4 border-[#1B3022] pb-6 mb-8">
+              <h1 className="text-3xl font-bold text-[#1B3022] mb-2">Sanctuario De Carmona Memorial Park</h1>
               <p className="text-gray-600">Carmona, Cavite, Philippines</p>
               <p className="text-gray-600">Phone: 0912-345-6789 | Email: info@sanctuario.com</p>
             </div>
 
             {/* SOA Title */}
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-blue-900">STATEMENT OF ACCOUNT</h2>
+              <h2 className="text-2xl font-bold text-[#1B3022]">STATEMENT OF ACCOUNT</h2>
             </div>
 
             {selectedRow ? (
@@ -431,7 +431,7 @@ const Billing = () => {
                 {/* Customer Information */}
                 <div className="grid grid-cols-2 gap-6 mb-8">
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-bold text-blue-900 mb-3">Customer Information</h3>
+                    <h3 className="font-bold text-[#1B3022] mb-3">Customer Information</h3>
                     <div className="space-y-2">
                       <div>
                         <p className="text-sm text-gray-600">Name:</p>
@@ -464,7 +464,7 @@ const Billing = () => {
                     </div>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-bold text-blue-900 mb-3">Statement Details</h3>
+                    <h3 className="font-bold text-[#1B3022] mb-3">Statement Details</h3>
                     <div className="space-y-2">
                       <div>
                         <p className="text-sm text-gray-600">Statement Date:</p>
@@ -480,9 +480,9 @@ const Billing = () => {
 
                 {/* Transaction Table */}
                 <div className="mb-8">
-                  <h3 className="font-bold text-blue-900 mb-4">Transaction History</h3>
+                  <h3 className="font-bold text-[#1B3022] mb-4">Transaction History</h3>
                   <table className="w-full border-collapse border border-gray-300">
-                    <thead className="bg-blue-900 text-white">
+                    <thead className="bg-[#1B3022] text-white">
                       <tr>
                         <th className="border border-gray-300 px-4 py-3 text-left text-sm">Date</th>
                         <th className="border border-gray-300 px-4 py-3 text-left text-sm">Description</th>
@@ -528,10 +528,10 @@ const Billing = () => {
                 </div>
 
                 {/* Summary Section */}
-                <div className="bg-blue-50 p-6 rounded-lg mb-8">
+                <div className="bg-[#f0f5f2] p-6 rounded-lg mb-8">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <h3 className="font-bold text-blue-900 mb-4">Account Summary</h3>
+                      <h3 className="font-bold text-[#1B3022] mb-4">Account Summary</h3>
                       <div className="space-y-2">
                         <div className="flex justify-between">
                           <span className="text-gray-700">Total Charges:</span>
@@ -554,8 +554,8 @@ const Billing = () => {
                             .reduce((sum, item) => sum + Number(item.amount || 0), 0)
                             .toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </div>
-                        <div className="flex justify-between pt-2 border-t-2 border-blue-900">
-                          <span className="font-bold text-blue-900">Balance Due:</span>
+                        <div className="flex justify-between pt-2 border-t-2 border-[#1B3022]">
+                          <span className="font-bold text-[#1B3022]">Balance Due:</span>
                           <span className="font-bold text-red-700 text-lg">₱{payments
                             .filter((item) => {
                               const itemName = item.customer_name || item.client?.name || item.client_name || item.name;
@@ -567,8 +567,8 @@ const Billing = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg border-2 border-blue-900">
-                      <h4 className="font-bold text-blue-900 mb-2">Payment Instructions</h4>
+                    <div className="bg-white p-4 rounded-lg border-2 border-[#1B3022]">
+                      <h4 className="font-bold text-[#1B3022] mb-2">Payment Instructions</h4>
                       <p className="text-sm text-gray-700 mb-2">Please make payment to:</p>
                       <div className="text-sm space-y-1">
                         <p><strong>Bank:</strong> BDO</p>

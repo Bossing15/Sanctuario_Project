@@ -236,15 +236,15 @@ body.modal-open {
 /* Primary Button */
 .modal-btn.primary,
 .dialog-btn.primary {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #2A4D36 0%, #1B3022 100%);
   color: #ffffff;
-  border: 1px solid #1d4ed8;
+  border: 1px solid #1B3022;
 }
 
 .modal-btn.primary:hover,
 .dialog-btn.primary:hover {
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+  background: linear-gradient(135deg, #1B3022 0%, #0D1A12 100%);
+  box-shadow: 0 4px 12px rgba(27, 48, 34, 0.4);
 }
 
 /* Secondary Button */
@@ -340,7 +340,7 @@ body.modal-open {
   gap: 1rem;
   animation: slideInRight 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   pointer-events: auto;
-  border-left: 4px solid #2563eb;
+  border-left: 4px solid #2A4D36;
   min-width: 300px;
   position: relative;
 }
@@ -542,26 +542,26 @@ body.modal-open {
 .notification.info,
 .toast.info,
 .alert.info {
-  border-left-color: #2563eb;
-  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+  border-left-color: #2A4D36;
+  background: linear-gradient(135deg, #f0f5f2 0%, #ffffff 100%);
 }
 
 .notification.info .notification-icon,
 .toast.info .toast-icon,
 .alert.info .alert-icon {
-  color: #2563eb;
+  color: #2A4D36;
 }
 
 .notification.info .notification-title,
 .toast.info .toast-title,
 .alert.info .alert-title {
-  color: #1e40af;
+  color: #0D1A12;
 }
 
 .notification.info .notification-progress,
 .toast.info .toast-progress,
 .alert.info .alert-progress {
-  background: #2563eb;
+  background: #2A4D36;
 }
 
 /* ============================================
@@ -698,3 +698,4 @@ body.modal-open {
     width: 100%;
   }
 }
+

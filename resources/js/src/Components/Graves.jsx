@@ -250,7 +250,7 @@ export default function Graves() {
                   setEditGrave(selectedGrave);
                   setShowEditGraveModal(true);
                 }}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 bg-[#1B3022] text-white rounded-lg hover:bg-[#2A4D36] transition-colors"
               >
                 Edit Grave
               </button>
@@ -279,7 +279,7 @@ export default function Graves() {
                         type="text"
                         value={editGrave.deceased_name || ''}
                         onChange={(e) => setEditGrave({...editGrave, deceased_name: e.target.value})}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#1B3022] focus:border-transparent"
                       />
                     </div>
                     <div>
@@ -288,7 +288,7 @@ export default function Graves() {
                         type="date"
                         value={editGrave.burial_date || ''}
                         onChange={(e) => setEditGrave({...editGrave, burial_date: e.target.value})}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#1B3022] focus:border-transparent"
                       />
                     </div>
                     <div>
@@ -297,7 +297,7 @@ export default function Graves() {
                         type="text"
                         value={editGrave.grave_location || ''}
                         onChange={(e) => setEditGrave({...editGrave, grave_location: e.target.value})}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#1B3022] focus:border-transparent"
                       />
                     </div>
                     <div>
@@ -305,7 +305,7 @@ export default function Graves() {
                       <select 
                         value={editGrave.status || 'Active'}
                         onChange={(e) => setEditGrave({...editGrave, status: e.target.value})}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#1B3022] focus:border-transparent"
                       >
                         <option value="Active">Active</option>
                         <option value="Inactive">Inactive</option>
@@ -318,7 +318,7 @@ export default function Graves() {
                       rows={4}
                       value={editGrave.notes || ''}
                       onChange={(e) => setEditGrave({...editGrave, notes: e.target.value})}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#1B3022] focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -333,7 +333,7 @@ export default function Graves() {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-lg transition-colors font-semibold shadow-md bg-blue-600 text-white hover:bg-blue-700"
+                  className="px-6 py-2.5 rounded-lg transition-colors font-semibold shadow-md bg-[#1B3022] text-white hover:bg-[#2A4D36]"
                 >
                   Save Changes
                 </button>
@@ -366,7 +366,7 @@ export default function Graves() {
                     ? 'bg-green-600 text-white hover:bg-green-700'
                     : notification.type === 'error'
                     ? 'bg-red-600 text-white hover:bg-red-700'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-[#1B3022] text-white hover:bg-[#2A4D36]'
                 }`}
               >
                 OK
@@ -501,7 +501,7 @@ export default function Graves() {
                             <td>{grave.grave_location}</td>
                             <td>{grave.customer}</td>
                             <td>
-                              <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg">
+                              <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-[#f0f5f2] text-[#1B3022] rounded-lg">
                                 {grave.product_type}
                               </span>
                             </td>

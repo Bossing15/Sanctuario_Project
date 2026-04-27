@@ -220,7 +220,7 @@ const PaymentAnalytics = () => {
           </div>
           <button
             onClick={fetchPayments}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-6 py-2 bg-[#1B3022] text-white rounded-lg hover:bg-[#2A4D36]"
           >
             Apply
           </button>
@@ -356,7 +356,7 @@ const PaymentAnalytics = () => {
                   <div className="text-xs text-gray-500">{method.count} transactions</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold text-blue-600">₱{parseFloat(method.total).toLocaleString('en-US', {minimumFractionDigits: 0})}</div>
+                  <div className="font-bold text-[#1B3022]">₱{parseFloat(method.total).toLocaleString('en-US', {minimumFractionDigits: 0})}</div>
                 </div>
               </div>
             ))

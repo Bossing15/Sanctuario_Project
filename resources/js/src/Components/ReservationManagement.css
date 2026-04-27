@@ -198,6 +198,46 @@
   color: #374151;
 }
 
+/* Purpose Badge */
+.purpose-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.purpose-badge.purpose-deceased {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.purpose-badge.purpose-reservation {
+  background-color: #dbeafe;
+  color: #0c4a6e;
+}
+
+/* ID File Link */
+.id-file-link-small {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.4rem 0.8rem;
+  background-color: #0284c7;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.id-file-link-small:hover {
+  background-color: #0369a1;
+  transform: translateY(-1px);
+}
+
 /* Card Content */
 .card-content {
   padding: 1.5rem;
@@ -368,9 +408,9 @@
   background: #f0f9ff;
   padding: 1rem;
   border-radius: 6px;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #1B3022;
   margin: 0 0 1.5rem 0;
-  color: #1e40af;
+  color: #1B3022;
   font-weight: 500;
 }
 

@@ -125,7 +125,7 @@ class RequestService
 
             // Create a payment record for the approved request
             $payment = \App\Models\Payment::create([
-                'user_id' => $request->user_id,
+                'client_id' => $request->user_id,
                 'request_id' => $request->id,
                 'invoice_number' => $request->invoice_number,
                 'amount' => $request->amount ?? 0,
