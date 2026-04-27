@@ -6,18 +6,38 @@ import logo from '../assets/images/home_logo/main_logo.jpg';
 import { useNavigate } from 'react-router-dom';
 
 function LoginPage({ onLogin }) {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [shakeFields, setShakeFields] = useState({});
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setFieldErrors({});
+    
+    // Client-side validation
+    const errors = {};
+    if (!username.trim()) {
+      errors.username = 'Username is required';
+    }
+    if (!password) {
+      errors.password = 'Password is required';
+    }
+    
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setShakeFields(errors);
+      setTimeout(() => setShakeFields({}), 400);
+      setLoading(false);
+      return;
+    }
     
     try {
       const response = await fetch('http://localhost:8000/api/client/login', {
@@ -28,7 +48,7 @@ function LoginPage({ onLogin }) {
         },
         credentials: 'omit',
         body: JSON.stringify({
-          email,
+          username,
           password,
         }),
       });
@@ -52,13 +72,25 @@ function LoginPage({ onLogin }) {
       } else {
         console.error('Login failed:', response.status, data);
         
+        const serverErrors = {};
         if (response.status === 401) {
-          setError('Invalid email or password. Please check your credentials and try again.');
+          serverErrors.username = 'Invalid credentials';
+          serverErrors.password = 'Invalid credentials';
+          setError('Invalid username or password. Please check your credentials and try again.');
         } else if (response.status === 422) {
-          setError(data.message || 'Please provide valid email and password.');
+          if (data.errors) {
+            Object.keys(data.errors).forEach(key => {
+              serverErrors[key] = data.errors[key][0];
+            });
+          }
+          setError(data.message || 'Please provide valid username and password.');
         } else {
           setError(data.message || 'Login failed. Please try again.');
         }
+        
+        setFieldErrors(serverErrors);
+        setShakeFields(serverErrors);
+        setTimeout(() => setShakeFields({}), 400);
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -66,6 +98,14 @@ function LoginPage({ onLogin }) {
     } finally {
       setLoading(false);
     }
+  };
+  
+  const handleFieldFocus = (fieldName) => {
+    setFieldErrors(prev => {
+      const updated = { ...prev };
+      delete updated[fieldName];
+      return updated;
+    });
   };
 
   // Google/Firebase auth temporarily disabled
@@ -78,7 +118,7 @@ function LoginPage({ onLogin }) {
       {/* Right side form */}
       <div className="login-right">
         <div className="brand-row">
-          <img src={logo} alt="Sanctuario De Carmona Memorial Park Logo" className="brand-logo enlarged-logo" />
+          <img src={logo} alt="Sanctuario De Carmona Memorial Park Logo" className="brand-logo-img page" />
         </div>
 
         <div className="login-card">
@@ -90,22 +130,26 @@ function LoginPage({ onLogin }) {
           {error && <div className="error-message">{error}</div>}
 
           <form className="login-form" onSubmit={handleSubmit}>
-            <div className="input-group">
+            <div className={`input-group ${fieldErrors.username ? 'error' : ''} ${shakeFields.username ? 'shake' : ''}`}>
               <div className="input-icon">
                 <FaUser />
               </div>
               <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                onFocus={() => handleFieldFocus('username')}
                 required
                 disabled={loading}
-                className="form-input"
+                className={`form-input ${fieldErrors.username ? 'error' : ''}`}
               />
+              {fieldErrors.username && (
+                <span className="field-error-message">{fieldErrors.username}</span>
+              )}
             </div>
 
-            <div className="input-group">
+            <div className={`input-group ${fieldErrors.password ? 'error' : ''} ${shakeFields.password ? 'shake' : ''}`}>
               <div className="input-icon">
                 <FaLock />
               </div>
@@ -114,9 +158,10 @@ function LoginPage({ onLogin }) {
                 placeholder="Password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
+                onFocus={() => handleFieldFocus('password')}
                 required
                 disabled={loading}
-                className="form-input"
+                className={`form-input ${fieldErrors.password ? 'error' : ''}`}
               />
               <button
                 type="button"
@@ -126,6 +171,9 @@ function LoginPage({ onLogin }) {
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
+              {fieldErrors.password && (
+                <span className="field-error-message">{fieldErrors.password}</span>
+              )}
             </div>
 
             <button 
