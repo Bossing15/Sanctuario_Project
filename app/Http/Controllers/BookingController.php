@@ -427,4 +427,55 @@ class BookingController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Update progress for a booking
+     * POST /api/bookings/{bookingId}/progress
+     */
+    public function updateProgress($bookingId, Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'progress_status' => 'required|string|in:Not Started,In Progress,Completed,On Hold',
+                'progress_percentage' => 'required|integer|min:0|max:100',
+                'progress_note' => 'required|string|max:1000',
+            ]);
+
+            $booking = Booking::findOrFail($bookingId);
+
+            // Check if booking can be updated
+            if (!$booking->canUpdateProgress()) {
+                return response()->json([
+                    'message' => 'Cannot update progress for this booking. Booking must be approved first.',
+                ], 400);
+            }
+
+            // Get admin name
+            $admin = $request->user();
+            $adminName = $admin->name ?? 'Admin';
+
+            // Update progress
+            $booking->updateProgress(
+                $validated['progress_status'],
+                $validated['progress_percentage'],
+                $validated['progress_note'],
+                $adminName
+            );
+
+            return response()->json([
+                'message' => 'Progress updated successfully',
+                'booking' => $booking->fresh(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error updating booking progress', [
+                'booking_id' => $bookingId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to update progress',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

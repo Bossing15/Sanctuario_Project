@@ -36,12 +36,13 @@
 .nav-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 20px 0 60px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   position: relative;
   overflow: visible;
+  gap: 20px;
 }
 
 /* Logo Styles */
@@ -49,13 +50,17 @@
   display: flex;
   align-items: center;
   text-decoration: none;
-  margin-right: 0;
-  margin-left: -30px;
+  margin-right: 60px;
+  margin-left: 0;
+  margin-top: 0;
   flex-shrink: 0;
+  position: relative;
+  left: 0;
 }
 
+/* .nav-logo img is the brand logo — sized via .brand-logo-img.navbar in icons.css */
 .nav-logo img {
-  height: 35px;
+  height: 44px;   /* matches --brand-logo-size-navbar */
   width: auto;
   object-fit: contain;
 }
@@ -64,9 +69,10 @@
 .nav-links {
   display: flex;
   gap: 18px;
-  margin: 0 0 0 80px;
+  margin: 0 0 0 auto;
   align-items: center;
-  flex-grow: 1;
+  flex-grow: 0;
+  flex-shrink: 1;
 }
 
 .nav-links a {
@@ -401,10 +407,11 @@
 .nav-contact-search {
   display: flex;
   align-items: center;
-  gap: 24px;
-  margin-left: auto;
-  margin-right: 60px;
-  padding-right: 20px;
+  gap: 12px;
+  margin-left: 0;
+  margin-right: 0;
+  padding-right: 0;
+  flex-shrink: 0;
 }
 
 .nav-phone {
@@ -642,7 +649,8 @@
   
   .nav-contact-search {
     margin-left: auto;
-    margin-right: clamp(40px, 5vw, 80px);
+    margin-right: 0;
+    gap: 12px;
   }
   
   .profile-btn {
@@ -1141,13 +1149,15 @@ name display and auth buttons */
 /* Note: !important flags are used to override global button styles from index.css */
 .auth-buttons {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
+  flex-shrink: 0;
+  margin-left: 20px;
 }
 
 .login-btn,
 .signup-btn {
-  padding: 8px 20px !important;
+  padding: 10px 24px !important;
   border-radius: 25px !important;
   font-size: 14px !important;
   font-weight: 600 !important;
@@ -1155,6 +1165,7 @@ name display and auth buttons */
   transition: all 0.3s ease;
   min-height: auto !important;
   min-width: auto !important;
+  white-space: nowrap;
 }
 
 .login-btn {
@@ -1204,10 +1215,26 @@ name display and auth buttons */
 }
 
 /* Mobile responsive */
+@media (max-width: 992px) {
+  .auth-buttons {
+    margin-left: 10px;
+    gap: 8px;
+  }
+  
+  .login-btn,
+  .signup-btn {
+    padding: 8px 18px !important;
+    font-size: 13px !important;
+    min-height: auto !important;
+    min-width: auto !important;
+  }
+}
+
 @media (max-width: 768px) {
   .auth-buttons {
     flex-direction: row;
     gap: 6px;
+    margin-left: 8px;
   }
   
   .login-btn,
@@ -1220,6 +1247,13 @@ name display and auth buttons */
 }
 
 /* Notification Icon Button */
+.nav-contact-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 0;
+}
+
 .notification-icon-btn {
   background: none;
   border: none;
@@ -1243,7 +1277,7 @@ name display and auth buttons */
 
 .notification-icon-btn:hover {
   color: #006400;
-  background-color: rgba(0, 100, 0, 0.08);
+  background-color: transparent;
   transform: translateY(-1px);
 }
 

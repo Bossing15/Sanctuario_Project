@@ -2,6 +2,19 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import bgLoginImage from "../assets/bg-login.jpg";
 
+// Add shake animation styles
+const shakeAnimationStyles = `
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+    20%, 40%, 60%, 80% { transform: translateX(8px); }
+  }
+  
+  .animate-shake {
+    animation: shake 0.4s ease-in-out;
+  }
+`;
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -9,14 +22,29 @@ const Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [shakeFields, setShakeFields] = useState({});
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setFieldErrors({});
     setLoading(true);
 
-    if (!username || !password) {
+    // Client-side validation
+    const errors = {};
+    if (!username.trim()) {
+      errors.username = 'Username is required';
+    }
+    if (!password) {
+      errors.password = 'Password is required';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setShakeFields(errors);
+      setTimeout(() => setShakeFields({}), 400);
       setError("Please enter both username and password.");
       setLoading(false);
       return;
@@ -48,6 +76,14 @@ const Login = () => {
         // Redirect to admin dashboard
         navigate('/admin/dashboard');
       } else {
+        const serverErrors = {};
+        if (response.status === 401) {
+          serverErrors.username = 'Invalid credentials';
+          serverErrors.password = 'Invalid credentials';
+        }
+        setFieldErrors(serverErrors);
+        setShakeFields(serverErrors);
+        setTimeout(() => setShakeFields({}), 400);
         setError(data.message || 'Invalid username or password.');
       }
     } catch (err) {
@@ -57,9 +93,19 @@ const Login = () => {
       setLoading(false);
     }
   };
+  
+  const handleFieldFocus = (fieldName) => {
+    setFieldErrors(prev => {
+      const updated = { ...prev };
+      delete updated[fieldName];
+      return updated;
+    });
+  };
 
   return (
-    <div className="h-screen w-screen bg-white flex m-0 p-0 overflow-hidden">
+    <>
+      <style>{shakeAnimationStyles}</style>
+      <div className="h-screen w-screen bg-white flex m-0 p-0 overflow-hidden">
       {/* Left side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 flex-col items-center justify-start p-12 relative overflow-hidden" style={{backgroundImage: `url(${bgLoginImage})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed'}}>
         {/* Decorative elements */}
@@ -137,10 +183,16 @@ const Login = () => {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                onFocus={() => handleFieldFocus('username')}
+                className={`w-full px-4 py-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                  fieldErrors.username ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                } ${shakeFields.username ? 'animate-shake' : ''}`}
                 placeholder="Enter your username"
                 required
               />
+              {fieldErrors.username && (
+                <p className="mt-1 text-xs text-red-600 ml-1">{fieldErrors.username}</p>
+              )}
             </div>
 
             <div>
@@ -153,7 +205,10 @@ const Login = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  onFocus={() => handleFieldFocus('password')}
+                  className={`w-full px-4 py-3 pr-12 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                    fieldErrors.password ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  } ${shakeFields.password ? 'animate-shake' : ''}`}
                   placeholder="••••••••"
                   required
                 />
@@ -174,6 +229,9 @@ const Login = () => {
                   )}
                 </button>
               </div>
+              {fieldErrors.password && (
+                <p className="mt-1 text-xs text-red-600 ml-1">{fieldErrors.password}</p>
+              )}
             </div>
 
             <div className="flex items-center justify-between pt-2">
@@ -223,6 +281,7 @@ const Login = () => {
         <div className="h-12"></div>
       </div>
     </div>
+    </>
   );
 };
 

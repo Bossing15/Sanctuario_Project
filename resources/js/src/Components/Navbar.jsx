@@ -54,7 +54,7 @@ const Navbar = ({ collapsed }) => {
         <img
           src={logo}
           alt="Sanctuario Logo"
-          className="navbar-logo"
+          className="navbar-logo brand-logo-img navbar"
           onError={(e) => {
             e.target.outerHTML = '<div class="text-white font-bold text-lg">SANCTUARIO</div>';
           }}
@@ -64,7 +64,7 @@ const Navbar = ({ collapsed }) => {
       <div className="flex items-center gap-4 ml-auto">
         <button 
           onClick={() => setShowNotifications(!showNotifications)}
-          className="relative p-2 hover:bg-gray-700 rounded-lg transition-all text-gray-300 pointer-events-auto"
+          className="icon-btn white circle relative"
           title="Notifications"
         >
           <svg
@@ -75,12 +75,11 @@ const Navbar = ({ collapsed }) => {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="w-5 h-5"
           >
             <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 1 0-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5" />
             <path d="M9 17a3 3 0 0 0 6 0" />
           </svg>
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          <span className="badge-dot"></span>
         </button>
 
         <div className="relative pointer-events-auto">

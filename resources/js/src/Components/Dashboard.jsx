@@ -10,6 +10,8 @@ import { TableSkeleton } from './SkeletonLoader';
 import AuthorizationModal from './AuthorizationModal';
 import ReservationDetailsModal from './ReservationDetailsModal';
 import ServiceCompletionModal from './ServiceCompletionModal';
+import ProgressUpdateModal from './ProgressUpdateModal';
+import BookingProgressUpdateModal from './BookingProgressUpdateModal';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -38,6 +40,10 @@ const Dashboard = () => {
   const [selectedReservationDetails, setSelectedReservationDetails] = useState(null);
   const [showServiceCompletionModal, setShowServiceCompletionModal] = useState(false);
   const [selectedServiceBooking, setSelectedServiceBooking] = useState(null);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [selectedMaintenanceRequest, setSelectedMaintenanceRequest] = useState(null);
+  const [showBookingProgressModal, setShowBookingProgressModal] = useState(false);
+  const [selectedBookingForProgress, setSelectedBookingForProgress] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -141,7 +147,7 @@ const Dashboard = () => {
         return;
       }
       
-      const apiUrl = `${window.location.protocol}//${window.location.host}/api/admin/inquiries`;
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/maintenance-requests`;
       const response = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -152,12 +158,7 @@ const Dashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        const maintenanceOnly = (data.inquiries || []).filter(inquiry =>
-          inquiry.product_interest &&
-          (inquiry.product_interest.toLowerCase().includes('maintenance') ||
-           inquiry.product_interest.toLowerCase().includes('grave'))
-        );
-        setMaintenanceRequests(maintenanceOnly);
+        setMaintenanceRequests(data.requests || []);
       } else {
         console.warn('Failed to fetch maintenance requests:', response.status);
         setMaintenanceRequests([]);
@@ -399,6 +400,32 @@ const Dashboard = () => {
     }
   };
 
+  const handleUpdateProgress = (request) => {
+    setSelectedMaintenanceRequest(request);
+    setShowProgressModal(true);
+  };
+
+  const handleProgressUpdated = (updatedRequest) => {
+    // Update the request in the list
+    setMaintenanceRequests(prev =>
+      prev.map(req => req.id === updatedRequest.id ? updatedRequest : req)
+    );
+    alert('Progress updated successfully! Customer has been notified.');
+  };
+
+  const handleUpdateBookingProgress = (booking) => {
+    setSelectedBookingForProgress(booking);
+    setShowBookingProgressModal(true);
+  };
+
+  const handleBookingProgressUpdated = (updatedBooking) => {
+    // Update the booking in the purchases list
+    setPurchases(prev =>
+      prev.map(p => p.id === updatedBooking.id ? updatedBooking : p)
+    );
+    alert('Progress updated successfully! Customer has been notified.');
+  };
+
   const fetchAuthorizationRequests = async () => {
     try {
       const token = localStorage.getItem('authToken');
@@ -556,7 +583,7 @@ const Dashboard = () => {
             </div>
             <h6 className="text-gray-600 mb-1 text-sm font-medium">Pending Requests</h6>
             <h5 className="font-bold text-2xl text-yellow-600">
-              {loadingMaintenance ? '...' : maintenanceRequests.filter(r => r.status === 'New' || r.status === 'In Progress').length}
+              {loadingMaintenance ? '...' : maintenanceRequests.filter(r => r.status === 'Pending_Approval').length}
             </h5>
           </div>
 
@@ -731,11 +758,11 @@ const Dashboard = () => {
                         if (item.type === 'Maintenance') {
                           return (
                             <tr key={`maint-${item.id}`}>
-                              <td className="font-mono">#{item.id}</td>
-                              <td className="font-bold">{item.full_name || 'N/A'}</td>
-                              <td>{item.phone || 'N/A'}</td>
+                              <td className="font-mono">{item.invoice_number || `REQ-${item.id}`}</td>
+                              <td className="font-bold">{item.client?.name || item.user?.name || item.full_name || 'N/A'}</td>
+                              <td>{item.client?.phone || item.user?.phone || item.phone || 'N/A'}</td>
                               <td className="date-cell">{formatDate(item.created_at)}</td>
-                              <td>{item.product_interest}</td>
+                              <td>{item.service?.title || item.product_interest || 'N/A'}</td>
                               <td>-</td>
                               <td className="text-center">
                                 <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg">
@@ -743,7 +770,24 @@ const Dashboard = () => {
                                 </span>
                               </td>
                               <td className="text-center">
-                                {item.status === 'New' ? (
+                                {item.status === 'Approved' ? (
+                                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                                    <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
+                                      ✓ Approved
+                                    </span>
+                                    <span style={{ fontSize: '11px', color: '#6b7280' }}>
+                                      {item.progress_status || 'Not Started'} ({item.progress_percentage || 0}%)
+                                    </span>
+                                  </div>
+                                ) : item.status === 'Pending_Approval' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
+                                    ⏳ Pending
+                                  </span>
+                                ) : item.status === 'Rejected' ? (
+                                  <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-lg shadow-sm">
+                                    ✗ Rejected
+                                  </span>
+                                ) : item.status === 'New' ? (
                                   <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
                                     Pending
                                   </span>
@@ -766,7 +810,26 @@ const Dashboard = () => {
                                 )}
                               </td>
                               <td className="text-center">
-                                {/* Actions for maintenance */}
+                                {item.status === 'Approved' && (
+                                  <button
+                                    onClick={() => handleUpdateProgress(item)}
+                                    style={{
+                                      padding: '6px 12px',
+                                      fontSize: '12px',
+                                      backgroundColor: '#3b82f6',
+                                      color: 'white',
+                                      border: 'none',
+                                      borderRadius: '6px',
+                                      cursor: 'pointer',
+                                      fontWeight: '600',
+                                      transition: 'all 0.2s'
+                                    }}
+                                    onMouseOver={(e) => e.target.style.backgroundColor = '#2563eb'}
+                                    onMouseOut={(e) => e.target.style.backgroundColor = '#3b82f6'}
+                                  >
+                                    📝 Update Progress
+                                  </button>
+                                )}
                               </td>
                             </tr>
                           );
@@ -873,16 +936,26 @@ const Dashboard = () => {
                                       </button>
                                     </>
                                   )}
-                                  {(item.service?.category?.toLowerCase().includes('maintenance') || item.service_name?.toLowerCase().includes('grave')) && (
+                                  {(item.authorization_status === 'AUTHORIZED' || item.authorization_status === 'AUTO_APPROVED') && 
+                                   (item.service?.category?.toLowerCase().includes('maintenance') || item.service_name?.toLowerCase().includes('grave')) && (
                                     <button
-                                      onClick={() => {
-                                        setSelectedServiceBooking(item);
-                                        setShowServiceCompletionModal(true);
+                                      onClick={() => handleUpdateBookingProgress(item)}
+                                      style={{
+                                        padding: '6px 12px',
+                                        fontSize: '12px',
+                                        backgroundColor: '#3b82f6',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        fontWeight: '600',
+                                        transition: 'all 0.2s'
                                       }}
-                                      className="px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                                      title="Mark service completion status"
+                                      onMouseOver={(e) => e.target.style.backgroundColor = '#2563eb'}
+                                      onMouseOut={(e) => e.target.style.backgroundColor = '#3b82f6'}
+                                      title="Update progress for this maintenance service"
                                     >
-                                      Status
+                                      📝 Update Progress
                                     </button>
                                   )}
                                 </div>
@@ -1176,6 +1249,28 @@ const Dashboard = () => {
           }}
         />
       )}
+
+      {/* Progress Update Modal */}
+      <ProgressUpdateModal
+        show={showProgressModal}
+        request={selectedMaintenanceRequest}
+        onClose={() => {
+          setShowProgressModal(false);
+          setSelectedMaintenanceRequest(null);
+        }}
+        onUpdate={handleProgressUpdated}
+      />
+
+      {/* Booking Progress Update Modal */}
+      <BookingProgressUpdateModal
+        show={showBookingProgressModal}
+        booking={selectedBookingForProgress}
+        onClose={() => {
+          setShowBookingProgressModal(false);
+          setSelectedBookingForProgress(null);
+        }}
+        onUpdate={handleBookingProgressUpdated}
+      />
     </div>
   );
 };

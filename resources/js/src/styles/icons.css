@@ -1,0 +1,316 @@
+/* ============================================================
+   ICON HIERARCHY SYSTEM — ADMIN PANEL
+   ============================================================
+
+   LAYER 1 — BRAND LOGO  (.brand-logo-img)
+     • Scoped under --brand-* variables only
+     • 25% larger than system baseline (30px rendered)
+     • Distinct glow for focal-point visibility
+     • NEVER referenced by system-icon rules
+
+   LAYER 2 — SYSTEM / NAV ICONS  (.icon-btn, .sidebar-item-icon)
+     • Fixed 20×20 viewbox — locked, never scaled
+     • 2px stroke-width for bold visibility
+     • currentColor fill — inherits context color
+     • 40×40 flexbox ghost container (perfect alignment)
+
+   TECHNICAL CONSTRAINT
+     • --brand-* and --icon-* are separate namespaces
+     • Brand glow/size rules are scoped to .brand-logo-img
+     • System icon rules never touch img.brand-logo-img
+   ============================================================ */
+
+
+/* ── LAYER 1: Brand Logo Tokens ────────────────────────────── */
+:root {
+  --brand-logo-size-navbar:  44px;   /* admin top navbar */
+  --brand-logo-size-sidebar: 36px;   /* collapsed/expanded sidebar */
+  --brand-logo-glow-dark:    rgba(255, 255, 255, 0.18);
+  --brand-logo-glow-light:   rgba(22, 163, 74, 0.30);
+  --brand-logo-transition:   filter 250ms ease, transform 250ms ease;
+}
+
+/* Base brand logo — only applies to .brand-logo-img, never to .icon-btn */
+.brand-logo-img {
+  width: auto;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 8px var(--brand-logo-glow-dark));
+  transition: var(--brand-logo-transition);
+}
+
+.brand-logo-img:hover {
+  filter: drop-shadow(0 4px 16px var(--brand-logo-glow-dark))
+          drop-shadow(0 0 8px rgba(255, 255, 255, 0.12));
+  transform: scale(1.03);
+}
+
+/* Navbar context */
+.brand-logo-img.navbar {
+  height: var(--brand-logo-size-navbar);
+}
+
+/* Sidebar context */
+.brand-logo-img.sidebar {
+  height: var(--brand-logo-size-sidebar);
+  filter: drop-shadow(0 1px 6px var(--brand-logo-glow-dark));
+}
+
+/* Light background context */
+.brand-logo-img.on-light {
+  filter: drop-shadow(0 2px 8px var(--brand-logo-glow-light));
+}
+.brand-logo-img.on-light:hover {
+  filter: drop-shadow(0 4px 16px var(--brand-logo-glow-light));
+}
+
+
+/* ── LAYER 2: System Icon Tokens ───────────────────────────── */
+:root {
+  /* Fixed 20px — NEVER changed by brand rules */
+  --icon-size:           20px;
+  --icon-container-size: 40px;
+  --icon-stroke:         2;        /* SVG stroke-width */
+
+  /* Colors */
+  --icon-color:         #1e293b;   /* Slate-800 */
+  --icon-color-muted:   #64748b;   /* Slate-500 */
+  --icon-color-white:   #ffffff;
+  --icon-color-active:  #16a34a;   /* Green-600 */
+  --icon-color-danger:  #dc2626;   /* Red-600 */
+
+  /* Ghost backgrounds */
+  --icon-ghost:         rgba(30, 41, 59, 0.05);
+  --icon-ghost-hover:   rgba(30, 41, 59, 0.10);
+  --icon-ghost-active:  rgba(22, 163, 74, 0.10);
+  --icon-ghost-danger:  rgba(220, 38, 38, 0.08);
+  --icon-ghost-white:   rgba(255, 255, 255, 0.10);
+  --icon-ghost-white-h: rgba(255, 255, 255, 0.18);
+
+  --icon-radius:        8px;
+  --icon-radius-circle: 50%;
+  --icon-transition:    all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* ── Ghost Container ───────────────────────────────────────── */
+.icon-btn {
+  /* Flexbox — perfect centering, no manual padding needed */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Fixed 40×40 hit-box — isolated from brand logo sizing */
+  width: var(--icon-container-size);
+  height: var(--icon-container-size);
+  flex-shrink: 0;
+
+  border-radius: var(--icon-radius);
+  background: var(--icon-ghost);
+  border: none;
+  cursor: pointer;
+  color: var(--icon-color);
+  transition: var(--icon-transition);
+  padding: 0;
+  position: relative;
+  /* Zero font-size prevents React Icon font-size from escaping */
+  font-size: 0;
+  line-height: 0;
+}
+
+.icon-btn:hover {
+  background: var(--icon-ghost-hover);
+  color: var(--icon-color);
+  transform: translateY(-1px);
+}
+
+.icon-btn:active {
+  transform: translateY(0);
+  background: var(--icon-ghost-hover);
+}
+
+
+/* ── Icon content inside container ────────────────────────── */
+/*
+   Locks ALL direct children to exactly --icon-size.
+   This is the hard wall that prevents brand-logo rules
+   from ever scaling system icons.
+*/
+.icon-btn > svg,
+.icon-btn > img,
+.icon-btn > *:not(.badge-dot) {
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  font-size: var(--icon-size) !important;
+  flex-shrink: 0;
+  display: block;
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* SVG outline icons — stroke-based */
+.icon-btn > svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--icon-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: currentColor;
+}
+
+/* PNG/IMG icons in sidebar */
+.icon-btn > img {
+  object-fit: contain;
+}
+
+
+/* ── Variant modifiers ─────────────────────────────────────── */
+.icon-btn.circle { border-radius: var(--icon-radius-circle); }
+
+.icon-btn.white {
+  color: var(--icon-color-white);
+  background: var(--icon-ghost-white);
+}
+.icon-btn.white:hover {
+  background: var(--icon-ghost-white-h);
+  color: var(--icon-color-white);
+}
+
+.icon-btn.active,
+.icon-btn[aria-pressed="true"] {
+  color: var(--icon-color-active);
+  background: var(--icon-ghost-active);
+}
+
+.icon-btn.danger {
+  color: var(--icon-color-danger);
+  background: var(--icon-ghost-danger);
+}
+.icon-btn.danger:hover { background: rgba(220, 38, 38, 0.14); }
+
+.icon-btn.muted { color: var(--icon-color-muted); }
+
+.icon-btn:disabled,
+.icon-btn[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Size variants — container only, icon stays at --icon-size */
+.icon-btn.sm { width: 32px; height: 32px; }
+.icon-btn.lg { width: 48px; height: 48px; }
+
+
+/* ── Standalone icon (no container) ───────────────────────── */
+.icon-standalone {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  font-size: var(--icon-size);
+  stroke-width: var(--icon-stroke);
+  color: var(--icon-color);
+  flex-shrink: 0;
+  display: block;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.icon-standalone.white   { color: var(--icon-color-white); }
+.icon-standalone.muted   { color: var(--icon-color-muted); }
+.icon-standalone.active  { color: var(--icon-color-active); }
+.icon-standalone.danger  { color: var(--icon-color-danger); }
+
+
+/* ── Notification badge dot ────────────────────────────────── */
+.icon-btn .badge-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  background: #ef4444;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  pointer-events: none;
+}
+
+
+/* ── Admin Navbar icons ────────────────────────────────────── */
+/*
+   Scoped to .navbar — only targets .icon-btn, NOT img.brand-logo-img.
+   This is the key scoping rule that keeps brand and system separate.
+*/
+.navbar .icon-btn {
+  color: var(--icon-color-white);
+  background: var(--icon-ghost-white);
+}
+.navbar .icon-btn:hover {
+  background: var(--icon-ghost-white-h);
+}
+
+/* Enforce 20px + 2px stroke on all inline SVGs inside navbar */
+.navbar svg:not(.brand-logo-img svg) {
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  stroke-width: var(--icon-stroke) !important;
+}
+
+
+/* ── Sidebar icon containers ───────────────────────────────── */
+/*
+   .sidebar-item-icon wraps PNG images.
+   Flexbox ensures perfect centering regardless of image dimensions.
+*/
+.sidebar-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-container-size);
+  height: var(--icon-container-size);
+  border-radius: var(--icon-radius);
+  background: var(--icon-ghost-white);
+  flex-shrink: 0;
+  transition: var(--icon-transition);
+}
+
+.sidebar-item:hover .sidebar-item-icon,
+.sidebar-item.active .sidebar-item-icon {
+  background: var(--icon-ghost-white-h);
+}
+
+/* PNG icons inside sidebar — locked to --icon-size */
+.sidebar-item-icon img {
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+  /* Invert dark PNGs to white for dark sidebar */
+  filter: brightness(0) invert(1);
+  opacity: 0.80;
+  transition: opacity 150ms ease;
+}
+
+.sidebar-item:hover .sidebar-item-icon img,
+.sidebar-item.active .sidebar-item-icon img {
+  opacity: 1;
+}
+
+/* Mobile nav icons */
+.mobile-nav-item img {
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.75;
+  transition: opacity 150ms ease, filter 150ms ease;
+}
+
+.mobile-nav-item.active img {
+  opacity: 1;
+  /* Green tint for active state */
+  filter: brightness(0) saturate(100%)
+          invert(48%) sepia(79%) saturate(476%)
+          hue-rotate(86deg) brightness(95%) contrast(91%);
+}

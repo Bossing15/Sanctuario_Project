@@ -6,6 +6,7 @@
 @import "./styles/admin.css";
 @import "./styles/tables.css";
 @import "./styles/skeleton.css";
+@import "./styles/icons.css";
 
 /* Disable animations on page load */
 .preload * {
