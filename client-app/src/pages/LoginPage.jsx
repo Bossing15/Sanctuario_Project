@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -50,6 +51,7 @@ function LoginPage({ onLogin }) {
         body: JSON.stringify({
           username,
           password,
+          remember_me: rememberMe,
         }),
       });
 
@@ -62,9 +64,12 @@ function LoginPage({ onLogin }) {
         localStorage.setItem('userId', data.user.id);
         localStorage.setItem('userName', data.user.name);
         localStorage.setItem('userEmail', data.user.email);
+        localStorage.setItem('tokenExpiresAt', data.expires_at);
+        localStorage.setItem('rememberMe', rememberMe);
         
         console.log('Stored user ID:', data.user.id); // Debug log
         console.log('Stored email:', data.user.email); // Debug log
+        console.log('Token expires at:', data.expires_at); // Debug log
         
         // Navigate to home page after successful login
         navigate('/home');
@@ -174,6 +179,20 @@ function LoginPage({ onLogin }) {
               {fieldErrors.password && (
                 <span className="field-error-message">{fieldErrors.password}</span>
               )}
+            </div>
+
+            <div className="remember-me-container" style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                disabled={loading}
+                style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+              />
+              <label htmlFor="rememberMe" style={{ cursor: 'pointer', fontSize: '14px', color: '#666', margin: 0 }}>
+                Remember me for 30 days
+              </label>
             </div>
 
             <button 

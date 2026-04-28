@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { useTokenExpiration } from "./hooks/useTokenExpiration";
 import Sidebar from "./Components/Sidebar";
 import Dashboard from "./Components/Dashboard";
 import CustomersPage from "./Components/Customers";
@@ -93,6 +94,9 @@ const Layout = ({ children, collapsed, setCollapsed }) => {
 const App = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Check token expiration on app load
+  useTokenExpiration();
 
   useEffect(() => {
     // Add preload class to disable animations on initial load

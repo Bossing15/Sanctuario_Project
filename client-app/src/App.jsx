@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useTokenExpiration } from './hooks/useTokenExpiration';
 import './styles/icons.css';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -97,6 +98,9 @@ function Layout() {
 }
 
 function App() {
+  // Check token expiration on app load
+  useTokenExpiration();
+
   useEffect(() => {
     // Ensure viewport meta tag is set for responsive design
     let viewport = document.querySelector("meta[name=viewport]");

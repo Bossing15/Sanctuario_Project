@@ -39,10 +39,12 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'username' => 'required|string',
             'password' => 'required',
+            'remember_me' => 'nullable|boolean',
         ]);
 
         \Illuminate\Support\Facades\Log::info('Admin login attempt', [
             'username' => $credentials['username'],
+            'remember_me' => $credentials['remember_me'] ?? false,
         ]);
 
         $admin = Admin::where('username', $credentials['username'])->first();
@@ -56,14 +58,23 @@ class AuthController extends Controller
         if ($admin && Hash::check($credentials['password'], $admin->password)) {
             \Illuminate\Support\Facades\Log::info('Admin login successful', [
                 'username' => $admin->username,
+                'remember_me' => $credentials['remember_me'] ?? false,
             ]);
             
-            $token = $admin->createToken('auth_token')->plainTextToken;
+            // Determine token expiration based on remember_me
+            $rememberMe = $credentials['remember_me'] ?? false;
+            $expiresAt = $rememberMe 
+                ? now()->addDays(30)  // 30 days for remember me
+                : now()->addHours(1); // 1 hour for regular session
+            
+            $token = $admin->createToken('auth_token', ['*'], $expiresAt)->plainTextToken;
             
             return response()->json([
                 'token' => $token,
                 'user' => $admin,
-                'role' => 'admin'
+                'role' => 'admin',
+                'expires_at' => $expiresAt->timestamp,
+                'remember_me' => $rememberMe,
             ]);
         }
 
@@ -81,17 +92,26 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'username' => 'required|string',
             'password' => 'required',
+            'remember_me' => 'nullable|boolean',
         ]);
 
         $client = Client::where('username', $credentials['username'])->first();
 
         if ($client && Hash::check($credentials['password'], $client->password)) {
-            $token = $client->createToken('auth_token')->plainTextToken;
+            // Determine token expiration based on remember_me
+            $rememberMe = $credentials['remember_me'] ?? false;
+            $expiresAt = $rememberMe 
+                ? now()->addDays(30)  // 30 days for remember me
+                : now()->addHours(1); // 1 hour for regular session
+            
+            $token = $client->createToken('auth_token', ['*'], $expiresAt)->plainTextToken;
             
             return response()->json([
                 'token' => $token,
                 'user' => $client,
-                'role' => 'client'
+                'role' => 'client',
+                'expires_at' => $expiresAt->timestamp,
+                'remember_me' => $rememberMe,
             ]);
         }
 

@@ -62,6 +62,7 @@ const Login = () => {
         body: JSON.stringify({
           username,
           password,
+          remember_me: remember,
         }),
       });
 
@@ -72,6 +73,8 @@ const Login = () => {
         localStorage.setItem('authToken', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('userRole', 'admin');
+        localStorage.setItem('tokenExpiresAt', data.expires_at);
+        localStorage.setItem('rememberMe', remember);
         
         // Redirect to admin dashboard
         navigate('/admin/dashboard');
