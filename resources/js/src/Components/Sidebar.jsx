@@ -112,7 +112,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           <img
             src={appLogo}
             alt="Sanctuario Logo"
-            className="sidebar-logo"
+            className="sidebar-logo brand-logo-img sidebar"
             onError={(e) => {
               console.error('Logo failed to load:', e.target.src);
               e.target.outerHTML = '<div class="text-neutral-800 font-bold text-sm">SANCTUARIO</div>';
@@ -133,7 +133,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
             }
           >
             <div className="sidebar-item-icon">
-              <img src={item.icon} alt={item.label} className="w-5 h-5" />
+              <img src={item.icon} alt={item.label} />
             </div>
             <span className="sidebar-item-label">
               {item.label}
@@ -154,7 +154,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           }
         >
           <div className="sidebar-item-icon">
-            <img src={settingsIcon} alt="Settings" className="w-5 h-5" />
+            <img src={settingsIcon} alt="Settings" />
           </div>
           <span className="sidebar-item-label">Settings</span>
         </NavLink>

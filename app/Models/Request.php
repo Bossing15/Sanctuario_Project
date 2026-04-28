@@ -30,6 +30,12 @@ class Request extends Model
         'status_history',
         'invoice_number',
         'amount',
+        'progress_status',
+        'progress_percentage',
+        'current_progress_note',
+        'progress_updates',
+        'progress_started_at',
+        'progress_completed_at',
     ];
 
     protected $casts = [
@@ -39,6 +45,9 @@ class Request extends Model
         'cancelled_at' => 'datetime',
         'additional_deceased_info' => 'array',
         'status_history' => 'array',
+        'progress_updates' => 'array',
+        'progress_started_at' => 'datetime',
+        'progress_completed_at' => 'datetime',
     ];
 
     // Boot method to generate invoice number
@@ -160,5 +169,82 @@ class Request extends Model
     public function scopeByUser($query, $userId)
     {
         return $query->where('user_id', $userId);
+    }
+
+    // Progress Tracking Methods
+    public function updateProgress(Admin $admin, string $progressStatus, int $percentage, string $note): void
+    {
+        // Update progress fields
+        $this->progress_status = $progressStatus;
+        $this->progress_percentage = min(100, max(0, $percentage)); // Ensure 0-100 range
+        $this->current_progress_note = $note;
+
+        // Set timestamps based on status
+        if ($progressStatus === 'In Progress' && !$this->progress_started_at) {
+            $this->progress_started_at = now();
+        }
+
+        if ($progressStatus === 'Completed' && !$this->progress_completed_at) {
+            $this->progress_completed_at = now();
+            $this->progress_percentage = 100;
+        }
+
+        // Add to progress history
+        $this->addProgressUpdate($admin, $progressStatus, $percentage, $note);
+
+        $this->save();
+
+        // Create notification for the client
+        $this->notifyClientOfProgress($progressStatus, $note);
+    }
+
+    private function addProgressUpdate(Admin $admin, string $status, int $percentage, string $note): void
+    {
+        $updates = $this->progress_updates ?? [];
+        $updates[] = [
+            'status' => $status,
+            'percentage' => $percentage,
+            'note' => $note,
+            'admin_id' => $admin->id,
+            'admin_name' => $admin->username ?? $admin->name ?? 'Admin',
+            'timestamp' => now()->toIso8601String(),
+        ];
+        $this->progress_updates = $updates;
+    }
+
+    private function notifyClientOfProgress(string $status, string $note): void
+    {
+        // Create notification for the client
+        Notification::create([
+            'user_id' => $this->user_id,
+            'type' => 'maintenance_progress',
+            'title' => 'Maintenance Service Update',
+            'message' => "Your maintenance service request (Invoice: {$this->invoice_number}) status: {$status}. {$note}",
+            'data' => json_encode([
+                'request_id' => $this->id,
+                'invoice_number' => $this->invoice_number,
+                'progress_status' => $status,
+                'progress_percentage' => $this->progress_percentage,
+                'note' => $note,
+            ]),
+            'is_read' => false,
+        ]);
+    }
+
+    public function canUpdateProgress(): bool
+    {
+        // Can update progress if request is approved
+        return $this->status === 'Approved';
+    }
+
+    public function getProgressHistory(): array
+    {
+        return $this->progress_updates ?? [];
+    }
+
+    public function getLatestProgressUpdate(): ?array
+    {
+        $updates = $this->progress_updates ?? [];
+        return !empty($updates) ? end($updates) : null;
     }
 }

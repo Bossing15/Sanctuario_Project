@@ -114,7 +114,7 @@ function Navbar() {
             <img 
               src={logo}
               alt="Sanctuario De Carmona Memorial Park Logo" 
-              className="enlarged-logo"
+              className="brand-logo-img navbar"
             />
           </Link>
           
@@ -277,7 +277,7 @@ function Navbar() {
           <img 
             src={logo}
             alt="Sanctuario De Carmona Memorial Park" 
-            className="mobile-menu-logo"
+            className="mobile-menu-logo brand-logo-img"
           />
           <button 
             className="mobile-menu-close" 

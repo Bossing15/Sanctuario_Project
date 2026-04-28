@@ -231,6 +231,14 @@ Route::middleware('auth.multiple')->group(function () {
         Route::get('/{id}', [App\Http\Controllers\MaintenanceRequestController::class, 'show']);
         Route::put('/{id}', [App\Http\Controllers\MaintenanceRequestController::class, 'update']);
         Route::delete('/{id}', [App\Http\Controllers\MaintenanceRequestController::class, 'destroy']);
+        
+        // Approval/Rejection routes
+        Route::post('/{id}/approve', [App\Http\Controllers\MaintenanceRequestController::class, 'approve']);
+        Route::post('/{id}/reject', [App\Http\Controllers\MaintenanceRequestController::class, 'reject']);
+        
+        // Progress tracking routes (available immediately after approval)
+        Route::post('/{id}/progress', [App\Http\Controllers\MaintenanceRequestController::class, 'updateProgress']);
+        Route::get('/{id}/progress-history', [App\Http\Controllers\MaintenanceRequestController::class, 'getProgressHistory']);
     });
     
     // Service routes
@@ -320,6 +328,7 @@ Route::middleware('auth.multiple')->group(function () {
         Route::post('/{booking}/update-status', [App\Http\Controllers\BookingController::class, 'updateStatus']);
         Route::post('/{booking}/review-requirements', [App\Http\Controllers\BookingController::class, 'reviewRequirements']);
         Route::post('/{booking}/update-completion', [App\Http\Controllers\BookingController::class, 'updateServiceCompletion']);
+        Route::post('/{booking}/progress', [App\Http\Controllers\BookingController::class, 'updateProgress']);
         
         // Admin dashboard routes
         Route::get('/admin/all', [App\Http\Controllers\BookingController::class, 'adminAllBookings']);
