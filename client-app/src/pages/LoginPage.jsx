@@ -9,6 +9,7 @@ function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMeWarning, setRememberMeWarning] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -16,6 +17,18 @@ function LoginPage({ onLogin }) {
   const [fieldErrors, setFieldErrors] = useState({});
   const [shakeFields, setShakeFields] = useState({});
   const navigate = useNavigate();
+
+  const handleRememberMeChange = (e) => {
+    const isChecked = e.target.checked;
+    setRememberMe(isChecked);
+    
+    // Show warning when checking
+    if (isChecked) {
+      setRememberMeWarning(true);
+      // Auto-hide warning after 4 seconds
+      setTimeout(() => setRememberMeWarning(false), 4000);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -186,7 +199,7 @@ function LoginPage({ onLogin }) {
                 type="checkbox"
                 id="rememberMe"
                 checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
+                onChange={handleRememberMeChange}
                 disabled={loading}
                 style={{ cursor: 'pointer', width: '18px', height: '18px' }}
               />
@@ -195,6 +208,25 @@ function LoginPage({ onLogin }) {
               </label>
             </div>
 
+            {/* Remember Me Warning */}
+            {rememberMeWarning && (
+              <div style={{
+                marginBottom: '20px',
+                padding: '12px 16px',
+                backgroundColor: '#e3f2fd',
+                border: '1px solid #90caf9',
+                borderRadius: '8px',
+                color: '#1565c0',
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                animation: 'pulse 2s infinite'
+              }}>
+                <span style={{ fontSize: '18px' }}>ℹ️</span>
+                <span><strong>Remember Me Active:</strong> You'll stay logged in for 30 days on this device.</span>
+              </div>
+            )}
             <button 
               type="submit" 
               className={`btn-login ${loading ? 'loading' : ''}`}

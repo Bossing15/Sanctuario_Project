@@ -19,12 +19,25 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
+  const [rememberMeWarning, setRememberMeWarning] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [shakeFields, setShakeFields] = useState({});
   const navigate = useNavigate();
+
+  const handleRememberMeChange = (e) => {
+    const isChecked = e.target.checked;
+    setRemember(isChecked);
+    
+    // Show warning when checking
+    if (isChecked) {
+      setRememberMeWarning(true);
+      // Auto-hide warning after 4 seconds
+      setTimeout(() => setRememberMeWarning(false), 4000);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -242,7 +255,7 @@ const Login = () => {
                 <input
                   type="checkbox"
                   checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
+                  onChange={handleRememberMeChange}
                   className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
                 />
                 <span className="text-sm text-gray-600">Remember me</span>
@@ -251,6 +264,16 @@ const Login = () => {
                 Forgot password?
               </Link>
             </div>
+
+            {/* Remember Me Warning */}
+            {rememberMeWarning && (
+              <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm flex items-start gap-3 animate-pulse">
+                <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zm-11-1a1 1 0 11-2 0 1 1 0 012 0zM8 7a1 1 0 000 2h6a1 1 0 000-2H8zm0 4a1 1 0 000 2h3a1 1 0 000-2H8z" clipRule="evenodd" />
+                </svg>
+                <span><strong>Remember Me Active:</strong> You'll stay logged in for 30 days on this device.</span>
+              </div>
+            )}
 
             <button
               type="submit"
