@@ -78,7 +78,7 @@ body.modal-open {
   font-family: 'Poppins', 'Inter', sans-serif;
 }
 
-/* Close Button - Minimalist with Hover Rotation */
+/* Close Button - Minimalist */
 .modern-modal-close {
   background: none;
   border: none;
@@ -99,7 +99,6 @@ body.modal-open {
 .modern-modal-close:hover {
   background-color: #f3f4f6;
   color: #1f2937;
-  transform: rotate(90deg);
 }
 
 /* Modal Content */
