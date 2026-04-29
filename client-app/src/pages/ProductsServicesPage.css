@@ -87,6 +87,9 @@
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .ps-section-header h2 {
@@ -96,6 +99,7 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 600;
+  line-height: 1;
 }
 
 .section-underline {
