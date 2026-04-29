@@ -1,25 +1,25 @@
 /**
  * Utility to preserve scroll position when opening/closing modals
- * Prevents page from jumping to top when modal opens
+ * Prevents page from jumping to top when modal opens/closes
  */
 
+let savedScrollPosition = 0;
+
 export const preserveScrollPosition = () => {
-  const scrollPosition = window.scrollY;
-  document.documentElement.style.setProperty('--scroll-position', `-${scrollPosition}px`);
-  return scrollPosition;
+  savedScrollPosition = window.scrollY;
+  document.documentElement.style.setProperty('--scroll-position', `-${savedScrollPosition}px`);
+  return savedScrollPosition;
 };
 
 export const restoreScrollPosition = () => {
   document.documentElement.style.removeProperty('--scroll-position');
-  // Small delay to ensure DOM is updated
-  setTimeout(() => {
-    const scrollPosition = parseInt(
-      getComputedStyle(document.documentElement).getPropertyValue('--scroll-position') || '0'
-    );
-    if (scrollPosition !== 0) {
-      window.scrollTo(0, Math.abs(scrollPosition));
-    }
-  }, 0);
+  document.body.style.position = '';
+  document.body.style.top = '';
+  
+  // Restore scroll position after DOM updates
+  if (savedScrollPosition > 0) {
+    window.scrollTo(0, savedScrollPosition);
+  }
 };
 
 /**

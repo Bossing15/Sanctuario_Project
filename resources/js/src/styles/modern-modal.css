@@ -5,9 +5,6 @@
 /* Body scroll lock when modal is open */
 body.modal-open {
   overflow: hidden;
-  position: fixed;
-  width: 100%;
-  top: var(--scroll-position, 0);
 }
 
 /* Modal Overlay - Deep Forest Green Tint */
