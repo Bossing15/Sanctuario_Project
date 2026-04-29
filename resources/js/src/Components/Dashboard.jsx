@@ -8,6 +8,7 @@ import dashboardIcon from "../assets/icons/Dashboard.png";
 import usePermissions from '../utils/usePermissions';
 import { getSequentialIdFromIndex } from '../utils/tableIdGenerator';
 import { TableSkeleton } from './SkeletonLoader';
+import AlertModal from './AlertModal';
 import AuthorizationModal from './AuthorizationModal';
 import ReservationDetailsModal from './ReservationDetailsModal';
 import ServiceCompletionModal from './ServiceCompletionModal';
@@ -40,6 +41,7 @@ const Dashboard = () => {
   const [selectedReservationDetails, setSelectedReservationDetails] = useState(null);
   const [showServiceCompletionModal, setShowServiceCompletionModal] = useState(false);
   const [selectedServiceBooking, setSelectedServiceBooking] = useState(null);
+  const [alertModal, setAlertModal] = useState({ show: false, type: 'info', title: '', message: '' });
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -294,14 +296,29 @@ const Dashboard = () => {
       if (response.ok) {
         const data = await response.json();
         setPurchases(purchases.map(p => p.id === bookingId ? data.booking : p));
-        alert('Service application approved successfully!');
+        setAlertModal({
+          show: true,
+          type: 'success',
+          title: 'Success',
+          message: 'Service application approved successfully!'
+        });
       } else {
         const errorData = await response.json();
-        alert('Failed to approve: ' + (errorData.message || 'Unknown error'));
+        setAlertModal({
+          show: true,
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to approve: ' + (errorData.message || 'Unknown error')
+        });
       }
     } catch (error) {
       console.error('Error approving service:', error);
-      alert('Error approving service: ' + error.message);
+      setAlertModal({
+        show: true,
+        type: 'error',
+        title: 'Error',
+        message: 'Error approving service: ' + error.message
+      });
     }
   };
 
@@ -328,14 +345,29 @@ const Dashboard = () => {
       if (response.ok) {
         const data = await response.json();
         setPurchases(purchases.map(p => p.id === bookingId ? data.booking : p));
-        alert('Service application disapproved successfully!');
+        setAlertModal({
+          show: true,
+          type: 'success',
+          title: 'Success',
+          message: 'Service application disapproved successfully!'
+        });
       } else {
         const errorData = await response.json();
-        alert('Failed to disapprove: ' + (errorData.message || 'Unknown error'));
+        setAlertModal({
+          show: true,
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to disapprove: ' + (errorData.message || 'Unknown error')
+        });
       }
     } catch (error) {
       console.error('Error disapproving service:', error);
-      alert('Error disapproving service: ' + error.message);
+      setAlertModal({
+        show: true,
+        type: 'error',
+        title: 'Error',
+        message: 'Error disapproving service: ' + error.message
+      });
     }
   };
 
@@ -357,14 +389,29 @@ const Dashboard = () => {
 
       if (response.ok) {
         fetchReservations();
-        alert('Reservation approved successfully!');
+        setAlertModal({
+          show: true,
+          type: 'success',
+          title: 'Success',
+          message: 'Reservation approved successfully!'
+        });
       } else {
         const errorData = await response.json();
-        alert('Failed to approve: ' + (errorData.message || 'Unknown error'));
+        setAlertModal({
+          show: true,
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to approve: ' + (errorData.message || 'Unknown error')
+        });
       }
     } catch (error) {
       console.error('Error approving reservation:', error);
-      alert('Error approving reservation: ' + error.message);
+      setAlertModal({
+        show: true,
+        type: 'error',
+        title: 'Error',
+        message: 'Error approving reservation: ' + error.message
+      });
     }
   };
 
@@ -390,14 +437,29 @@ const Dashboard = () => {
 
       if (response.ok) {
         fetchReservations();
-        alert('Reservation rejected successfully!');
+        setAlertModal({
+          show: true,
+          type: 'success',
+          title: 'Success',
+          message: 'Reservation rejected successfully!'
+        });
       } else {
         const errorData = await response.json();
-        alert('Failed to reject: ' + (errorData.message || 'Unknown error'));
+        setAlertModal({
+          show: true,
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to reject: ' + (errorData.message || 'Unknown error')
+        });
       }
     } catch (error) {
       console.error('Error rejecting reservation:', error);
-      alert('Error rejecting reservation: ' + error.message);
+      setAlertModal({
+        show: true,
+        type: 'error',
+        title: 'Error',
+        message: 'Error rejecting reservation: ' + error.message
+      });
     }
   };
 
@@ -1176,6 +1238,16 @@ const Dashboard = () => {
             setShowServiceCompletionModal(false);
             setSelectedServiceBooking(null);
           }}
+        />
+      )}
+
+      {/* Alert Modal */}
+      {alertModal.show && (
+        <AlertModal
+          type={alertModal.type}
+          title={alertModal.title}
+          message={alertModal.message}
+          onClose={() => setAlertModal({ show: false, type: 'info', title: '', message: '' })}
         />
       )}
     </div>
