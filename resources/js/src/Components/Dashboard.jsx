@@ -6,6 +6,7 @@ import totalCustomersIcon from "../assets/icons/totalcustomers.png";
 import pendingRequestsIcon from "../assets/icons/pendinfrequests.png";
 import dashboardIcon from "../assets/icons/Dashboard.png";
 import usePermissions from '../utils/usePermissions';
+import { getSequentialIdFromIndex } from '../utils/tableIdGenerator';
 import { TableSkeleton } from './SkeletonLoader';
 import AuthorizationModal from './AuthorizationModal';
 import ReservationDetailsModal from './ReservationDetailsModal';
@@ -728,11 +729,11 @@ const Dashboard = () => {
                         return b.sortDate - a.sortDate;
                       })
                       .slice(0, 10)
-                      .map((item) => {
+                      .map((item, index) => {
                         if (item.type === 'Maintenance') {
                           return (
                             <tr key={`maint-${item.id}`}>
-                              <td className="font-mono" data-label="ID">#{item.id}</td>
+                              <td className="font-mono" data-label="ID">#{getSequentialIdFromIndex(index)}</td>
                               <td className="font-bold" data-label="Customer Name">{item.full_name || 'N/A'}</td>
                               <td data-label="Contact Number">{item.phone || 'N/A'}</td>
                               <td className="date-cell" data-label="Date Added">{formatDate(item.created_at)}</td>
@@ -798,7 +799,7 @@ const Dashboard = () => {
 
                           return (
                             <tr key={`purchase-${item.id}`}>
-                              <td className="font-mono" data-label="ID">#{item.id}</td>
+                              <td className="font-mono" data-label="ID">#{getSequentialIdFromIndex(index)}</td>
                               <td className="font-bold" data-label="Customer Name">{item.client?.name || item.customer_name || 'N/A'}</td>
                               <td data-label="Contact Number">{item.client?.phone || 'N/A'}</td>
                               <td className="date-cell" data-label="Date Added">{formatDate(item.created_at || item.booking_date)}</td>
@@ -902,7 +903,7 @@ const Dashboard = () => {
                           });
                           return (
                             <tr key={`service-${item.id}`}>
-                              <td className="font-mono" data-label="ID">#{item.id}</td>
+                              <td className="font-mono" data-label="ID">#{getSequentialIdFromIndex(index)}</td>
                               <td className="font-bold" data-label="Customer Name">{item.client?.name || item.customer_name || 'N/A'}</td>
                               <td data-label="Contact Number">{item.client?.phone || 'N/A'}</td>
                               <td className="date-cell" data-label="Date Added">{formatDate(item.created_at || item.booking_date)}</td>
@@ -995,7 +996,7 @@ const Dashboard = () => {
                           // Reservation row
                           return (
                             <tr key={`reservation-${item.id}`}>
-                              <td className="font-mono" data-label="ID">#{item.id}</td>
+                              <td className="font-mono" data-label="ID">#{getSequentialIdFromIndex(index)}</td>
                               <td className="font-bold" data-label="Customer Name">{item.user?.name || item.client?.name || 'N/A'}</td>
                               <td data-label="Contact Number">{item.user?.phone || item.client?.phone || 'N/A'}</td>
                               <td className="date-cell" data-label="Date Added">{formatDate(item.created_at)}</td>
