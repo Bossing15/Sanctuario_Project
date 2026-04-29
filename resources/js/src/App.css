@@ -90,7 +90,7 @@
   display: block !important;
   margin: 0 !important;
   padding: 0 !important;
-  filter: brightness(1.5);
+  filter: brightness(0) invert(1);
 }
 
 .sidebar-toggle:hover {
