@@ -163,17 +163,15 @@ const Sidebar = ({ collapsed, setCollapsed, mobileMenuOpen, setMobileMenuOpen })
         >
           <img src={menuIcon} alt="Menu" className="w-4 h-4" />
         </button>
-        {!collapsed && (
-          <img
-            src={appLogo}
-            alt="Sanctuario Logo"
-            className="sidebar-logo brand-logo-img sidebar"
-            onError={(e) => {
-              console.error('Logo failed to load:', e.target.src);
-              e.target.outerHTML = '<div class="text-neutral-800 font-bold text-sm">SANCTUARIO</div>';
-            }}
-          />
-        )}
+        <img
+          src={appLogo}
+          alt="Sanctuario Logo"
+          className="sidebar-logo brand-logo-img sidebar"
+          onError={(e) => {
+            console.error('Logo failed to load:', e.target.src);
+            e.target.outerHTML = '<div class="text-neutral-800 font-bold text-sm">SANCTUARIO</div>';
+          }}
+        />
       </div>
 
       {/* Menu Items */}
