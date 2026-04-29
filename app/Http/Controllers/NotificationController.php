@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use App\Models\AdminNotification;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -17,14 +18,30 @@ class NotificationController extends Controller
         try {
             $user = $request->user();
             
-            // For now, return empty notifications since we don't have admin-specific notifications yet
-            // In the future, this can be extended to fetch admin-specific notifications
-            $notifications = [];
+            // Fetch admin notifications from the database
+            $notifications = AdminNotification::where('admin_id', $user->id)
+                ->orWhere('admin_id', null) // System-wide notifications
+                ->orderBy('created_at', 'desc')
+                ->limit(50)
+                ->get()
+                ->map(function ($notification) {
+                    return [
+                        'id' => $notification->id,
+                        'type' => $notification->type ?? 'system',
+                        'title' => $notification->title,
+                        'message' => $notification->message,
+                        'read' => (bool) $notification->is_read,
+                        'time' => $notification->created_at->diffForHumans(),
+                        'icon' => $this->getIconForType($notification->type ?? 'system'),
+                        'color' => $this->getColorForType($notification->type ?? 'system'),
+                        'created_at' => $notification->created_at,
+                    ];
+                });
             
             return response()->json([
                 'data' => $notifications,
-                'count' => count($notifications),
-                'unread_count' => 0
+                'count' => $notifications->count(),
+                'unread_count' => $notifications->where('read', false)->count()
             ]);
         } catch (\Exception $e) {
             \Log::error('Error fetching admin notifications', [
