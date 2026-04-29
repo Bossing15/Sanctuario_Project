@@ -110,7 +110,29 @@ function Navbar() {
     <>
       <nav className={`navbar${isMobileMenuOpen ? ' open' : ''}${isScrolled ? ' scrolled' : ''}`}>
         <div className="nav-container">
-          {/* Desktop navigation links - hidden on mobile */}
+          {/* Logo on the left */}
+          <Link to="/home" className="nav-logo">
+            <img 
+              src={logo}
+              alt="Sanctuario De Carmona Memorial Park Logo" 
+              className="brand-logo-img navbar"
+            />
+          </Link>
+
+          {/* Mobile hamburger menu button */}
+          <div
+            className="mobile-menu-button"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle mobile menu"
+          >
+            <div className={`hamburger${isMobileMenuOpen ? ' open' : ''}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          
+          {/* Desktop navigation links - moved to right side */}
           <div className={`nav-links${isMobileMenuOpen ? ' open' : ''}`}>
             <Link to="/home" className={location.pathname === '/home' ? 'active' : ''}>{getSetting('nav_home', 'Home')}</Link>
             
@@ -241,27 +263,6 @@ function Navbar() {
               </div>
             )}
           </div>
-          
-          {/* Mobile hamburger menu button */}
-          <div
-            className="mobile-menu-button"
-            onClick={toggleMobileMenu}
-            aria-label="Toggle mobile menu"
-          >
-            <div className={`hamburger${isMobileMenuOpen ? ' open' : ''}`}>
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-          </div>
-
-          <Link to="/home" className="nav-logo">
-            <img 
-              src={logo}
-              alt="Sanctuario De Carmona Memorial Park Logo" 
-              className="brand-logo-img navbar"
-            />
-          </Link>
         </div>
       </nav>
 
