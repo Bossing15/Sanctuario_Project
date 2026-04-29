@@ -218,6 +218,12 @@ Route::middleware('auth.multiple')->group(function () {
         });
     });
     
+    // Admin notification routes
+    Route::prefix('admin/notifications')->group(function () {
+        Route::get('/', [App\Http\Controllers\NotificationController::class, 'getAdminNotifications']);
+        Route::post('/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+    });
+    
     // SMS routes (CORS is already applied globally via middleware)
     Route::prefix('sms')->middleware('auth:sanctum')->group(function () {
         Route::post('/send', [App\Http\Controllers\SmsController::class, 'sendSms']);
