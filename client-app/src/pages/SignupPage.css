@@ -313,8 +313,7 @@ input[class*="error"],
   position: absolute !important;
   /* 16px from left edge - strict margin */
   left: 16px !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
+  top: 16px !important;
   /* 20px bounding box for 16px icon */
   width: 20px !important;
   height: 20px !important;
@@ -659,10 +658,37 @@ input[class*="error"],
   cursor: pointer;
   accent-color: #16a34a;
   transition: all 200ms ease;
+  border-radius: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  border: 2px solid #cbd5e1;
+  background-color: #ffffff;
+  position: relative;
+}
+
+.custom-checkbox:checked {
+  background-color: #16a34a;
+  border-color: #16a34a;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='white' d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 8.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 13px;
+}
+
+.custom-checkbox:checked:hover {
+  background-color: #15803d;
+  border-color: #15803d;
 }
 
 .custom-checkbox:hover {
   transform: scale(1.1);
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.1);
+}
+
+.custom-checkbox:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
 }
 
 /* Submit Button */

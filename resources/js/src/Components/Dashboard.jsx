@@ -731,13 +731,13 @@ const Dashboard = () => {
                         if (item.type === 'Maintenance') {
                           return (
                             <tr key={`maint-${item.id}`}>
-                              <td className="font-mono">#{item.id}</td>
-                              <td className="font-bold">{item.full_name || 'N/A'}</td>
-                              <td>{item.phone || 'N/A'}</td>
-                              <td className="date-cell">{formatDate(item.created_at)}</td>
-                              <td>{item.product_interest}</td>
-                              <td>-</td>
-                              <td className="text-center">
+                              <td className="font-mono" data-label="ID">#{item.id}</td>
+                              <td className="font-bold" data-label="Customer Name">{item.full_name || 'N/A'}</td>
+                              <td data-label="Contact Number">{item.phone || 'N/A'}</td>
+                              <td className="date-cell" data-label="Date Added">{formatDate(item.created_at)}</td>
+                              <td data-label="Product/Service">{item.product_interest}</td>
+                              <td data-label="Amount">-</td>
+                              <td className="text-center" data-label="Authorization">
                                 <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg">
                                   N/A
                                 </span>
@@ -765,7 +765,7 @@ const Dashboard = () => {
                                   </span>
                                 )}
                               </td>
-                              <td className="text-center">
+                              <td className="text-center" data-label="Status">
                                 {/* Actions for maintenance */}
                               </td>
                             </tr>
@@ -797,11 +797,11 @@ const Dashboard = () => {
 
                           return (
                             <tr key={`purchase-${item.id}`}>
-                              <td className="font-mono">#{item.id}</td>
-                              <td className="font-bold">{item.client?.name || item.customer_name || 'N/A'}</td>
-                              <td>{item.client?.phone || 'N/A'}</td>
-                              <td className="date-cell">{formatDate(item.created_at || item.booking_date)}</td>
-                              <td>
+                              <td className="font-mono" data-label="ID">#{item.id}</td>
+                              <td className="font-bold" data-label="Customer Name">{item.client?.name || item.customer_name || 'N/A'}</td>
+                              <td data-label="Contact Number">{item.client?.phone || 'N/A'}</td>
+                              <td className="date-cell" data-label="Date Added">{formatDate(item.created_at || item.booking_date)}</td>
+                              <td data-label="Product/Service">
                                 <div className="flex flex-col gap-1">
                                   <span className="font-semibold">{item.service_name || item.product_name || 'N/A'}</span>
                                   <span className="text-xs text-gray-500">
@@ -809,8 +809,8 @@ const Dashboard = () => {
                                   </span>
                                 </div>
                               </td>
-                              <td>{formatCurrency(item.total_amount || item.amount || 0)}</td>
-                              <td className="text-center">
+                              <td data-label="Amount">{formatCurrency(item.total_amount || item.amount || 0)}</td>
+                              <td className="text-center" data-label="Authorization">
                                 <div className="flex items-center justify-center gap-2">
                                   {getAuthorizationBadge(item.authorization_status)}
                                   {item.authorization_status === 'PENDING_AUTHORIZATION' && (
@@ -826,7 +826,7 @@ const Dashboard = () => {
                                   )}
                                 </div>
                               </td>
-                              <td className="text-center">
+                              <td className="text-center" data-label="Status">
                                 {item.status === 'PendingReview' ? (
                                   <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
                                     Pending Review
@@ -853,7 +853,7 @@ const Dashboard = () => {
                                   </span>
                                 )}
                               </td>
-                              <td className="text-center">
+                              <td className="text-center" data-label="Actions">
                                 <div className="flex items-center justify-center gap-2">
                                   {item.authorization_status === 'PENDING_AUTHORIZATION' && (
                                     <>
@@ -901,11 +901,11 @@ const Dashboard = () => {
                           });
                           return (
                             <tr key={`service-${item.id}`}>
-                              <td className="font-mono">#{item.id}</td>
-                              <td className="font-bold">{item.client?.name || item.customer_name || 'N/A'}</td>
-                              <td>{item.client?.phone || 'N/A'}</td>
-                              <td className="date-cell">{formatDate(item.created_at || item.booking_date)}</td>
-                              <td>
+                              <td className="font-mono" data-label="ID">#{item.id}</td>
+                              <td className="font-bold" data-label="Customer Name">{item.client?.name || item.customer_name || 'N/A'}</td>
+                              <td data-label="Contact Number">{item.client?.phone || 'N/A'}</td>
+                              <td className="date-cell" data-label="Date Added">{formatDate(item.created_at || item.booking_date)}</td>
+                              <td data-label="Product/Service">
                                 <div className="flex flex-col gap-1">
                                   <span className="font-semibold">{item.service_name || 'N/A'}</span>
                                   <span className="text-xs text-gray-500">
@@ -913,13 +913,13 @@ const Dashboard = () => {
                                   </span>
                                 </div>
                               </td>
-                              <td>{formatCurrency(item.total_amount || item.amount || 0)}</td>
-                              <td className="text-center">
+                              <td data-label="Amount">{formatCurrency(item.total_amount || item.amount || 0)}</td>
+                              <td className="text-center" data-label="Authorization">
                                 <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg">
                                   N/A
                                 </span>
                               </td>
-                              <td className="text-center">
+                              <td className="text-center" data-label="Status">
                                 {item.status === 'pending' ? (
                                   <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
                                     Pending
@@ -942,7 +942,7 @@ const Dashboard = () => {
                                   </span>
                                 )}
                               </td>
-                              <td className="text-center">
+                              <td className="text-center" data-label="Actions">
                                 <div className="flex items-center justify-center gap-2">
                                   <button
                                     onClick={() => {
@@ -994,11 +994,11 @@ const Dashboard = () => {
                           // Reservation row
                           return (
                             <tr key={`reservation-${item.id}`}>
-                              <td className="font-mono">#{item.id}</td>
-                              <td className="font-bold">{item.user?.name || item.client?.name || 'N/A'}</td>
-                              <td>{item.user?.phone || item.client?.phone || 'N/A'}</td>
-                              <td className="date-cell">{formatDate(item.created_at)}</td>
-                              <td>
+                              <td className="font-mono" data-label="ID">#{item.id}</td>
+                              <td className="font-bold" data-label="Customer Name">{item.user?.name || item.client?.name || 'N/A'}</td>
+                              <td data-label="Contact Number">{item.user?.phone || item.client?.phone || 'N/A'}</td>
+                              <td className="date-cell" data-label="Date Added">{formatDate(item.created_at)}</td>
+                              <td data-label="Product/Service">
                                 <div className="flex flex-col gap-1">
                                   <span className="font-semibold">{item.product?.title || item.service?.title || 'N/A'}</span>
                                   <span className="text-xs text-gray-500">
@@ -1006,13 +1006,13 @@ const Dashboard = () => {
                                   </span>
                                 </div>
                               </td>
-                              <td>{formatCurrency(item.amount || 0)}</td>
-                              <td className="text-center">
+                              <td data-label="Amount">{formatCurrency(item.amount || 0)}</td>
+                              <td className="text-center" data-label="Authorization">
                                 <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg">
                                   N/A
                                 </span>
                               </td>
-                              <td className="text-center">
+                              <td className="text-center" data-label="Status">
                                 {item.status === 'pending' ? (
                                   <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-lg shadow-sm">
                                     Pending
@@ -1035,7 +1035,7 @@ const Dashboard = () => {
                                   </span>
                                 )}
                               </td>
-                              <td className="text-center">
+                              <td className="text-center" data-label="Actions">
                                 <div className="flex items-center justify-center gap-2">
                                   <button
                                     onClick={() => {

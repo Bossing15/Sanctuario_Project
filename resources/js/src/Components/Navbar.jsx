@@ -1,17 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import adminIcon from "../assets/icons/icons8-admin-50.png";
 import logoutIcon from "../assets/icons/Logout.png";
+import menuIcon from "../assets/icons/icons8-hamburger-menu-50.png";
 import NotificationModal from "./NotificationModal";
 import "./Navbar.css";
 const logo = "/Sanctuario_Logo_Good.png";
 
-const Navbar = ({ collapsed }) => {
+const Navbar = ({ collapsed, mobileMenuOpen, setMobileMenuOpen }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const notificationButtonRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
@@ -19,6 +23,14 @@ const Navbar = ({ collapsed }) => {
       setMounted(false);
     }, 50);
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
@@ -51,7 +63,17 @@ const Navbar = ({ collapsed }) => {
 
   return (
     <div className={`navbar ${collapsed ? "collapsed" : ""} ${mounted ? "no-transition" : ""}`}>
-      <div className="flex items-center">
+      <div className="flex items-center gap-4">
+        {isMobile && (
+          <button
+            className="mobile-hamburger-btn"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+            title="Toggle menu"
+          >
+            <img src={menuIcon} alt="Menu" />
+          </button>
+        )}
         <img
           src={logo}
           alt="Sanctuario Logo"
@@ -65,6 +87,7 @@ const Navbar = ({ collapsed }) => {
       <div className="flex items-center gap-6 ml-auto">
         {/* Notification Bell */}
         <button 
+          ref={notificationButtonRef}
           onClick={() => setShowNotifications(!showNotifications)}
           className="relative p-2 hover:bg-opacity-10 hover:bg-white rounded-lg transition-all text-gray-300 pointer-events-auto"
           title="Notifications"
@@ -83,7 +106,9 @@ const Navbar = ({ collapsed }) => {
             <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 1 0-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5" />
             <path d="M9 17a3 3 0 0 0 6 0" />
           </svg>
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          {unreadCount > 0 && (
+            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          )}
         </button>
 
         {/* Profile Menu */}
@@ -156,7 +181,9 @@ const Navbar = ({ collapsed }) => {
 
       <NotificationModal 
         isOpen={showNotifications} 
-        onClose={() => setShowNotifications(false)} 
+        onClose={() => setShowNotifications(false)}
+        triggerButtonRef={notificationButtonRef}
+        onUnreadCountChange={setUnreadCount}
       />
     </div>
   );

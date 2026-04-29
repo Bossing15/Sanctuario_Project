@@ -13,10 +13,11 @@ import productsIcon from "../assets/icons/icons8-services-50.png";
 import maintenanceIcon from "../assets/icons/Maintenance.png";
 import requirementIcon from "../assets/icons/Requirements.png";
 import activityIcon from "../assets/icons/icons8-invoice-50.png";
+import smsIcon from "../assets/icons/icons8-message-50.png";
 
 const appLogo = "/Sanctuario_Logo_Good.png";
 
-const Sidebar = ({ collapsed, setCollapsed }) => {
+const Sidebar = ({ collapsed, setCollapsed, mobileMenuOpen, setMobileMenuOpen }) => {
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const location = useLocation();
@@ -32,6 +33,10 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
+      // Close mobile menu on resize to desktop
+      if (window.innerWidth > 768) {
+        setMobileMenuOpen(false);
+      }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -49,6 +54,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     { label: "Products", icon: productsIcon, path: "/products", key: 'graves' },
     { label: "Services", icon: maintenanceIcon, path: "/services", key: 'graves' },
     { label: "Messages", icon: messageIcon, path: "/messages", key: 'messages' },
+    { label: "SMS", icon: smsIcon, path: "/sms", key: 'sms' },
     { label: "Activity Logs", icon: activityIcon, path: "/activity-logs", key: 'activity_logs' },
     { label: "Admin", icon: adminIcon, path: "/admin", key: 'admin' },
   ];
@@ -65,33 +71,82 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     });
   }, [permissions]);
 
-  // Mobile bottom navigation with scrollable menu
+  // Mobile sidebar with hamburger menu
   if (isMobile) {
     return (
-      <nav className="mobile-nav">
-        {menuItems.map((item, idx) => (
-          <NavLink
-            key={idx}
-            to={item.path}
-            end={item.path === "/admin/dashboard"}
-            className={({ isActive }) =>
-              `mobile-nav-item ${isActive ? 'active' : ''}`
-            }
-          >
-            <img src={item.icon} alt={item.label} />
-            <span>{item.label}</span>
-          </NavLink>
-        ))}
-        <NavLink
-          to="/settings"
-          className={({ isActive }) =>
-            `mobile-nav-item ${isActive ? 'active' : ''}`
-          }
-        >
-          <img src={settingsIcon} alt="Settings" />
-          <span>Settings</span>
-        </NavLink>
-      </nav>
+      <>
+        {/* Mobile overlay */}
+        {mobileMenuOpen && (
+          <div 
+            className="mobile-sidebar-overlay"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
+
+        {/* Mobile sidebar */}
+        <div className={`mobile-sidebar ${mobileMenuOpen ? 'open' : ''}`}>
+          {/* Sidebar header */}
+          <div className="mobile-sidebar-header">
+            <img
+              src={appLogo}
+              alt="Sanctuario Logo"
+              className="mobile-sidebar-logo"
+              onError={(e) => {
+                console.error('Logo failed to load:', e.target.src);
+                e.target.outerHTML = '<div class="text-neutral-800 font-bold text-sm">SANCTUARIO</div>';
+              }}
+            />
+            <button
+              className="mobile-sidebar-close"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="Close menu"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Menu items */}
+          <div className="mobile-sidebar-menu">
+            {menuItems.map((item, idx) => (
+              <NavLink
+                key={idx}
+                to={item.path}
+                end={item.path === "/admin/dashboard"}
+                className={({ isActive }) =>
+                  `mobile-sidebar-item ${isActive ? 'active' : ''} ${item.isDisabled ? 'opacity-60' : ''}`
+                }
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <div className="mobile-sidebar-item-icon">
+                  <img src={item.icon} alt={item.label} />
+                </div>
+                <span className="mobile-sidebar-item-label">
+                  {item.label}
+                  {item.isDisabled && (
+                    <span className="ml-1 text-xs text-warning-600">(View Only)</span>
+                  )}
+                </span>
+              </NavLink>
+            ))}
+          </div>
+
+          {/* Settings */}
+          <div className="mobile-sidebar-footer">
+            <NavLink
+              to="/settings"
+              className={({ isActive }) =>
+                `mobile-sidebar-item ${isActive ? 'active' : ''}`
+              }
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <div className="mobile-sidebar-item-icon">
+                <img src={settingsIcon} alt="Settings" />
+              </div>
+              <span className="mobile-sidebar-item-label">Settings</span>
+            </NavLink>
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -127,7 +182,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           <NavLink
             key={idx}
             to={item.path}
-            end={item.path === "/admin"}
+            end={item.path === "/admin/dashboard" || item.path === "/admin"}
             className={({ isActive }) =>
               `sidebar-item ${isActive ? 'active' : ''} ${item.isDisabled ? 'opacity-60' : ''}`
             }

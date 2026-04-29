@@ -12,6 +12,7 @@ import BlogPage from './pages/BlogPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import TeamPage from './pages/TeamPage';
 import UserPage from './pages/UserPage';
 import PaymentPage from './pages/PaymentPage';
@@ -41,8 +42,12 @@ import './styles/modals.css';
 function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const hideNavbar = ['/login', '/signup', '/user', '/payment', '/payment/success', '/payment/cancel', '/my-purchases', '/my-reservations'].includes(location.pathname);
-  const hideFooter = ['/login', '/signup', '/user', '/payment', '/payment/success', '/payment/cancel', '/my-purchases', '/my-reservations'].includes(location.pathname);
+  
+  // Check token expiration on app load (inside Router context)
+  useTokenExpiration();
+  
+  const hideNavbar = ['/login', '/signup', '/reset-password', '/user', '/payment', '/payment/success', '/payment/cancel', '/my-purchases', '/my-reservations'].includes(location.pathname);
+  const hideFooter = ['/login', '/signup', '/reset-password', '/user', '/payment', '/payment/success', '/payment/cancel', '/my-purchases', '/my-reservations'].includes(location.pathname);
 
   // Store the client app URL in localStorage for payment redirects
   useEffect(() => {
@@ -79,6 +84,7 @@ function Layout() {
         <Route path="/accessibility" element={<AccessibilityPage />} />
         <Route path="/login" element={<LoginPage onLogin={() => navigate('/home')} />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/user" element={<UserPage />} />
         <Route path="/my-purchases" element={<MyPurchasesPage />} />
         <Route path="/my-services" element={<MyServicesPage />} />
@@ -98,9 +104,6 @@ function Layout() {
 }
 
 function App() {
-  // Check token expiration on app load
-  useTokenExpiration();
-
   useEffect(() => {
     // Ensure viewport meta tag is set for responsive design
     let viewport = document.querySelector("meta[name=viewport]");

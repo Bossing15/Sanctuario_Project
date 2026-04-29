@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaUser, FaLock } from 'react-icons/fa';
 import AlertModal from '../components/AlertModal';
+import ForgotPasswordModal from '../components/ForgotPasswordModal';
 import './LoginPage.css';
 import logo from '../assets/images/home_logo/main_logo.jpg';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +17,19 @@ function LoginPage({ onLogin }) {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [shakeFields, setShakeFields] = useState({});
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const navigate = useNavigate();
+
+  // Clear errors when component mounts (page load or navigation back)
+  React.useEffect(() => {
+    setError('');
+    setFieldErrors({});
+    setShakeFields({});
+    setUsername('');
+    setPassword('');
+    setRememberMe(false);
+    setShowPassword(false);
+  }, []);
 
   const handleRememberMeChange = (e) => {
     const isChecked = e.target.checked;
@@ -201,7 +214,18 @@ function LoginPage({ onLogin }) {
                 checked={rememberMe}
                 onChange={handleRememberMeChange}
                 disabled={loading}
-                style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                style={{ 
+                  cursor: 'pointer', 
+                  width: '18px', 
+                  height: '18px', 
+                  borderRadius: '4px',
+                  WebkitAppearance: 'none',
+                  appearance: 'none',
+                  border: '2px solid #cbd5e1',
+                  transition: 'all 200ms ease',
+                  position: 'relative',
+                  flexShrink: 0
+                }}
               />
               <label htmlFor="rememberMe" style={{ cursor: 'pointer', fontSize: '14px', color: '#666', margin: 0 }}>
                 Remember me for 30 days
@@ -241,7 +265,7 @@ function LoginPage({ onLogin }) {
                 className="forgot-link" 
                 onClick={(e) => {
                   e.preventDefault();
-                  setShowInfoModal(true);
+                  setShowForgotPasswordModal(true);
                 }}
               >
                 Forgot your password?
@@ -271,6 +295,12 @@ function LoginPage({ onLogin }) {
           onClose={() => setShowInfoModal(false)}
         />
       )}
+      
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal 
+        isOpen={showForgotPasswordModal}
+        onClose={() => setShowForgotPasswordModal(false)}
+      />
     </div>
   );
 }

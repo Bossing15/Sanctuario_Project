@@ -1,0 +1,321 @@
+/* ============================================
+   CLIENT SIDE ANIMATIONS
+   "Fluidity & Experience" - Weight & Softness
+   ============================================ */
+
+/* ============================================
+   MODAL ANIMATIONS - Client
+   Smooth slide-and-fade with spring physics
+   ============================================ */
+
+@keyframes clientModalEnter {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes clientModalExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+
+@keyframes clientBackdropEnter {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 0.5;
+    backdrop-filter: blur(8px);
+  }
+}
+
+@keyframes clientBackdropExit {
+  from {
+    opacity: 0.5;
+    backdrop-filter: blur(8px);
+  }
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+}
+
+/* Modal Container - Client */
+.client-modal {
+  animation: clientModalEnter 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.client-modal.closing {
+  animation: clientModalExit 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Modal Backdrop - Client */
+.client-modal-backdrop {
+  animation: clientBackdropEnter 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.client-modal-backdrop.closing {
+  animation: clientBackdropExit 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ============================================
+   DROPDOWN ANIMATIONS - Client
+   Staggered reveal with scale-y and fade
+   ============================================ */
+
+@keyframes clientDropdownOpen {
+  from {
+    opacity: 0;
+    transform: scaleY(0.8) translateY(-8px);
+    transform-origin: top left;
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+    transform-origin: top left;
+  }
+}
+
+@keyframes clientDropdownClose {
+  from {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+    transform-origin: top left;
+  }
+  to {
+    opacity: 0;
+    transform: scaleY(0.8) translateY(-8px);
+    transform-origin: top left;
+  }
+}
+
+@keyframes clientDropdownItemFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Dropdown Menu - Client */
+.client-dropdown-menu {
+  animation: clientDropdownOpen 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.client-dropdown-menu.closing {
+  animation: clientDropdownClose 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Dropdown Items - Client (Staggered) */
+.client-dropdown-item {
+  animation: clientDropdownItemFadeIn 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+
+.client-dropdown-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.client-dropdown-item:nth-child(2) {
+  animation-delay: 20ms;
+}
+
+.client-dropdown-item:nth-child(3) {
+  animation-delay: 40ms;
+}
+
+.client-dropdown-item:nth-child(4) {
+  animation-delay: 60ms;
+}
+
+.client-dropdown-item:nth-child(5) {
+  animation-delay: 80ms;
+}
+
+.client-dropdown-item:nth-child(6) {
+  animation-delay: 100ms;
+}
+
+.client-dropdown-item:nth-child(7) {
+  animation-delay: 120ms;
+}
+
+.client-dropdown-item:nth-child(8) {
+  animation-delay: 140ms;
+}
+
+.client-dropdown-item:nth-child(9) {
+  animation-delay: 160ms;
+}
+
+.client-dropdown-item:nth-child(10) {
+  animation-delay: 180ms;
+}
+
+/* ============================================
+   PROFILE DROPDOWN - Client
+   Same fluid animation as other dropdowns
+   ============================================ */
+
+@keyframes clientProfileDropdownOpen {
+  from {
+    opacity: 0;
+    transform: scaleY(0.8) translateY(-8px);
+    transform-origin: top right;
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+    transform-origin: top right;
+  }
+}
+
+.client-profile-dropdown {
+  animation: clientProfileDropdownOpen 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.client-profile-dropdown.closing {
+  animation: clientDropdownClose 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Profile Menu Items - Client (Staggered) */
+.client-profile-menu-item {
+  animation: clientDropdownItemFadeIn 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+
+.client-profile-menu-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.client-profile-menu-item:nth-child(2) {
+  animation-delay: 20ms;
+}
+
+.client-profile-menu-item:nth-child(3) {
+  animation-delay: 40ms;
+}
+
+.client-profile-menu-item:nth-child(4) {
+  animation-delay: 60ms;
+}
+
+.client-profile-menu-item:nth-child(5) {
+  animation-delay: 80ms;
+}
+
+/* ============================================
+   NOTIFICATION DROPDOWN - Client
+   Fluid animation with stagger
+   ============================================ */
+
+@keyframes clientNotificationDropdownOpen {
+  from {
+    opacity: 0;
+    transform: scaleY(0.8) translateY(-8px);
+    transform-origin: top center;
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+    transform-origin: top center;
+  }
+}
+
+.client-notification-dropdown {
+  animation: clientNotificationDropdownOpen 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.client-notification-dropdown.closing {
+  animation: clientDropdownClose 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Notification Items - Client (Staggered) */
+.client-notification-item {
+  animation: clientDropdownItemFadeIn 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+
+.client-notification-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.client-notification-item:nth-child(2) {
+  animation-delay: 20ms;
+}
+
+.client-notification-item:nth-child(3) {
+  animation-delay: 40ms;
+}
+
+.client-notification-item:nth-child(4) {
+  animation-delay: 60ms;
+}
+
+.client-notification-item:nth-child(5) {
+  animation-delay: 80ms;
+}
+
+/* ============================================
+   MODAL VARIANTS - Client
+   Payment, Confirmation, Alert modals
+   ============================================ */
+
+.client-payment-modal,
+.client-confirm-modal,
+.client-alert-modal,
+.client-form-modal {
+  animation: clientModalEnter 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.client-payment-modal.closing,
+.client-confirm-modal.closing,
+.client-alert-modal.closing,
+.client-form-modal.closing {
+  animation: clientModalExit 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ============================================
+   UTILITY CLASSES - Client
+   Apply to any modal or dropdown
+   ============================================ */
+
+.client-animate-modal {
+  animation: clientModalEnter 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.client-animate-dropdown {
+  animation: clientDropdownOpen 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.client-animate-close {
+  animation: clientModalExit 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ============================================
+   SMOOTH TRANSITIONS
+   For elements that need smooth state changes
+   ============================================ */
+
+.client-smooth-transition {
+  transition: all 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.admin-smooth-transition {
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}

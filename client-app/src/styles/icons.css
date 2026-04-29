@@ -25,7 +25,7 @@
 :root {
   /* Brand logo — 25% larger than the 24px system baseline = 30px */
   --brand-logo-size: 30px;
-  --brand-logo-size-navbar: 80px;   /* navbar hero size - increased from 60px */
+  --brand-logo-size-navbar: 48px;   /* navbar logo size */
   --brand-logo-size-page: 80px;     /* sign-up / auth pages */
   --brand-logo-glow-color: rgba(22, 163, 74, 0.35);   /* green glow */
   --brand-logo-glow-dark: rgba(255, 255, 255, 0.20);  /* white glow on dark bg */

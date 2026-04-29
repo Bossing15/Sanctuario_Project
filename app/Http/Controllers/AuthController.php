@@ -56,6 +56,16 @@ class AuthController extends Controller
         ]);
 
         if ($admin && Hash::check($credentials['password'], $admin->password)) {
+            // Check if admin account is active
+            if ($admin->status === 'inactive' || $admin->is_active === false || $admin->is_active === 0) {
+                \Illuminate\Support\Facades\Log::warning('Admin login blocked - account inactive', [
+                    'username' => $admin->username,
+                    'status' => $admin->status,
+                    'is_active' => $admin->is_active,
+                ]);
+                return response()->json(['message' => 'Your account has been deactivated. Please contact an administrator.'], 403);
+            }
+
             \Illuminate\Support\Facades\Log::info('Admin login successful', [
                 'username' => $admin->username,
                 'remember_me' => $credentials['remember_me'] ?? false,
@@ -65,7 +75,7 @@ class AuthController extends Controller
             $rememberMe = $credentials['remember_me'] ?? false;
             $expiresAt = $rememberMe 
                 ? now()->addDays(30)  // 30 days for remember me
-                : now()->addHours(1); // 1 hour for regular session
+                : now()->addDays(7);  // 7 days for regular session (was 1 hour)
             
             $token = $admin->createToken('auth_token', ['*'], $expiresAt)->plainTextToken;
             
@@ -98,11 +108,20 @@ class AuthController extends Controller
         $client = Client::where('username', $credentials['username'])->first();
 
         if ($client && Hash::check($credentials['password'], $client->password)) {
+            // Check if client account is active
+            if ($client->status === 'inactive' || $client->status === 'deactivated') {
+                \Illuminate\Support\Facades\Log::warning('Client login blocked - account inactive', [
+                    'username' => $client->username,
+                    'status' => $client->status,
+                ]);
+                return response()->json(['message' => 'Your account has been deactivated. Please contact support.'], 403);
+            }
+
             // Determine token expiration based on remember_me
             $rememberMe = $credentials['remember_me'] ?? false;
             $expiresAt = $rememberMe 
                 ? now()->addDays(30)  // 30 days for remember me
-                : now()->addHours(1); // 1 hour for regular session
+                : now()->addDays(7);  // 7 days for regular session (was 1 hour)
             
             $token = $client->createToken('auth_token', ['*'], $expiresAt)->plainTextToken;
             
@@ -174,6 +193,7 @@ class AuthController extends Controller
                 'plot_number' => $validated['plot_number'] ?? null,
                 'phone' => $validated['phone'] ?? null,
                 'relationship' => $validated['relationship'] ?? null,
+                'status' => 'Active',
             ]);
 
             $token = $client->createToken('auth_token')->plainTextToken;
@@ -249,7 +269,129 @@ class AuthController extends Controller
     {
         $request->validate(['email' => 'required|email']);
         
-        return response()->json(['message' => 'Password reset link sent to email']);
+        $email = $request->email;
+        
+        // Check if email exists in clients or admins table
+        $client = Client::where('email', $email)->first();
+        $admin = Admin::where('email', $email)->first();
+        
+        if (!$client && !$admin) {
+            return response()->json(['message' => 'Email not found'], 404);
+        }
+        
+        // Generate a unique reset token
+        $resetToken = \Illuminate\Support\Str::random(60);
+        $user = $client ?? $admin;
+        $userType = $client ? 'client' : 'admin';
+        
+        // Store reset token in cache (expires in 1 hour)
+        \Illuminate\Support\Facades\Cache::put(
+            'password_reset_' . $resetToken,
+            [
+                'email' => $email,
+                'user_type' => $userType,
+                'user_id' => $user->id
+            ],
+            now()->addHour()
+        );
+        
+        // Send email using Resend
+        try {
+            $resetLink = env('FRONTEND_URL') . '/reset-password?token=' . $resetToken;
+            
+            $apiKey = env('RESEND_API_KEY');
+            if (!$apiKey) {
+                throw new \Exception('Resend API key not configured');
+            }
+            
+            $resend = \Resend::client($apiKey);
+            $response = $resend->emails->send([
+                'from' => 'onboarding@resend.dev',
+                'to' => $email,
+                'subject' => 'Password Reset Request - Sanctuario De Carmona',
+                'html' => $this->getPasswordResetEmailTemplate($user->name, $resetLink),
+            ]);
+            
+            if (!$response || (isset($response['error']) && $response['error'])) {
+                throw new \Exception('Failed to send email via Resend: ' . json_encode($response));
+            }
+            
+            \Illuminate\Support\Facades\Log::info('Password reset email sent', [
+                'email' => $email,
+                'user_type' => $userType,
+            ]);
+            
+            return response()->json([
+                'message' => 'Password reset link has been sent to your email. Please check your inbox.',
+                'success' => true
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send password reset email', [
+                'email' => $email,
+                'error' => $e->getMessage(),
+            ]);
+            
+            return response()->json([
+                'message' => 'Failed to send reset email. Please try again later.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    private function getPasswordResetEmailTemplate($name, $resetLink)
+    {
+        $logoUrl = env('APP_URL') . '/Sanctuario_Logo_Good.png';
+        
+        return <<<HTML
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+                .logo { max-width: 120px; height: auto; margin-bottom: 20px; }
+                .header h1 { margin: 10px 0 0 0; font-size: 24px; }
+                .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
+                .button { display: inline-block; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+                .footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; }
+                .warning { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <img src="$logoUrl" alt="Sanctuario De Carmona" class="logo">
+                    <h1>Password Reset Request</h1>
+                </div>
+                <div class="content">
+                    <p>Hello <strong>$name</strong>,</p>
+                    
+                    <p>We received a request to reset your password for your Sanctuario De Carmona account. If you didn't make this request, you can safely ignore this email.</p>
+                    
+                    <p>To reset your password, click the button below:</p>
+                    
+                    <center>
+                        <a href="$resetLink" class="button">Reset Password</a>
+                    </center>
+                    
+                    <p>Or copy and paste this link in your browser:</p>
+                    <p style="word-break: break-all; background: #f3f4f6; padding: 10px; border-radius: 4px; font-size: 12px;">$resetLink</p>
+                    
+                    <div class="warning">
+                        <strong>⚠️ Security Notice:</strong> This link will expire in 1 hour. If you didn't request a password reset, please ignore this email or contact support if you have concerns.
+                    </div>
+                    
+                    <p>Best regards,<br><strong>Sanctuario De Carmona Team</strong></p>
+                </div>
+                <div class="footer">
+                    <p>&copy; 2026 Sanctuario De Carmona Memorial Park. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        HTML;
     }
 
     public function logout(Request $request)
@@ -436,6 +578,66 @@ class AuthController extends Controller
             ]);
             return response()->json([
                 'message' => 'Failed to fetch admins',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+            'password' => 'required|string|min:6',
+            'password_confirmation' => 'required|string|min:6',
+        ]);
+        
+        // Check if passwords match
+        if ($request->password !== $request->password_confirmation) {
+            return response()->json(['message' => 'Passwords do not match'], 422);
+        }
+        
+        // Retrieve reset token from cache
+        $resetData = \Illuminate\Support\Facades\Cache::get('password_reset_' . $request->token);
+        
+        if (!$resetData) {
+            return response()->json(['message' => 'Invalid or expired reset token'], 401);
+        }
+        
+        try {
+            // Update password based on user type
+            if ($resetData['user_type'] === 'client') {
+                $user = Client::find($resetData['user_id']);
+            } else {
+                $user = Admin::find($resetData['user_id']);
+            }
+            
+            if (!$user) {
+                return response()->json(['message' => 'User not found'], 404);
+            }
+            
+            // Update password
+            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+            $user->save();
+            
+            // Delete the reset token from cache
+            \Illuminate\Support\Facades\Cache::forget('password_reset_' . $request->token);
+            
+            \Illuminate\Support\Facades\Log::info('Password reset successful', [
+                'user_type' => $resetData['user_type'],
+                'user_id' => $resetData['user_id'],
+            ]);
+            
+            return response()->json([
+                'message' => 'Password has been reset successfully. You can now log in with your new password.',
+                'success' => true
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error resetting password', [
+                'error' => $e->getMessage(),
+            ]);
+            
+            return response()->json([
+                'message' => 'Failed to reset password',
                 'error' => $e->getMessage()
             ], 500);
         }

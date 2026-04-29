@@ -227,3 +227,104 @@
     transform: translateY(-1px);
   }
 }
+
+/* ============================================
+   IPHONE 12 PRO OPTIMIZATION (390px)
+   ============================================ */
+
+@media (max-width: 390px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .dashboard-stats .stat-card {
+    padding: var(--spacing-md);
+    min-height: 100px;
+    border-radius: var(--spacing-sm);
+  }
+
+  .dashboard-stats .stat-card > div:first-child {
+    width: 32px;
+    height: 32px;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .dashboard-stats .stat-card img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .dashboard-stats .stat-card h6 {
+    font-size: 0.55rem;
+    margin-bottom: 2px;
+  }
+
+  .dashboard-stats .stat-card h5 {
+    font-size: 0.9rem;
+  }
+
+  .dashboard-stats .stat-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+/* ============================================
+   TABLE RESPONSIVE DESIGN
+   ============================================ */
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+table thead {
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-bottom: 2px solid #e5e7eb;
+}
+
+table th {
+  padding: var(--spacing-md);
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #374151;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+table td {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+table tbody tr {
+  transition: all var(--transition-base);
+}
+
+table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.empty-row td {
+  text-align: center;
+  padding: var(--spacing-2xl) var(--spacing-md);
+  color: #9ca3af;
+  font-style: italic;
+}

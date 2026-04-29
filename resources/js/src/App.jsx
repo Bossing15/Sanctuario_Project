@@ -3,7 +3,7 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useTokenExpiration } from "./hooks/useTokenExpiration";
 import Sidebar from "./Components/Sidebar";
-import Dashboard from "./Components/Dashboard";
+import DashboardWrapper from "./Components/DashboardWrapper";
 import CustomersPage from "./Components/Customers";
 import Billing from "./Components/Billing";
 import PaymentHistoryDetails from "./Components/PaymentHistoryDetails";
@@ -25,6 +25,7 @@ import Services from "./Components/Services";
 import Products from "./Components/Products";
 import ServiceDetailEditor from "./Components/ServiceDetailEditor";
 import ActivityLogsPage from "./Components/ActivityLogsPage";
+import SmsManagement from "./Components/SmsManagement";
 
 const ProtectedRoute = ({ children, requiredRole = null }) => {
   const token = localStorage.getItem('authToken');
@@ -56,9 +57,12 @@ const RootRedirect = () => {
   return <Navigate to="/login" replace />;
 };
 
-const Layout = ({ children, collapsed, setCollapsed }) => {
+const Layout = ({ children, collapsed, setCollapsed, mobileMenuOpen, setMobileMenuOpen }) => {
   const location = useLocation();
   const [mounted, setMounted] = useState(false);
+
+  // Check token expiration (inside Router context)
+  useTokenExpiration();
 
   useEffect(() => {
     setMounted(true);
@@ -72,8 +76,8 @@ const Layout = ({ children, collapsed, setCollapsed }) => {
 
   return (
     <>
-      {!isAuthPage && <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />}
-      {!isAuthPage && <Navbar collapsed={collapsed} />}
+      {!isAuthPage && <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />}
+      {!isAuthPage && <Navbar collapsed={collapsed} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />}
 
       <main
         className={`${
@@ -94,9 +98,6 @@ const Layout = ({ children, collapsed, setCollapsed }) => {
 const App = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Check token expiration on app load
-  useTokenExpiration();
 
   useEffect(() => {
     // Add preload class to disable animations on initial load
@@ -121,7 +122,7 @@ const App = () => {
 
           <Route path="/admin/dashboard" element={
             <ProtectedRoute requiredRole="admin">
-              <Dashboard />
+              <DashboardWrapper />
             </ProtectedRoute>
           } />
 
@@ -129,7 +130,7 @@ const App = () => {
           
           <Route path="/dashboard" element={
             <ProtectedRoute requiredRole="admin">
-              <Dashboard collapsed={collapsed} />
+              <DashboardWrapper collapsed={collapsed} />
             </ProtectedRoute>
           } />
           <Route path="/customers" element={
@@ -218,6 +219,12 @@ const App = () => {
           <Route path="/activity-logs" element={
             <ProtectedRoute requiredRole="admin">
               <ActivityLogsPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/sms" element={
+            <ProtectedRoute requiredRole="admin">
+              <SmsManagement />
             </ProtectedRoute>
           } />
           

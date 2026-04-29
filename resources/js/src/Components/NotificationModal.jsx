@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import '../styles/modern-modal.css';
 import { useModalScrollLock } from '../hooks/useModalScrollLock';
 
-const NotificationModal = ({ isOpen, onClose }) => {
+const NotificationModal = ({ isOpen, onClose, triggerButtonRef, onUnreadCountChange }) => {
   const [activeTab, setActiveTab] = useState('all');
   const [readNotifications, setReadNotifications] = useState(new Set());
   const modalRef = useRef(null);
@@ -13,6 +13,12 @@ const NotificationModal = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Don't close if clicking the trigger button
+      if (triggerButtonRef?.current && triggerButtonRef.current.contains(event.target)) {
+        return;
+      }
+      
+      // Close if clicking outside the modal
       if (modalRef.current && !modalRef.current.contains(event.target)) {
         onClose();
       }
@@ -25,7 +31,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, triggerButtonRef]);
 
   const notifications = [
     {
@@ -101,7 +107,14 @@ const NotificationModal = ({ isOpen, onClose }) => {
     setReadNotifications(prev => new Set([...prev, notificationId]));
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.read && !readNotifications.has(n.id)).length;
+
+  // Notify parent of unread count changes
+  useEffect(() => {
+    if (onUnreadCountChange) {
+      onUnreadCountChange(unreadCount);
+    }
+  }, [unreadCount, onUnreadCountChange]);
 
   const renderIcon = (iconType) => {
     switch (iconType) {
@@ -142,10 +155,66 @@ const NotificationModal = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  return createPortal(
-    <div 
-      ref={modalRef}
-      style={{
+  // Responsive styles based on viewport width
+  const getNotificationStyles = () => {
+    const isMobile = window.innerWidth <= 768;
+    const isSmallMobile = window.innerWidth <= 480;
+    const isIphone12Pro = window.innerWidth <= 390;
+
+    if (isIphone12Pro) {
+      return {
+        position: 'fixed',
+        top: '50px',
+        right: '8px',
+        left: '8px',
+        width: 'auto',
+        maxHeight: 'calc(100vh - 70px)',
+        backgroundColor: 'white',
+        borderRadius: '8px',
+        boxShadow: '0 20px 50px -12px rgba(13, 20, 16, 0.3)',
+        border: '2px solid #2A4D36',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        animation: 'scaleIn 300ms cubic-bezier(0.34, 1.56, 0.64, 1)'
+      };
+    } else if (isSmallMobile) {
+      return {
+        position: 'fixed',
+        top: '52px',
+        right: '12px',
+        left: '12px',
+        width: 'auto',
+        maxHeight: 'calc(100vh - 72px)',
+        backgroundColor: 'white',
+        borderRadius: '10px',
+        boxShadow: '0 20px 50px -12px rgba(13, 20, 16, 0.3)',
+        border: '2px solid #2A4D36',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        animation: 'scaleIn 300ms cubic-bezier(0.34, 1.56, 0.64, 1)'
+      };
+    } else if (isMobile) {
+      return {
+        position: 'fixed',
+        top: '56px',
+        right: '16px',
+        left: '16px',
+        width: 'auto',
+        maxHeight: 'calc(100vh - 76px)',
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        boxShadow: '0 20px 50px -12px rgba(13, 20, 16, 0.3)',
+        border: '2px solid #2A4D36',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        animation: 'scaleIn 300ms cubic-bezier(0.34, 1.56, 0.64, 1)'
+      };
+    } else {
+      // Desktop
+      return {
         position: 'fixed',
         top: '60px',
         right: '20px',
@@ -159,13 +228,21 @@ const NotificationModal = ({ isOpen, onClose }) => {
         display: 'flex',
         flexDirection: 'column',
         animation: 'scaleIn 300ms cubic-bezier(0.34, 1.56, 0.64, 1)'
-      }}
+      };
+    }
+  };
+
+  return createPortal(
+    <div 
+      ref={modalRef}
+      style={getNotificationStyles()}
     >
       {/* Header */}
       <div style={{
         padding: '16px 20px',
         borderBottom: '1px solid #f0f0f0',
-        backgroundColor: 'linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)'
+        backgroundColor: 'linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)',
+        flexShrink: 0
       }}>
         <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '700', color: '#0D1A12' }}>Notifications</h3>
         
@@ -183,7 +260,11 @@ const NotificationModal = ({ isOpen, onClose }) => {
               fontSize: '12px',
               fontWeight: '600',
               cursor: 'pointer',
-              transition: 'all 200ms ease'
+              transition: 'all 200ms ease',
+              minWidth: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
             }}
           >
             All ({notifications.length})
@@ -200,7 +281,11 @@ const NotificationModal = ({ isOpen, onClose }) => {
               fontSize: '12px',
               fontWeight: '600',
               cursor: 'pointer',
-              transition: 'all 200ms ease'
+              transition: 'all 200ms ease',
+              minWidth: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
             }}
           >
             Unread ({unreadCount})
@@ -209,7 +294,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
       </div>
 
       {/* Notifications List */}
-      <div style={{ flex: 1, overflowY: 'auto', maxHeight: '400px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', maxHeight: '400px', minWidth: 0 }}>
         {filterNotifications().length === 0 ? (
           <div style={{ padding: '40px 20px', textAlign: 'center', color: '#9ca3af' }}>
             <p style={{ margin: '0', fontSize: '14px' }}>No notifications</p>
@@ -227,7 +312,8 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 transition: 'all 200ms ease',
                 display: 'flex',
                 gap: '12px',
-                alignItems: 'flex-start'
+                alignItems: 'flex-start',
+                minWidth: 0
               }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = readNotifications.has(notification.id) ? '#ffffff' : '#f9fafb'}
@@ -249,10 +335,10 @@ const NotificationModal = ({ isOpen, onClose }) => {
 
               {/* Content */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '700', color: '#1f2937' }}>
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '700', color: '#1f2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {notification.title}
                 </h4>
-                <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: '#6b7280', lineHeight: '1.4' }}>
+                <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: '#6b7280', lineHeight: '1.4', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                   {notification.message}
                 </p>
                 <p style={{ margin: '0', fontSize: '11px', color: '#9ca3af' }}>
@@ -268,7 +354,8 @@ const NotificationModal = ({ isOpen, onClose }) => {
       <div style={{
         padding: '12px 16px',
         borderTop: '1px solid #f0f0f0',
-        backgroundColor: '#f9fafb'
+        backgroundColor: '#f9fafb',
+        flexShrink: 0
       }}>
         <button style={{
           width: '100%',

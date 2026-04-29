@@ -1,0 +1,171 @@
+/* ============================================
+   ADMIN SIDE ANIMATIONS
+   "Precision & Utility" - Speed and Clarity
+   ============================================ */
+
+/* ============================================
+   MODAL ANIMATIONS - Admin
+   Crisp, snappy, centered scale + fade
+   ============================================ */
+
+@keyframes adminModalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes adminModalExit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes adminBackdropEnter {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 0.6;
+    backdrop-filter: blur(4px);
+  }
+}
+
+@keyframes adminBackdropExit {
+  from {
+    opacity: 0.6;
+    backdrop-filter: blur(4px);
+  }
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+}
+
+/* Modal Container - Admin */
+.admin-modal {
+  animation: adminModalEnter 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.admin-modal.closing {
+  animation: adminModalExit 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Modal Backdrop - Admin */
+.admin-modal-backdrop {
+  animation: adminBackdropEnter 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.admin-modal-backdrop.closing {
+  animation: adminBackdropExit 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ============================================
+   DROPDOWN ANIMATIONS - Admin
+   Vertical clip-path expansion, no stagger
+   ============================================ */
+
+@keyframes adminDropdownOpen {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes adminDropdownClose {
+  from {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-8px);
+  }
+}
+
+/* Dropdown Menu - Admin */
+.admin-dropdown-menu {
+  animation: adminDropdownOpen 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.admin-dropdown-menu.closing {
+  animation: adminDropdownClose 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ============================================
+   PROFILE DROPDOWN - Admin
+   Same crisp animation as other dropdowns
+   ============================================ */
+
+@keyframes adminProfileDropdownOpen {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0);
+  }
+}
+
+.profile-dropdown {
+  animation: adminProfileDropdownOpen 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.profile-dropdown.closing {
+  animation: adminDropdownClose 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ============================================
+   CONFIRMATION/ALERT MODALS - Admin
+   Same crisp scale + fade
+   ============================================ */
+
+.confirm-modal,
+.alert-modal,
+.delete-confirmation-modal {
+  animation: adminModalEnter 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.confirm-modal.closing,
+.alert-modal.closing,
+.delete-confirmation-modal.closing {
+  animation: adminModalExit 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ============================================
+   UTILITY CLASSES - Admin
+   Apply to any modal or dropdown
+   ============================================ */
+
+.admin-animate-modal {
+  animation: adminModalEnter 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.admin-animate-dropdown {
+  animation: adminDropdownOpen 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.admin-animate-close {
+  animation: adminModalExit 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}

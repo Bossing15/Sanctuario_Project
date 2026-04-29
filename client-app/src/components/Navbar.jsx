@@ -267,125 +267,89 @@ function Navbar() {
 
       {/* Mobile menu overlay */}
       <div 
-        className={`mobile-menu-overlay ${isMobileMenuOpen ? 'open' : ''}`} 
+        className={`mobile-sidebar-overlay ${isMobileMenuOpen ? 'open' : ''}`} 
         onClick={closeMobileMenu} 
       />
 
-      {/* Mobile menu */}
-      <nav className={`mobile-menu ${isMobileMenuOpen ? 'open' : ''}`}>
-        <div className="mobile-menu-header">
-          <img 
-            src={logo}
-            alt="Sanctuario De Carmona Memorial Park" 
-            className="mobile-menu-logo brand-logo-img"
-          />
+      {/* Mobile sidebar menu */}
+      <nav className={`mobile-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
+        <div className="mobile-sidebar-header">
           <button 
-            className="mobile-menu-close" 
+            className="mobile-sidebar-close" 
             onClick={closeMobileMenu}
             aria-label="Close mobile menu"
           >
-            ×
+            ✕
           </button>
         </div>
 
-        <ul className="mobile-menu-list">
-          <li>
-            <button 
-              onClick={() => handleNavClick('/home')}
-              className={`mobile-menu-link ${location.pathname === '/home' ? 'active' : ''}`}
-            >
-              {getSetting('nav_home', 'Home')}
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => handleNavClick('/lawn-lots')}
-              className={`mobile-menu-link ${location.pathname === '/lawn-lots' ? 'active' : ''}`}
-            >
-              {getSetting('nav_lawn_lots', 'Lawn Lots')}
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => handleNavClick('/family-estates')}
-              className={`mobile-menu-link ${location.pathname === '/family-estates' ? 'active' : ''}`}
-            >
-              {getSetting('nav_family_estates', 'Family Estates')}
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => handleNavClick('/columbariums')}
-              className={`mobile-menu-link ${location.pathname === '/columbariums' ? 'active' : ''}`}
-            >
-              {getSetting('nav_columbariums', 'Columbariums')}
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => handleNavClick('/internment')}
-              className={`mobile-menu-link ${location.pathname === '/internment' ? 'active' : ''}`}
-            >
-              {getSetting('nav_internment', 'Interment')}
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => handleNavClick('/cremation')}
-              className={`mobile-menu-link ${location.pathname === '/cremation' ? 'active' : ''}`}
-            >
-              {getSetting('nav_cremation', 'Cremation')}
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => handleNavClick('/about')}
-              className={`mobile-menu-link ${location.pathname === '/about' ? 'active' : ''}`}
-            >
-              {getSetting('nav_about', 'About Us')}
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => handleNavClick('/blog')}
-              className={`mobile-menu-link ${location.pathname === '/blog' ? 'active' : ''}`}
-            >
-              {getSetting('nav_blog', 'Blogs')}
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => handleNavClick('/contact')}
-              className={`mobile-menu-link ${location.pathname === '/contact' ? 'active' : ''}`}
-            >
-              {getSetting('nav_contact', 'Contact Us')}
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => handleNavClick('/team')}
-              className={`mobile-menu-link ${location.pathname === '/team' ? 'active' : ''}`}
-            >
-              {getSetting('mobile_menu_our_team', 'Our Team')}
-            </button>
-          </li>
-          <li>
-            <button 
-              onClick={() => handleNavClick('/privacy-policy')}
-              className={`mobile-menu-link ${location.pathname === '/privacy-policy' ? 'active' : ''}`}
-            >
-              {getSetting('mobile_menu_privacy', 'Privacy Policy')}
-            </button>
-          </li>
-        </ul>
-
-        <div className="mobile-menu-contact">
-          <p className="mobile-contact-phone">
-            📞 {getSetting('mobile_menu_phone', '0912-345-6789')}
-          </p>
-          <p className="mobile-contact-address">
-            📍 {getSetting('mobile_menu_address', 'Sanctuario De Carmona Memorial Park, Cavite, Philippines')}
-          </p>
+        <div className="mobile-sidebar-menu">
+          <button 
+            onClick={() => handleNavClick('/home')}
+            className={`mobile-sidebar-item ${location.pathname === '/home' ? 'active' : ''}`}
+          >
+            <span className="mobile-sidebar-item-label">{getSetting('nav_home', 'Home')}</span>
+          </button>
+          <button 
+            onClick={() => handleNavClick('/lawn-lots')}
+            className={`mobile-sidebar-item ${location.pathname === '/lawn-lots' ? 'active' : ''}`}
+          >
+            <span className="mobile-sidebar-item-label">{getSetting('nav_lawn_lots', 'Lawn Lots')}</span>
+          </button>
+          <button 
+            onClick={() => handleNavClick('/family-estates')}
+            className={`mobile-sidebar-item ${location.pathname === '/family-estates' ? 'active' : ''}`}
+          >
+            <span className="mobile-sidebar-item-label">{getSetting('nav_family_estates', 'Family Estates')}</span>
+          </button>
+          <button 
+            onClick={() => handleNavClick('/columbariums')}
+            className={`mobile-sidebar-item ${location.pathname === '/columbariums' ? 'active' : ''}`}
+          >
+            <span className="mobile-sidebar-item-label">{getSetting('nav_columbariums', 'Columbariums')}</span>
+          </button>
+          <button 
+            onClick={() => handleNavClick('/internment')}
+            className={`mobile-sidebar-item ${location.pathname === '/internment' ? 'active' : ''}`}
+          >
+            <span className="mobile-sidebar-item-label">{getSetting('nav_internment', 'Interment')}</span>
+          </button>
+          <button 
+            onClick={() => handleNavClick('/cremation')}
+            className={`mobile-sidebar-item ${location.pathname === '/cremation' ? 'active' : ''}`}
+          >
+            <span className="mobile-sidebar-item-label">{getSetting('nav_cremation', 'Cremation')}</span>
+          </button>
+          <button 
+            onClick={() => handleNavClick('/about')}
+            className={`mobile-sidebar-item ${location.pathname === '/about' ? 'active' : ''}`}
+          >
+            <span className="mobile-sidebar-item-label">{getSetting('nav_about', 'About Us')}</span>
+          </button>
+          <button 
+            onClick={() => handleNavClick('/blog')}
+            className={`mobile-sidebar-item ${location.pathname === '/blog' ? 'active' : ''}`}
+          >
+            <span className="mobile-sidebar-item-label">{getSetting('nav_blog', 'Blogs')}</span>
+          </button>
+          <button 
+            onClick={() => handleNavClick('/contact')}
+            className={`mobile-sidebar-item ${location.pathname === '/contact' ? 'active' : ''}`}
+          >
+            <span className="mobile-sidebar-item-label">{getSetting('nav_contact', 'Contact Us')}</span>
+          </button>
+          <button 
+            onClick={() => handleNavClick('/team')}
+            className={`mobile-sidebar-item ${location.pathname === '/team' ? 'active' : ''}`}
+          >
+            <span className="mobile-sidebar-item-label">{getSetting('mobile_menu_our_team', 'Our Team')}</span>
+          </button>
+          <button 
+            onClick={() => handleNavClick('/privacy-policy')}
+            className={`mobile-sidebar-item ${location.pathname === '/privacy-policy' ? 'active' : ''}`}
+          >
+            <span className="mobile-sidebar-item-label">{getSetting('mobile_menu_privacy', 'Privacy Policy')}</span>
+          </button>
         </div>
       </nav>
 

@@ -170,8 +170,67 @@
   will-change: opacity, transform;
 }
 
-/* Responsive Design */
+/* ============================================
+   NAVBAR RESPONSIVE DESIGN
+   ============================================ */
+
+/* Tablet View (768px and below) */
 @media (max-width: 768px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+    height: 56px;
+    gap: 0.5rem;
+  }
+
+  .navbar .flex {
+    gap: 0.5rem;
+  }
+
+  .navbar-logo {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .mobile-hamburger-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .mobile-hamburger-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .mobile-hamburger-btn img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+
+  .navbar .flex.items-center.gap-6 {
+    gap: 0.5rem;
+  }
+
+  .navbar button {
+    padding: 0.5rem;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .navbar button svg {
+    width: 20px;
+    height: 20px;
+  }
+
   .profile-menu-dropdown {
     width: 200px;
     right: -10px;
@@ -184,6 +243,83 @@
 
   .profile-menu-header {
     padding: 12px;
+  }
+}
+
+/* Mobile View (480px and below) */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.5rem 0.75rem;
+    height: 52px;
+    gap: 0.25rem;
+  }
+
+  .navbar .flex {
+    gap: 0.25rem;
+  }
+
+  .navbar-logo {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .mobile-hamburger-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  .mobile-hamburger-btn img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .navbar .flex.items-center.gap-6 {
+    gap: 0.25rem;
+  }
+
+  .navbar button {
+    padding: 0.4rem;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .navbar button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .profile-menu-dropdown {
+    width: 180px;
+    right: -20px;
+  }
+
+  .profile-menu-item {
+    padding: 8px 10px;
+    font-size: 12px;
+    gap: 8px;
+  }
+
+  .profile-menu-header {
+    padding: 10px;
+  }
+
+  .profile-menu-header .w-10 {
+    width: 32px;
+  }
+
+  .profile-menu-header .h-10 {
+    height: 32px;
+  }
+
+  .profile-menu-header .w-6 {
+    width: 20px;
+  }
+
+  .profile-menu-header .h-6 {
+    height: 20px;
   }
 }
 
@@ -217,5 +353,118 @@
 
   .profile-menu-header .h-6 {
     height: 20px;
+  }
+}
+
+/* ============================================
+   IPHONE 12 PRO OPTIMIZATION (390px)
+   ============================================ */
+
+@media (max-width: 390px) {
+  .navbar {
+    padding: 0.5rem 0.5rem;
+    height: 50px;
+    gap: 0.25rem;
+    flex-wrap: nowrap;
+  }
+
+  .navbar .flex {
+    gap: 0.25rem;
+    flex-wrap: nowrap;
+  }
+
+  .navbar-logo {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  .mobile-hamburger-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0.35rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-hamburger-btn img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .navbar .flex.items-center.gap-6 {
+    gap: 0.25rem;
+    flex-wrap: nowrap;
+  }
+
+  .navbar button {
+    padding: 0.35rem;
+    min-width: 32px;
+    min-height: 32px;
+    flex-shrink: 0;
+  }
+
+  .navbar button svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Hide user name and role on ultra-small screens */
+  .navbar button .flex.flex-col {
+    display: none;
+  }
+
+  .profile-menu-dropdown {
+    width: 160px;
+    right: -5px;
+    margin-top: 4px;
+    font-size: 12px;
+  }
+
+  .profile-menu-item {
+    padding: 8px 10px;
+    font-size: 11px;
+    gap: 8px;
+  }
+
+  .profile-menu-item img {
+    width: 16px;
+    height: 16px;
+  }
+
+  .profile-menu-header {
+    padding: 8px;
+  }
+
+  .profile-menu-header .w-10 {
+    width: 28px;
+  }
+
+  .profile-menu-header .h-10 {
+    height: 28px;
+  }
+
+  .profile-menu-header .w-6 {
+    width: 16px;
+  }
+
+  .profile-menu-header .h-6 {
+    height: 16px;
+  }
+
+  .profile-menu-header .text-sm {
+    font-size: 11px;
+  }
+
+  .profile-menu-header .text-xs {
+    font-size: 9px;
+  }
+
+  .profile-menu-header p {
+    margin: 0;
+    padding: 0;
   }
 }

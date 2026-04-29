@@ -288,10 +288,19 @@ class RequestController extends Controller
     public function adminIndex(Request $request): JsonResponse
     {
         try {
-            // Check if user is admin
-            if (!auth()->user() instanceof Admin) {
+            // Check if user is admin, staff, or caretaker
+            $user = auth()->user();
+            if (!$user instanceof Admin) {
                 return response()->json([
-                    'message' => 'Unauthorized',
+                    'message' => 'Unauthorized - Admin access required',
+                ], 403);
+            }
+
+            // Check access level
+            $accessLevel = $user->access_level ?? $user->role;
+            if (!in_array($accessLevel, ['admin', 'staff', 'caretaker'])) {
+                return response()->json([
+                    'message' => 'Forbidden - Insufficient permissions',
                 ], 403);
             }
 
@@ -301,8 +310,9 @@ class RequestController extends Controller
                 $request->query('order', 'desc')
             );
 
-            Log::info('Admin fetched pending requests', [
-                'admin_id' => auth()->id(),
+            Log::info('Admin/Staff fetched pending requests', [
+                'user_id' => auth()->id(),
+                'access_level' => $accessLevel,
                 'count' => $requests->count(),
             ]);
 

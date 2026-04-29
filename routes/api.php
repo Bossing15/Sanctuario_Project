@@ -31,6 +31,7 @@ Route::post('/client/login', [AuthController::class, 'clientLogin']);
 // Register endpoint - requires auth for admin registration, public for client registration
 Route::post('/register', [AuthController::class, 'register'])->middleware('auth.optional');
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Public Client Payment routes (no auth required for customers) - Uses real PayMongo
 Route::prefix('payments')->group(function () {
@@ -217,10 +218,14 @@ Route::middleware('auth.multiple')->group(function () {
         });
     });
     
-    // SMS routes
-    Route::prefix('sms')->group(function () {
+    // SMS routes (CORS is already applied globally via middleware)
+    Route::prefix('sms')->middleware('auth:sanctum')->group(function () {
         Route::post('/send', [App\Http\Controllers\SmsController::class, 'sendSms']);
         Route::post('/send-bulk', [App\Http\Controllers\SmsController::class, 'sendBulkSms']);
+        Route::post('/send-payment-reminders', [App\Http\Controllers\SmsController::class, 'sendPaymentReminders']);
+        Route::post('/send-booking-confirmation', [App\Http\Controllers\SmsController::class, 'sendBookingConfirmation']);
+        Route::get('/logs', [App\Http\Controllers\SmsController::class, 'getSmsLogs']);
+        Route::get('/balance', [App\Http\Controllers\SmsController::class, 'getBalance']);
         Route::get('/clients', [App\Http\Controllers\SmsController::class, 'getClients']);
     });
     
@@ -338,7 +343,7 @@ Route::middleware('auth.multiple')->group(function () {
     // Request management routes
     Route::prefix('requests')->group(function () {
         // Admin routes (must be defined before /{request} to avoid conflicts)
-        Route::middleware('access.level:admin')->group(function () {
+        Route::middleware('access.level:admin,staff,caretaker')->group(function () {
             Route::get('/admin/pending', [App\Http\Controllers\RequestController::class, 'adminIndex']);
         });
         
