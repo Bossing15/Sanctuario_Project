@@ -56,8 +56,7 @@
   height: 32px;
   width: auto;
   object-fit: contain;
-  margin-left: -1rem;
-  filter: brightness(1.1);
+  margin-left: 0;
 }
 
 .sidebar.collapsed .sidebar-logo {
@@ -236,18 +235,6 @@ main.collapsed {
   display: none;
 }
 
-.navbar-logo {
-  height: 40px;
-  width: auto;
-  object-fit: contain;
-  display: none;
-  filter: brightness(1.1);
-}
-
-.navbar.collapsed .navbar-logo {
-  display: block;
-}
-
 /* ============================================
    MOBILE NAVBAR RESPONSIVE DESIGN
    ============================================ */
@@ -280,7 +267,6 @@ main.collapsed {
     width: auto;
     object-fit: contain;
     display: block;
-    filter: brightness(1.1);
   }
 
   .sidebar-overlay {
@@ -316,7 +302,6 @@ main.collapsed {
     width: auto;
     object-fit: contain;
     display: block;
-    filter: brightness(1.1);
   }
 }
 
@@ -348,7 +333,6 @@ main.collapsed {
     width: auto;
     object-fit: contain;
     display: block;
-    filter: brightness(1.1);
   }
 }
 

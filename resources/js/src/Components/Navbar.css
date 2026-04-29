@@ -25,6 +25,15 @@
   }
 }
 
+/* Navbar Logo */
+.navbar-logo {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
 /* Profile Menu Dropdown */
 .profile-menu-dropdown {
   position: absolute;
@@ -190,6 +199,8 @@
     height: 40px;
     width: auto;
     object-fit: contain;
+    flex-shrink: 0;
+    margin-left: 0.75rem;
   }
 
   .mobile-hamburger-btn {
@@ -262,6 +273,8 @@
     height: 36px;
     width: auto;
     object-fit: contain;
+    flex-shrink: 0;
+    margin-left: 0.5rem;
   }
 
   .mobile-hamburger-btn {
@@ -378,6 +391,7 @@
     width: auto;
     object-fit: contain;
     flex-shrink: 0;
+    margin-left: 0.5rem;
   }
 
   .mobile-hamburger-btn {

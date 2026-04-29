@@ -36,14 +36,7 @@
   object-fit: contain;
   display: block;
   flex-shrink: 0;
-  filter: drop-shadow(0 2px 8px var(--brand-logo-glow-dark));
   transition: var(--brand-logo-transition);
-}
-
-.brand-logo-img:hover {
-  filter: drop-shadow(0 4px 16px var(--brand-logo-glow-dark))
-          drop-shadow(0 0 8px rgba(255, 255, 255, 0.12));
-  transform: scale(1.03);
 }
 
 /* Navbar context */
@@ -54,17 +47,12 @@
 /* Sidebar context */
 .brand-logo-img.sidebar {
   height: var(--brand-logo-size-sidebar);
-  filter: drop-shadow(0 1px 6px var(--brand-logo-glow-dark));
 }
 
 /* Light background context */
 .brand-logo-img.on-light {
   filter: drop-shadow(0 2px 8px var(--brand-logo-glow-light));
 }
-.brand-logo-img.on-light:hover {
-  filter: drop-shadow(0 4px 16px var(--brand-logo-glow-light));
-}
-
 
 /* ── LAYER 2: System Icon Tokens ───────────────────────────── */
 :root {

@@ -40,14 +40,7 @@
   display: block;
   flex-shrink: 0;
   /* Subtle drop-shadow glow — scoped only to .brand-logo-img */
-  filter: drop-shadow(0 2px 8px var(--brand-logo-glow-color));
   transition: var(--brand-logo-transition);
-}
-
-.brand-logo-img:hover {
-  filter: drop-shadow(0 4px 16px var(--brand-logo-glow-color))
-          drop-shadow(0 0 6px rgba(22, 163, 74, 0.20));
-  transform: scale(1.03);
 }
 
 /* Navbar context — hero focal point */
@@ -62,13 +55,7 @@
 
 /* Dark background context (sidebar, dark navbar) */
 .brand-logo-img.on-dark {
-  filter: drop-shadow(0 2px 10px var(--brand-logo-glow-dark))
-          brightness(1.05);
-}
-
-.brand-logo-img.on-dark:hover {
-  filter: drop-shadow(0 4px 20px var(--brand-logo-glow-dark))
-          brightness(1.10);
+  display: block;
 }
 
 /* Sidebar logo — compact */

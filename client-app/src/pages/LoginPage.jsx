@@ -3,8 +3,9 @@ import { FaEye, FaEyeSlash, FaUser, FaLock } from 'react-icons/fa';
 import AlertModal from '../components/AlertModal';
 import ForgotPasswordModal from '../components/ForgotPasswordModal';
 import './LoginPage.css';
-import logo from '../assets/images/home_logo/main_logo.jpg';
 import { useNavigate } from 'react-router-dom';
+
+const logo = '/Sanctuario_Logo_Good.png';
 
 function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');

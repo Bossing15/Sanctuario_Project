@@ -59,7 +59,8 @@
   text-decoration: none;
   flex-shrink: 0;
   z-index: 1002;
-  margin-left: 15px;
+  margin-left: 0;
+  margin-right: 20px;
 }
 
 .nav-logo img {

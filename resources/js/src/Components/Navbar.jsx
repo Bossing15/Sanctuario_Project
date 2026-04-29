@@ -74,14 +74,6 @@ const Navbar = ({ collapsed, mobileMenuOpen, setMobileMenuOpen }) => {
             <img src={menuIcon} alt="Menu" />
           </button>
         )}
-        <img
-          src={logo}
-          alt="Sanctuario Logo"
-          className="navbar-logo"
-          onError={(e) => {
-            e.target.outerHTML = '<div class="text-white font-bold text-lg">SANCTUARIO</div>';
-          }}
-        />
       </div>
 
       <div className="flex items-center gap-6 ml-auto">
