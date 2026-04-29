@@ -182,8 +182,8 @@ function ActivityLogsPage() {
                     <td className="px-6 py-4 text-sm text-gray-700">{formatDate(log.created_at)}</td>
                     <td className="px-6 py-4 text-sm">
                       <div>
-                        <p className="font-semibold text-gray-900">{log.user_name}</p>
-                        <p className="text-gray-500 text-xs">{log.user_email}</p>
+                        <p className="font-semibold text-gray-900">{log.user_name || 'Unknown User'}</p>
+                        <p className="text-gray-500 text-xs">{log.user_email || 'N/A'}</p>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm">

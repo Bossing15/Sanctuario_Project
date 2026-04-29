@@ -37,10 +37,14 @@ class ActivityLog extends Model
     {
         $user = auth()->user();
         
+        // Get user name - prefer 'name' field, fallback to 'username'
+        $userName = $user?->name ?? $user?->username ?? 'System';
+        $userEmail = $user?->email ?? 'system@sanctuario.com';
+        
         return self::create([
             'user_id' => $user?->id,
-            'user_name' => $user?->name ?? 'System',
-            'user_email' => $user?->email ?? 'system@sanctuario.com',
+            'user_name' => $userName,
+            'user_email' => $userEmail,
             'action' => $action,
             'entity_type' => $entityType,
             'entity_id' => $entityId,
