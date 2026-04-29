@@ -44,7 +44,7 @@
 .sidebar-header {
   display: flex !important;
   align-items: center !important;
-  justify-content: flex-start !important;
+  justify-content: space-between !important;
   gap: 1rem !important;
   height: 70px !important;
   padding: 0 1rem !important;
@@ -56,7 +56,7 @@
   height: 32px;
   width: auto;
   object-fit: contain;
-  margin-left: 0;
+  margin-left: auto;
 }
 
 .sidebar.collapsed .sidebar-logo {
