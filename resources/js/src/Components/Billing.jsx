@@ -6,6 +6,7 @@ import PaymentManagement from './PaymentManagement';
 import PaymentAnalytics from './PaymentAnalytics';
 import AdminPaymentModal from './AdminPaymentModal';
 import { formatDate } from '../utils/dateFormatter';
+import { getSequentialIdFromIndex } from '../utils/tableIdGenerator';
 import usePermissions from '../utils/usePermissions';
 import StatsCards from './StatsCards';
 
@@ -299,7 +300,7 @@ const Billing = () => {
                   </td>
                 </tr>
               ) : (
-                filteredPaymentData.map((row) => {
+                filteredPaymentData.map((row, index) => {
                   const id = row.id || row.payment_id || row.uuid;
                   const name = row.customer_name || row.client?.name || row.client_name || row.payer_name || row.name || 'N/A';
                   const date = row.due_date || row.date || row.created_at;
@@ -316,7 +317,7 @@ const Billing = () => {
                       onClick={() => setSelectedRow({ id, name, date, amount, status, method, productService })}
                       className={selectedRow?.id === id ? 'selected' : ''}
                     >
-                      <td className="font-mono">{id}</td>
+                      <td className="font-mono">{getSequentialIdFromIndex(index)}</td>
                       <td className="font-bold">{name}</td>
                       <td>{productService}</td>
                       <td className="date-cell">{formatDate(date)}</td>
