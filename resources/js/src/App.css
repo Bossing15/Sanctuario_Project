@@ -50,6 +50,7 @@
   padding: 0 1rem !important;
   border-bottom: 1px solid rgba(212, 196, 168, 0.1) !important;
   margin-bottom: 0 !important;
+  min-width: 0 !important;
 }
 
 .sidebar-logo {
@@ -57,6 +58,8 @@
   width: auto;
   object-fit: contain;
   margin-left: auto;
+  flex-shrink: 0;
+  flex-grow: 0;
 }
 
 .sidebar.collapsed .sidebar-logo {
