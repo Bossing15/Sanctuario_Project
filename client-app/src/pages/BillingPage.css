@@ -220,11 +220,16 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: white;
+  padding: 20px 16px;
+  border-radius: 12px 12px 0 0;
+  margin: -28px -28px 16px -28px;
 }
 
 .payment-header h4 {
   font-size: 1.125rem;
-  color: #1e293b;
+  color: #ffffff;
   margin: 0;
   font-weight: 600;
   letter-spacing: -0.01em;
