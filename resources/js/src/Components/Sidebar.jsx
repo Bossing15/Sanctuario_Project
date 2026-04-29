@@ -155,23 +155,27 @@ const Sidebar = ({ collapsed, setCollapsed, mobileMenuOpen, setMobileMenuOpen })
     <div
       className={`sidebar ${collapsed ? "collapsed" : "expanded"} ${mounted ? "no-transition" : ""}`}
     >
-      {/* Header with hamburger */}
+      {/* Header with hamburger and logo */}
       <div className="sidebar-header">
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="sidebar-toggle"
+          aria-label="Toggle sidebar"
         >
-          <img src={menuIcon} alt="Menu" className="w-4 h-4" />
+          <img src={menuIcon} alt="Menu" />
         </button>
-        <img
-          src={appLogo}
-          alt="Sanctuario Logo"
-          className="sidebar-logo brand-logo-img sidebar"
-          onError={(e) => {
-            console.error('Logo failed to load:', e.target.src);
-            e.target.outerHTML = '<div class="text-neutral-800 font-bold text-sm">SANCTUARIO</div>';
-          }}
-        />
+        <div className="sidebar-header-spacer"></div>
+        {!collapsed && (
+          <img
+            src={appLogo}
+            alt="Sanctuario Logo"
+            className="sidebar-logo"
+            onError={(e) => {
+              console.error('Logo failed to load:', e.target.src);
+              e.target.outerHTML = '<div class="text-neutral-800 font-bold text-sm">SANCTUARIO</div>';
+            }}
+          />
+        )}
       </div>
 
       {/* Menu Items */}
