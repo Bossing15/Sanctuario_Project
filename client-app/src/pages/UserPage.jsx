@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { FaArrowLeft, FaUserCircle, FaUser, FaCreditCard, FaShoppingBag, FaClipboardList, FaSignOutAlt as FaLogout, FaCheckCircle, FaCalendarAlt, FaMapMarkerAlt } from 'react-icons/fa';
 import PaymentModal from '../components/PaymentModal';
 import AlertModal from '../components/AlertModal';
+import { MAIN_LOGO, LOGO_ALT_TEXT, LOGO_CLASSES } from '../config/logoConfig';
 import './UserPage.css';
 
 function UserPage() {
@@ -252,7 +253,7 @@ function UserPage() {
             <FaArrowLeft />
           </button>
           <div className="logo-container">
-            <img src={require('../assets/images/home_logo/main_logo.jpg')} alt="Sanctuario De Carmona Memorial Park Logo" className="brand-logo" />
+            <img src={MAIN_LOGO} alt={LOGO_ALT_TEXT.main} className={LOGO_CLASSES.brandLogo} />
           </div>
         </div>
 

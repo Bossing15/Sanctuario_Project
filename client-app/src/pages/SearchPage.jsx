@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaPhone, FaSearch, FaUserCircle } from 'react-icons/fa';
-import mainLogo from '../assets/images/home_logo/main_logo.jpg';
+import { MAIN_LOGO, LOGO_ALT_TEXT, LOGO_CLASSES } from '../config/logoConfig';
 import SearchModal from '../components/SearchModal';
 import './SearchPage.css';
 
@@ -53,7 +53,7 @@ function SearchPage() {
       <nav className="main-nav">
         <div className="nav-container">
           <Link to="/home" className="nav-brand">
-            <img src={mainLogo} alt="Sanctuario De Carmona Memorial Park Logo" className="nav-logo enlarged-logo" />
+            <img src={MAIN_LOGO} alt={LOGO_ALT_TEXT.main} className={LOGO_CLASSES.navLogo} />
           </Link>
           
           <div className="nav-links">

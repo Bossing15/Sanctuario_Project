@@ -1,24 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoginPromptModal from '../components/LoginPromptModal';
+import { PAYMENT_LOGOS, LOGO_ALT_TEXT, LOGO_CLASSES } from '../config/logoConfig';
 import './PaymentsPage.css';
 import heroBg from '../assets/images/Sanctuario3_1.jpg';
-
-// Credit/Debit Card Logos
-import visaLogo from '../assets/images/visa.png';
-import mastercardLogo from '../assets/images/master-crad-logo.png';
-import jcbLogo from '../assets/images/jcb.png';
-
-// E-Wallet Logos
-import gcashLogo from '../assets/images/gcash-logo.png';
-import mayaLogo from '../assets/images/maya-logo.png';
-import grabpayLogo from '../assets/images/grab-pay-logo.png';
-
-// Bank Logos
-import bpiLogo from '../assets/images/bpi-logo.webp';
-import unionbankLogo from '../assets/images/union-bank-logo.png';
-import bdoLogo from '../assets/images/BDO-Logo-.jpg';
-import chinabankLogo from '../assets/images/Chinabank-Logo.png';
 
 function PaymentsPage() {
   const navigate = useNavigate();
@@ -61,14 +46,14 @@ function PaymentsPage() {
           <div className="section-underline"></div>
           
           <div className="banks-grid">
-            <div className="bank-logo clickable" onClick={handlePaymentMethodClick}>
-              <img src={visaLogo} alt="Visa" />
+            <div className={LOGO_CLASSES.bankLogo} onClick={handlePaymentMethodClick}>
+              <img src={PAYMENT_LOGOS.visa} alt={LOGO_ALT_TEXT.visa} />
             </div>
-            <div className="bank-logo clickable" onClick={handlePaymentMethodClick}>
-              <img src={mastercardLogo} alt="Mastercard" />
+            <div className={LOGO_CLASSES.bankLogo} onClick={handlePaymentMethodClick}>
+              <img src={PAYMENT_LOGOS.mastercard} alt={LOGO_ALT_TEXT.mastercard} />
             </div>
-            <div className="bank-logo clickable" onClick={handlePaymentMethodClick}>
-              <img src={jcbLogo} alt="JCB" />
+            <div className={LOGO_CLASSES.bankLogo} onClick={handlePaymentMethodClick}>
+              <img src={PAYMENT_LOGOS.jcb} alt={LOGO_ALT_TEXT.jcb} />
             </div>
           </div>
         </div>
@@ -81,14 +66,14 @@ function PaymentsPage() {
           <div className="section-underline"></div>
           
           <div className="ewallets-grid">
-            <div className="ewallet-card clickable" onClick={handlePaymentMethodClick}>
-              <img src={gcashLogo} alt="GCash" />
+            <div className={LOGO_CLASSES.ewalletCard} onClick={handlePaymentMethodClick}>
+              <img src={PAYMENT_LOGOS.gcash} alt={LOGO_ALT_TEXT.gcash} />
             </div>
-            <div className="ewallet-card clickable" onClick={handlePaymentMethodClick}>
-              <img src={mayaLogo} alt="Maya" />
+            <div className={LOGO_CLASSES.ewalletCard} onClick={handlePaymentMethodClick}>
+              <img src={PAYMENT_LOGOS.maya} alt={LOGO_ALT_TEXT.maya} />
             </div>
-            <div className="ewallet-card clickable" onClick={handlePaymentMethodClick}>
-              <img src={grabpayLogo} alt="GrabPay" />
+            <div className={LOGO_CLASSES.ewalletCard} onClick={handlePaymentMethodClick}>
+              <img src={PAYMENT_LOGOS.grabpay} alt={LOGO_ALT_TEXT.grabpay} />
             </div>
           </div>
         </div>
@@ -101,17 +86,17 @@ function PaymentsPage() {
           <div className="section-underline"></div>
           
           <div className="banks-grid">
-            <div className="bank-logo clickable" onClick={handlePaymentMethodClick}>
-              <img src={bpiLogo} alt="BPI" />
+            <div className={LOGO_CLASSES.bankLogo} onClick={handlePaymentMethodClick}>
+              <img src={PAYMENT_LOGOS.bpi} alt={LOGO_ALT_TEXT.bpi} />
             </div>
-            <div className="bank-logo clickable" onClick={handlePaymentMethodClick}>
-              <img src={unionbankLogo} alt="UnionBank" />
+            <div className={LOGO_CLASSES.bankLogo} onClick={handlePaymentMethodClick}>
+              <img src={PAYMENT_LOGOS.unionbank} alt={LOGO_ALT_TEXT.unionbank} />
             </div>
-            <div className="bank-logo clickable" onClick={handlePaymentMethodClick}>
-              <img src={bdoLogo} alt="BDO" />
+            <div className={LOGO_CLASSES.bankLogo} onClick={handlePaymentMethodClick}>
+              <img src={PAYMENT_LOGOS.bdo} alt={LOGO_ALT_TEXT.bdo} />
             </div>
-            <div className="bank-logo clickable" onClick={handlePaymentMethodClick}>
-              <img src={chinabankLogo} alt="China Bank" />
+            <div className={LOGO_CLASSES.bankLogo} onClick={handlePaymentMethodClick}>
+              <img src={PAYMENT_LOGOS.chinabank} alt={LOGO_ALT_TEXT.chinabank} />
             </div>
           </div>
         </div>

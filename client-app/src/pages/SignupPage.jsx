@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaLock, FaCheckCircle, FaTimes, FaFileAlt } from 'react-icons/fa';
 import AlertModal from '../components/AlertModal';
+import { MAIN_LOGO, LOGO_ALT_TEXT, LOGO_CLASSES } from '../config/logoConfig';
 import './SignupPage.css';
-
-const logo = '/Sanctuario_Logo_Good.png';
 
 
 function SignupPage() {
@@ -177,7 +176,7 @@ function SignupPage() {
     <div className="signup-wrapper">
       <div className="left-panel">
         <div className="brand-row">
-          <img src={logo} alt="Sanctuario De Carmona Memorial Park Logo" className="brand-logo-img page" />
+          <img src={MAIN_LOGO} alt={LOGO_ALT_TEXT.main} className={LOGO_CLASSES.page} />
         </div>
         
         <div className="form-card">

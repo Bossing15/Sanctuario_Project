@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaUser, FaLock } from 'react-icons/fa';
 import AlertModal from '../components/AlertModal';
 import ForgotPasswordModal from '../components/ForgotPasswordModal';
+import { MAIN_LOGO, LOGO_ALT_TEXT, LOGO_CLASSES } from '../config/logoConfig';
 import './LoginPage.css';
 import { useNavigate } from 'react-router-dom';
-
-const logo = '/Sanctuario_Logo_Good.png';
 
 function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
@@ -150,7 +149,7 @@ function LoginPage({ onLogin }) {
       {/* Right side form */}
       <div className="login-right">
         <div className="brand-row">
-          <img src={logo} alt="Sanctuario De Carmona Memorial Park Logo" className="brand-logo-img page" />
+          <img src={MAIN_LOGO} alt={LOGO_ALT_TEXT.main} className={LOGO_CLASSES.page} />
         </div>
 
         <div className="login-card">

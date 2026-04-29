@@ -4,9 +4,8 @@ import { FaUserCircle, FaChevronDown, FaClipboardList, FaCreditCard, FaBell, FaS
 import NotificationDropdown from './NotificationDropdown';
 import ProfileModal from './ProfileModal';
 import useSiteSettings from '../hooks/useSiteSettings';
+import { MAIN_LOGO, LOGO_ALT_TEXT, LOGO_CLASSES } from '../config/logoConfig';
 import './Navbar.css';
-
-const logo = '/Sanctuario_Logo_Good.png';
 
 function Navbar() {
   const { getSetting } = useSiteSettings();
@@ -113,9 +112,9 @@ function Navbar() {
           {/* Logo on the left */}
           <Link to="/home" className="nav-logo">
             <img 
-              src={logo}
-              alt="Sanctuario De Carmona Memorial Park Logo" 
-              className="brand-logo-img navbar"
+              src={MAIN_LOGO}
+              alt={LOGO_ALT_TEXT.main}
+              className={LOGO_CLASSES.navbar}
             />
           </Link>
 
