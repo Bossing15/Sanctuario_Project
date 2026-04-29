@@ -85,25 +85,6 @@ body.modal-open {
   gap: 8px !important;
 }
 
-.payment-modal-back {
-  background: none !important;
-  border: none !important;
-  padding: 8px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  color: #6b7280 !important;
-  font-size: 18px !important;
-  border-radius: 6px !important;
-}
-
-.payment-modal-back:hover {
-  color: #111827 !important;
-  background-color: #f3f4f6 !important;
-}
-
 .payment-modal-close {
   background: none !important;
   border: none !important;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaCreditCard, FaTimes, FaArrowLeft, FaMobile, FaUniversity } from 'react-icons/fa';
+import { FaCreditCard, FaTimes, FaMobile, FaUniversity } from 'react-icons/fa';
 import AlertModal from './AlertModal';
 import LotSelector from './LotSelector';
 import './PaymentModal.css';
@@ -579,9 +579,6 @@ function PaymentModal({ service, planType, amount, bookingId, paymentId, onClose
                   <span className="payment-title">Payment</span>
                 </div>
                 <div className="payment-modal-header-right">
-                  <button className="payment-modal-back" onClick={onClose} title="Back">
-                    <FaArrowLeft />
-                  </button>
                   <button className="payment-modal-close" onClick={onClose} title="Close">
                     <FaTimes />
                   </button>
