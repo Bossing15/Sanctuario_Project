@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react';
 import './AlertModal.css';
+import { preserveScrollPosition, restoreScrollPosition } from '../utils/scrollPreserver';
 
 function AlertModal({ type = 'info', title, message, onClose }) {
   useEffect(() => {
+    preserveScrollPosition();
     document.body.classList.add('modal-open');
     return () => {
       document.body.classList.remove('modal-open');
+      restoreScrollPosition();
     };
   }, []);
 

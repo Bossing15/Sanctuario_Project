@@ -34,6 +34,15 @@
   margin-left: 1rem;
 }
 
+/* Navbar Logo when sidebar is collapsed */
+.navbar-logo-when-collapsed {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-left: 0;
+}
+
 /* Profile Menu Dropdown */
 .profile-menu-dropdown {
   position: absolute;

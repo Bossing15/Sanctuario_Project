@@ -332,3 +332,529 @@
     box-shadow: none !important;
   }
 }
+
+
+/* ============================================
+   COMPREHENSIVE MOBILE RESPONSIVE BUTTONS
+   ============================================ */
+
+@media (max-width: 1024px) {
+  button,
+  .btn,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  a.button {
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1rem);
+    min-height: 40px;
+    min-width: 40px;
+    border-radius: clamp(0.375rem, 1vw, 0.5rem);
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  .btn-success,
+  .btn-info,
+  .btn-warning {
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1.25rem);
+  }
+}
+
+@media (max-width: 768px) {
+  button,
+  .btn,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  a.button {
+    font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+    padding: clamp(0.45rem, 1.2vw, 0.65rem) clamp(0.6rem, 1.8vw, 0.9rem);
+    min-height: 38px;
+    min-width: 38px;
+    border-radius: clamp(0.375rem, 1vw, 0.5rem);
+    transition: all 0.2s ease;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  .btn-success,
+  .btn-info,
+  .btn-warning {
+    font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+    padding: clamp(0.45rem, 1.2vw, 0.65rem) clamp(0.6rem, 1.8vw, 0.9rem);
+  }
+
+  /* Modal action buttons */
+  .modal-action-btn,
+  .modal-btn {
+    font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+    padding: clamp(0.45rem, 1.2vw, 0.65rem) clamp(0.6rem, 1.8vw, 0.9rem);
+    min-height: 36px;
+  }
+
+  /* Card action buttons */
+  .card-btn,
+  .card-action {
+    font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+    padding: clamp(0.45rem, 1.2vw, 0.65rem) clamp(0.6rem, 1.8vw, 0.9rem);
+  }
+}
+
+@media (max-width: 480px) {
+  button,
+  .btn,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  a.button {
+    font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+    padding: clamp(0.4rem, 1vw, 0.6rem) clamp(0.5rem, 1.5vw, 0.8rem);
+    min-height: 36px;
+    min-width: 36px;
+    border-radius: clamp(0.3rem, 0.8vw, 0.4rem);
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  .btn-success,
+  .btn-info,
+  .btn-warning {
+    font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+    padding: clamp(0.4rem, 1vw, 0.6rem) clamp(0.5rem, 1.5vw, 0.8rem);
+  }
+
+  .modal-action-btn,
+  .modal-btn {
+    font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+    padding: clamp(0.4rem, 1vw, 0.6rem) clamp(0.5rem, 1.5vw, 0.8rem);
+    min-height: 34px;
+  }
+
+  .card-btn,
+  .card-action {
+    font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+    padding: clamp(0.4rem, 1vw, 0.6rem) clamp(0.5rem, 1.5vw, 0.8rem);
+  }
+}
+
+@media (max-width: 390px) {
+  button,
+  .btn,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  a.button {
+    font-size: clamp(0.65rem, 1.3vw, 0.8rem);
+    padding: clamp(0.35rem, 0.8vw, 0.55rem) clamp(0.45rem, 1.2vw, 0.75rem);
+    min-height: 34px;
+    min-width: 34px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  .btn-success,
+  .btn-info,
+  .btn-warning {
+    font-size: clamp(0.65rem, 1.3vw, 0.8rem);
+    padding: clamp(0.35rem, 0.8vw, 0.55rem) clamp(0.45rem, 1.2vw, 0.75rem);
+  }
+
+  .modal-action-btn,
+  .modal-btn {
+    font-size: clamp(0.65rem, 1.3vw, 0.8rem);
+    padding: clamp(0.35rem, 0.8vw, 0.55rem) clamp(0.45rem, 1.2vw, 0.75rem);
+    min-height: 32px;
+  }
+
+  .card-btn,
+  .card-action {
+    font-size: clamp(0.65rem, 1.3vw, 0.8rem);
+    padding: clamp(0.35rem, 0.8vw, 0.55rem) clamp(0.45rem, 1.2vw, 0.75rem);
+  }
+}
+
+/* ============================================
+   COMPREHENSIVE MOBILE RESPONSIVE TABS
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .tabs,
+  .tab-list,
+  [role="tablist"],
+  .nav-tabs {
+    gap: clamp(0.25rem, 1vw, 0.5rem);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tab,
+  .tab-button,
+  [role="tab"],
+  .nav-link {
+    font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+    padding: clamp(0.5rem, 1.2vw, 0.75rem) clamp(0.6rem, 1.5vw, 1rem);
+    min-height: 38px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .tabs,
+  .tab-list,
+  [role="tablist"],
+  .nav-tabs {
+    gap: clamp(0.2rem, 0.8vw, 0.4rem);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 clamp(0.5rem, 1vw, 0.75rem);
+  }
+
+  .tab,
+  .tab-button,
+  [role="tab"],
+  .nav-link {
+    font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+    padding: clamp(0.45rem, 1vw, 0.65rem) clamp(0.5rem, 1.2vw, 0.85rem);
+    min-height: 36px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .tab span,
+  .tab-button span,
+  [role="tab"] span,
+  .nav-link span {
+    font-size: clamp(0.65rem, 1.3vw, 0.8rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .tabs,
+  .tab-list,
+  [role="tablist"],
+  .nav-tabs {
+    gap: clamp(0.15rem, 0.6vw, 0.3rem);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 clamp(0.4rem, 0.8vw, 0.6rem);
+  }
+
+  .tab,
+  .tab-button,
+  [role="tab"],
+  .nav-link {
+    font-size: clamp(0.65rem, 1.3vw, 0.8rem);
+    padding: clamp(0.4rem, 0.8vw, 0.6rem) clamp(0.45rem, 1vw, 0.75rem);
+    min-height: 34px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .tab span,
+  .tab-button span,
+  [role="tab"] span,
+  .nav-link span {
+    font-size: clamp(0.6rem, 1.1vw, 0.75rem);
+  }
+
+  /* Hide tab icons on very small screens */
+  .tab-icon,
+  .tab-button .icon,
+  [role="tab"] .icon,
+  .nav-link .icon {
+    display: none;
+  }
+}
+
+@media (max-width: 390px) {
+  .tabs,
+  .tab-list,
+  [role="tablist"],
+  .nav-tabs {
+    gap: clamp(0.1rem, 0.5vw, 0.25rem);
+    padding: 0 clamp(0.3rem, 0.6vw, 0.5rem);
+  }
+
+  .tab,
+  .tab-button,
+  [role="tab"],
+  .nav-link {
+    font-size: clamp(0.6rem, 1.1vw, 0.75rem);
+    padding: clamp(0.35rem, 0.7vw, 0.55rem) clamp(0.4rem, 0.8vw, 0.7rem);
+    min-height: 32px;
+  }
+
+  .tab span,
+  .tab-button span,
+  [role="tab"] span,
+  .nav-link span {
+    font-size: clamp(0.55rem, 1vw, 0.7rem);
+  }
+}
+
+/* ============================================
+   COMPREHENSIVE MOBILE RESPONSIVE SEARCH BARS
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .search-bar,
+  .search-input,
+  input[type="search"],
+  [role="searchbox"] {
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    padding: clamp(0.5rem, 1.2vw, 0.75rem) clamp(0.75rem, 1.5vw, 1rem);
+    min-height: 40px;
+    border-radius: clamp(0.375rem, 1vw, 0.5rem);
+    width: 100%;
+  }
+
+  .search-bar svg,
+  .search-input svg,
+  [role="searchbox"] svg {
+    width: clamp(16px, 2vw, 20px);
+    height: clamp(16px, 2vw, 20px);
+  }
+}
+
+@media (max-width: 768px) {
+  .search-bar,
+  .search-input,
+  input[type="search"],
+  [role="searchbox"] {
+    font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+    padding: clamp(0.45rem, 1vw, 0.65rem) clamp(0.6rem, 1.2vw, 0.85rem);
+    min-height: 38px;
+    border-radius: clamp(0.3rem, 0.8vw, 0.4rem);
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .search-bar svg,
+  .search-input svg,
+  [role="searchbox"] svg {
+    width: clamp(14px, 1.8vw, 18px);
+    height: clamp(14px, 1.8vw, 18px);
+  }
+
+  .search-container,
+  .search-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-bar,
+  .search-input,
+  input[type="search"],
+  [role="searchbox"] {
+    font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+    padding: clamp(0.4rem, 0.8vw, 0.6rem) clamp(0.5rem, 1vw, 0.75rem);
+    min-height: 36px;
+    border-radius: clamp(0.25rem, 0.6vw, 0.35rem);
+    width: 100%;
+  }
+
+  .search-bar svg,
+  .search-input svg,
+  [role="searchbox"] svg {
+    width: clamp(12px, 1.5vw, 16px);
+    height: clamp(12px, 1.5vw, 16px);
+  }
+
+  .search-container,
+  .search-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Search bar placeholder text */
+  .search-bar::placeholder,
+  .search-input::placeholder,
+  input[type="search"]::placeholder,
+  [role="searchbox"]::placeholder {
+    font-size: clamp(0.65rem, 1.3vw, 0.8rem);
+  }
+}
+
+@media (max-width: 390px) {
+  .search-bar,
+  .search-input,
+  input[type="search"],
+  [role="searchbox"] {
+    font-size: clamp(0.65rem, 1.3vw, 0.8rem);
+    padding: clamp(0.35rem, 0.7vw, 0.55rem) clamp(0.45rem, 0.8vw, 0.7rem);
+    min-height: 34px;
+    border-radius: clamp(0.2rem, 0.5vw, 0.3rem);
+  }
+
+  .search-bar svg,
+  .search-input svg,
+  [role="searchbox"] svg {
+    width: clamp(11px, 1.3vw, 14px);
+    height: clamp(11px, 1.3vw, 14px);
+  }
+
+  .search-bar::placeholder,
+  .search-input::placeholder,
+  input[type="search"]::placeholder,
+  [role="searchbox"]::placeholder {
+    font-size: clamp(0.6rem, 1.1vw, 0.75rem);
+  }
+}
+
+/* ============================================
+   MOBILE RESPONSIVE FORM ELEMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="date"],
+  textarea,
+  select {
+    font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+    padding: clamp(0.45rem, 1vw, 0.65rem) clamp(0.6rem, 1.2vw, 0.85rem);
+    min-height: 38px;
+    border-radius: clamp(0.3rem, 0.8vw, 0.4rem);
+    width: 100%;
+  }
+
+  textarea {
+    min-height: clamp(80px, 20vw, 120px);
+    resize: vertical;
+  }
+
+  select {
+    padding-right: clamp(1.5rem, 3vw, 2rem);
+  }
+}
+
+@media (max-width: 480px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="date"],
+  textarea,
+  select {
+    font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+    padding: clamp(0.4rem, 0.8vw, 0.6rem) clamp(0.5rem, 1vw, 0.75rem);
+    min-height: 36px;
+    border-radius: clamp(0.25rem, 0.6vw, 0.35rem);
+  }
+
+  textarea {
+    min-height: clamp(70px, 18vw, 100px);
+  }
+
+  select {
+    padding-right: clamp(1.25rem, 2.5vw, 1.75rem);
+  }
+}
+
+@media (max-width: 390px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="date"],
+  textarea,
+  select {
+    font-size: clamp(0.65rem, 1.3vw, 0.8rem);
+    padding: clamp(0.35rem, 0.7vw, 0.55rem) clamp(0.45rem, 0.8vw, 0.7rem);
+    min-height: 34px;
+  }
+
+  textarea {
+    min-height: clamp(60px, 15vw, 80px);
+  }
+
+  select {
+    padding-right: clamp(1.1rem, 2vw, 1.5rem);
+  }
+}
+
+/* ============================================
+   MOBILE RESPONSIVE ICON BUTTONS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .icon-btn,
+  button svg,
+  button i,
+  .btn svg,
+  .btn i {
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    width: clamp(32px, 3vw, 40px);
+    height: clamp(32px, 3vw, 40px);
+  }
+}
+
+@media (max-width: 480px) {
+  .icon-btn,
+  button svg,
+  button i,
+  .btn svg,
+  .btn i {
+    font-size: clamp(0.8rem, 1.8vw, 1rem);
+    width: clamp(30px, 2.5vw, 36px);
+    height: clamp(30px, 2.5vw, 36px);
+  }
+}
+
+@media (max-width: 390px) {
+  .icon-btn,
+  button svg,
+  button i,
+  .btn svg,
+  .btn i {
+    font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+    width: clamp(28px, 2vw, 32px);
+    height: clamp(28px, 2vw, 32px);
+  }
+}
+
+/* ============================================
+   MOBILE RESPONSIVE BUTTON GROUPS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .btn-group,
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(0.4rem, 1vw, 0.6rem);
+  }
+
+  .btn-group .btn,
+  .button-group button {
+    flex: 1;
+    min-width: clamp(80px, 20vw, 120px);
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-group,
+  .button-group {
+    gap: clamp(0.3rem, 0.8vw, 0.5rem);
+  }
+
+  .btn-group .btn,
+  .button-group button {
+    flex: 1;
+    min-width: clamp(70px, 18vw, 100px);
+  }
+}

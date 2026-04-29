@@ -7,6 +7,7 @@ import CrudActions from "./CrudActions";
 import crudUtils from "../utils/crudUtils";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import usePermissions from "../utils/usePermissions";
+import { preserveScrollPosition, restoreScrollPosition } from "../utils/scrollPreserver";
 
 const CustomersPage = () => {
   const { canPerformActions, canView, isComponentDisabled } = usePermissions();
@@ -44,9 +45,11 @@ const CustomersPage = () => {
   // Add blur effect to background when modal opens
   useEffect(() => {
     if (showModal) {
+      preserveScrollPosition();
       document.body.classList.add('modal-open');
     } else {
       document.body.classList.remove('modal-open');
+      restoreScrollPosition();
     }
     return () => {
       document.body.classList.remove('modal-open');
@@ -56,9 +59,11 @@ const CustomersPage = () => {
   // Add blur effect to background when add modal opens
   useEffect(() => {
     if (showAddModal) {
+      preserveScrollPosition();
       document.body.classList.add('modal-open');
     } else {
       document.body.classList.remove('modal-open');
+      restoreScrollPosition();
     }
     return () => {
       document.body.classList.remove('modal-open');

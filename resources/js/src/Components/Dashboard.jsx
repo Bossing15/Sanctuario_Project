@@ -11,6 +11,7 @@ import AuthorizationModal from './AuthorizationModal';
 import ReservationDetailsModal from './ReservationDetailsModal';
 import ServiceCompletionModal from './ServiceCompletionModal';
 import './Dashboard.css';
+import { preserveScrollPosition, restoreScrollPosition } from '../utils/scrollPreserver';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -1188,9 +1189,11 @@ const MaintenanceModal = ({ request, canManageInquiries, onClose, onUpdate }) =>
 
   useEffect(() => {
     // Manage blur effect
+    preserveScrollPosition();
     document.body.classList.add('modal-open');
     return () => {
       document.body.classList.remove('modal-open');
+      restoreScrollPosition();
     };
   }, [onClose]);
 

@@ -64,6 +64,18 @@ const Navbar = ({ collapsed, mobileMenuOpen, setMobileMenuOpen }) => {
   return (
     <div className={`navbar ${collapsed ? "collapsed" : ""} ${mounted ? "no-transition" : ""}`}>
       <div className="flex items-center gap-4">
+        {/* Show logo when sidebar is collapsed */}
+        {collapsed && !isMobile && (
+          <img
+            src={logo}
+            alt="Sanctuario Logo"
+            className="navbar-logo-when-collapsed"
+            onError={(e) => {
+              console.error('Logo failed to load:', e.target.src);
+              e.target.outerHTML = '<div class="text-neutral-800 font-bold text-sm">SANCTUARIO</div>';
+            }}
+          />
+        )}
         {isMobile && (
           <button
             className="mobile-hamburger-btn"

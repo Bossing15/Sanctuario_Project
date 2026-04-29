@@ -5,6 +5,7 @@ import inquiryIcon from "../assets/icons/icons8-services-50.png";
 import usePermissions from '../utils/usePermissions';
 import { TableSkeleton } from './SkeletonLoader';
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import { preserveScrollPosition, restoreScrollPosition } from '../utils/scrollPreserver';
 
 function InquiriesManagement() {
   const { canPerformActions } = usePermissions();
@@ -38,9 +39,11 @@ function InquiriesManagement() {
   // Add blur effect to background when modal opens
   useEffect(() => {
     if (showDetailModal) {
+      preserveScrollPosition();
       document.body.classList.add('modal-open');
     } else {
       document.body.classList.remove('modal-open');
+      restoreScrollPosition();
     }
     return () => {
       document.body.classList.remove('modal-open');

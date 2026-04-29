@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { preserveScrollPosition, restoreScrollPosition } from '../utils/scrollPreserver';
 
 /**
  * Hook to lock/unlock body scroll when modal is open
@@ -7,7 +8,8 @@ import { useEffect } from 'react';
 export const useModalScrollLock = (isOpen) => {
   useEffect(() => {
     if (isOpen) {
-      // Add scroll lock class to body
+      // Preserve scroll position and add scroll lock class to body
+      preserveScrollPosition();
       document.body.classList.add('modal-open');
       // Also set overflow hidden as backup
       document.body.style.overflow = 'hidden';
@@ -16,6 +18,8 @@ export const useModalScrollLock = (isOpen) => {
       document.body.classList.remove('modal-open');
       // Remove inline overflow style
       document.body.style.overflow = '';
+      // Restore scroll position
+      restoreScrollPosition();
     }
 
     // Cleanup on unmount

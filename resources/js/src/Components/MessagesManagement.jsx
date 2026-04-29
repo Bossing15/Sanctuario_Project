@@ -8,6 +8,7 @@ import SmsModal from './SmsModal';
 import { TableSkeleton } from './SkeletonLoader';
 import CrudActions from './CrudActions';
 import crudUtils from '../utils/crudUtils';
+import { preserveScrollPosition, restoreScrollPosition } from '../utils/scrollPreserver';
 
 const MessagesManagement = () => {
   const { canPerformActions } = usePermissions();
@@ -30,9 +31,11 @@ const MessagesManagement = () => {
   // Add blur effect to background when modal opens
   useEffect(() => {
     if (showDetailModal) {
+      preserveScrollPosition();
       document.body.classList.add('modal-open');
     } else {
       document.body.classList.remove('modal-open');
+      restoreScrollPosition();
     }
     return () => {
       document.body.classList.remove('modal-open');

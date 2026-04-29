@@ -4,6 +4,7 @@ import StatsCards from './StatsCards';
 import CrudActions from './CrudActions';
 import crudUtils from '../utils/crudUtils';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
+import { preserveScrollPosition, restoreScrollPosition } from '../utils/scrollPreserver';
 
 const PaymentManagement = ({ canManageBilling = true }) => {
   const [payments, setPayments] = useState([]);
@@ -22,9 +23,11 @@ const PaymentManagement = ({ canManageBilling = true }) => {
   // Add blur effect to background when modal opens
   useEffect(() => {
     if (showReceiptModal) {
+      preserveScrollPosition();
       document.body.classList.add('modal-open');
     } else {
       document.body.classList.remove('modal-open');
+      restoreScrollPosition();
     }
     return () => {
       document.body.classList.remove('modal-open');

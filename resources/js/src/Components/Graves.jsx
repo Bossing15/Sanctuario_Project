@@ -5,6 +5,7 @@ import usePermissions from "../utils/usePermissions";
 import { TableSkeleton } from "./SkeletonLoader";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import StatsCards from "./StatsCards";
+import { preserveScrollPosition, restoreScrollPosition } from "../utils/scrollPreserver";
 
 export default function Graves() {
   const { canPerformActions } = usePermissions();
@@ -36,9 +37,11 @@ export default function Graves() {
   // Add blur effect to background when modals open
   useEffect(() => {
     if (showModal || showEditGraveModal) {
+      preserveScrollPosition();
       document.body.classList.add('modal-open');
     } else {
       document.body.classList.remove('modal-open');
+      restoreScrollPosition();
     }
     return () => {
       document.body.classList.remove('modal-open');
