@@ -86,7 +86,7 @@
   height: 32px;
   width: auto;
   object-fit: contain;
-  padding-right: 0.5rem;
+  padding-right: 1rem;
   flex-shrink: 0;
 }
 
