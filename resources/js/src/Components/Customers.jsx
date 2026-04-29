@@ -8,6 +8,7 @@ import crudUtils from "../utils/crudUtils";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import usePermissions from "../utils/usePermissions";
 import { preserveScrollPosition, restoreScrollPosition } from "../utils/scrollPreserver";
+import { getSequentialIdFromIndex } from "../utils/tableIdGenerator";
 
 const CustomersPage = () => {
   const { canPerformActions, canView, isComponentDisabled } = usePermissions();
@@ -694,9 +695,9 @@ const CustomersPage = () => {
                           customer.email.toLowerCase().includes(query) ||
                           customer.phone.toLowerCase().includes(query)
                         );
-                      }).map((customer) => (
+                      }).map((customer, index) => (
                         <tr key={customer.id}>
-                          <td className="font-mono">{customer.id}</td>
+                          <td className="font-mono">{getSequentialIdFromIndex(index)}</td>
                           <td className="font-bold">{customer.name}</td>
                           <td>{customer.email}</td>
                           <td>{customer.phone}</td>

@@ -8,6 +8,7 @@ import ProductEditor from "./ProductEditor";
 import ServiceDetailEditorInline from "./ServiceDetailEditorInline";
 import StatsCards from "./StatsCards";
 import CrudActions from "./CrudActions";
+import { getSequentialIdFromIndex } from "../utils/tableIdGenerator";
 import crudUtils from "../utils/crudUtils";
 import "./MaintenanceHeader.css";
 
@@ -351,9 +352,9 @@ const Products = () => {
                           product.category.toLowerCase().includes(query) ||
                           product.status.toLowerCase().includes(query)
                         );
-                      }).map((product) => (
+                      }).map((product, index) => (
                         <tr key={product.id}>
-                          <td className="font-mono">{product.id}</td>
+                          <td className="font-mono">{getSequentialIdFromIndex(index)}</td>
                           <td className="font-bold">{product.title}</td>
                           <td>{product.category}</td>
                           <td>{product.price_monthly || "N/A"}</td>

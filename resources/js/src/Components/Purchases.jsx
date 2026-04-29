@@ -4,6 +4,7 @@ import CrudActions from './CrudActions';
 import crudUtils from '../utils/crudUtils';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import './Purchases.css';
+import { getSequentialIdFromIndex } from '../utils/tableIdGenerator';
 
 const Purchases = () => {
   const [purchases, setPurchases] = useState([]);
@@ -250,9 +251,9 @@ const Purchases = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredPurchases.map((purchase) => (
+                  filteredPurchases.map((purchase, index) => (
                     <tr key={purchase.id}>
-                      <td className="font-mono font-semibold">#{purchase.id}</td>
+                      <td className="font-mono font-semibold">#{getSequentialIdFromIndex(index)}</td>
                       <td className="font-semibold">{purchase.client?.name || 'N/A'}</td>
                       <td className="text-sm">{purchase.client?.email || 'N/A'}</td>
                       <td>{purchase.product?.title || 'N/A'}</td>

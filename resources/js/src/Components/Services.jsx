@@ -8,6 +8,7 @@ import InlineServiceEditor from "./InlineServiceEditor";
 import ServiceDetailEditorInline from "./ServiceDetailEditorInline";
 import MaintenanceHeader from "./MaintenanceHeader";
 import StatsCards from "./StatsCards";
+import { getSequentialIdFromIndex } from "../utils/tableIdGenerator";
 import CrudActions from "./CrudActions";
 import crudUtils from "../utils/crudUtils";
 import "./MaintenanceHeader.css";
@@ -367,9 +368,9 @@ const Services = () => {
                           service.category.toLowerCase().includes(query) ||
                           service.status.toLowerCase().includes(query)
                         );
-                      }).map((service) => (
+                      }).map((service, index) => (
                         <tr key={service.id}>
-                          <td className="font-mono">{service.id}</td>
+                          <td className="font-mono">{getSequentialIdFromIndex(index)}</td>
                           <td className="font-bold">{service.title}</td>
                           <td>{service.category}</td>
                           <td>{service.price_monthly || "N/A"}</td>

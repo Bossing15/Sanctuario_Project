@@ -5,6 +5,7 @@ import StatsCards from "./StatsCards";
 import CrudActions from "./CrudActions";
 import crudUtils from "../utils/crudUtils";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import { getSequentialIdFromIndex } from "../utils/tableIdGenerator";
 
 const Maintenance = () => {
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
@@ -196,9 +197,9 @@ const Maintenance = () => {
                         request.type.toLowerCase().includes(query) ||
                         request.description.toLowerCase().includes(query)
                       );
-                    }).map((request) => (
+                    }).map((request, index) => (
                       <tr key={request.id}>
-                        <td className="font-mono">{request.id}</td>
+                        <td className="font-mono">{getSequentialIdFromIndex(index)}</td>
                         <td>{request.type}</td>
                         <td>{request.description}</td>
                         <td className="text-center">

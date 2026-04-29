@@ -6,6 +6,7 @@ import { TableSkeleton } from "./SkeletonLoader";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import StatsCards from "./StatsCards";
 import { preserveScrollPosition, restoreScrollPosition } from "../utils/scrollPreserver";
+import { getSequentialIdFromIndex } from "../utils/tableIdGenerator";
 
 export default function Graves() {
   const { canPerformActions } = usePermissions();
@@ -497,9 +498,9 @@ export default function Graves() {
                             grave.customer.toLowerCase().includes(query) ||
                             (grave.product_type && grave.product_type.toLowerCase().includes(query))
                           );
-                        }).map((grave) => (
+                        }).map((grave, index) => (
                           <tr key={grave.id}>
-                            <td className="font-mono">{grave.id}</td>
+                            <td className="font-mono">{getSequentialIdFromIndex(index)}</td>
                             <td className="font-bold">{grave.deceased_name}</td>
                             <td>{grave.grave_location}</td>
                             <td>{grave.customer}</td>

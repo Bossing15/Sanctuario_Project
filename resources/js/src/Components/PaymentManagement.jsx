@@ -5,6 +5,7 @@ import CrudActions from './CrudActions';
 import crudUtils from '../utils/crudUtils';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import { preserveScrollPosition, restoreScrollPosition } from '../utils/scrollPreserver';
+import { getSequentialIdFromIndex } from '../utils/tableIdGenerator';
 
 const PaymentManagement = ({ canManageBilling = true }) => {
   const [payments, setPayments] = useState([]);
@@ -239,7 +240,7 @@ const PaymentManagement = ({ canManageBilling = true }) => {
                   const query = searchQuery.toLowerCase();
                   return customerName.toLowerCase().includes(query) || reference.toLowerCase().includes(query);
                 })
-                .map((payment) => {
+                .map((payment, index) => {
                 const customerName = payment.customer_name || payment.client?.name || 'Guest';
                 const productService = payment.description || 
                                       payment.service?.name || 
@@ -248,7 +249,7 @@ const PaymentManagement = ({ canManageBilling = true }) => {
                 
                 return (
                 <tr key={payment.id}>
-                  <td className="font-mono">{payment.id}</td>
+                  <td className="font-mono">{getSequentialIdFromIndex(index)}</td>
                   <td className="font-bold">{customerName}</td>
                   <td>{productService}</td>
                   <td className="currency">
