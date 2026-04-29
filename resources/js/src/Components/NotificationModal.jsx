@@ -6,10 +6,48 @@ import { useModalScrollLock } from '../hooks/useModalScrollLock';
 const NotificationModal = ({ isOpen, onClose, triggerButtonRef, onUnreadCountChange }) => {
   const [activeTab, setActiveTab] = useState('all');
   const [readNotifications, setReadNotifications] = useState(new Set());
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
   const modalRef = useRef(null);
 
   // Lock scroll when modal is open
   useModalScrollLock(isOpen);
+
+  // Fetch notifications from API
+  useEffect(() => {
+    if (isOpen) {
+      fetchNotifications();
+    }
+  }, [isOpen]);
+
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('authToken');
+      
+      // Fetch from API - adjust endpoint as needed
+      const response = await fetch('/api/admin/notifications', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data.data || []);
+      } else {
+        // If API endpoint doesn't exist, show empty state
+        setNotifications([]);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      setNotifications([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -32,69 +70,6 @@ const NotificationModal = ({ isOpen, onClose, triggerButtonRef, onUnreadCountCha
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen, onClose, triggerButtonRef]);
-
-  const notifications = [
-    {
-      id: 1,
-      type: 'payment',
-      title: 'New Payment Received',
-      message: 'Maria Dela Cruz completed payment for Grave Maintenance service',
-      time: '5 minutes ago',
-      read: false,
-      icon: 'payment',
-      color: 'forest-green'
-    },
-    {
-      id: 2,
-      type: 'client',
-      title: 'New Client Registration',
-      message: 'Juan Santos registered as a new client',
-      time: '1 hour ago',
-      read: false,
-      icon: 'client',
-      color: 'blue'
-    },
-    {
-      id: 3,
-      type: 'service',
-      title: 'Service Request',
-      message: 'Pedro Garcia requested Grave Restoration service',
-      time: '2 hours ago',
-      read: true,
-      icon: 'service',
-      color: 'purple'
-    },
-    {
-      id: 4,
-      type: 'pending',
-      title: 'Payment Pending',
-      message: 'Ana Martinez has a pending payment for Monthly Plan',
-      time: '3 hours ago',
-      read: true,
-      icon: 'pending',
-      color: 'orange'
-    },
-    {
-      id: 5,
-      type: 'system',
-      title: 'System Update',
-      message: 'Database backup completed successfully',
-      time: '5 hours ago',
-      read: true,
-      icon: 'system',
-      color: 'forest-green'
-    },
-    {
-      id: 6,
-      type: 'client',
-      title: 'Client Update',
-      message: 'Rosa Cruz updated their profile information',
-      time: '1 day ago',
-      read: true,
-      icon: 'client',
-      color: 'blue'
-    }
-  ];
 
   const filterNotifications = () => {
     if (activeTab === 'unread') {
@@ -295,7 +270,11 @@ const NotificationModal = ({ isOpen, onClose, triggerButtonRef, onUnreadCountCha
 
       {/* Notifications List */}
       <div style={{ flex: 1, overflowY: 'auto', maxHeight: '400px', minWidth: 0 }}>
-        {filterNotifications().length === 0 ? (
+        {loading ? (
+          <div style={{ padding: '40px 20px', textAlign: 'center', color: '#9ca3af' }}>
+            <p style={{ margin: '0', fontSize: '14px' }}>Loading notifications...</p>
+          </div>
+        ) : filterNotifications().length === 0 ? (
           <div style={{ padding: '40px 20px', textAlign: 'center', color: '#9ca3af' }}>
             <p style={{ margin: '0', fontSize: '14px' }}>No notifications</p>
           </div>
@@ -357,20 +336,22 @@ const NotificationModal = ({ isOpen, onClose, triggerButtonRef, onUnreadCountCha
         backgroundColor: '#f9fafb',
         flexShrink: 0
       }}>
-        <button style={{
-          width: '100%',
-          padding: '8px 12px',
-          border: 'none',
-          borderRadius: '6px',
-          backgroundColor: 'transparent',
-          color: '#1B3022',
-          fontSize: '12px',
-          fontWeight: '600',
-          cursor: 'pointer',
-          transition: 'all 200ms ease'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+        <button 
+          onClick={() => setReadNotifications(new Set(notifications.map(n => n.id)))}
+          style={{
+            width: '100%',
+            padding: '8px 12px',
+            border: 'none',
+            borderRadius: '6px',
+            backgroundColor: 'transparent',
+            color: '#1B3022',
+            fontSize: '12px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'all 200ms ease'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
         >
           Mark all as read
         </button>
