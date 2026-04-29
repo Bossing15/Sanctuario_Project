@@ -23,7 +23,7 @@
   left: 0;
   top: 0;
   height: 100vh;
-  width: 240px;
+  width: 260px;
   background: var(--color-sidebar);
   color: white;
   padding: 0;
@@ -45,7 +45,7 @@
 }
 
 .sidebar.collapsed {
-  width: 70px;
+  width: 75px;
 }
 
 .sidebar-header {
@@ -202,7 +202,7 @@
   position: fixed;
   top: 0;
   right: 0;
-  left: 280px;
+  left: 260px;
   height: 70px;
   background: var(--color-navbar);
   border-bottom: 1px solid rgba(212, 196, 168, 0.1);
@@ -221,12 +221,12 @@
 }
 
 .navbar.collapsed {
-  left: 80px;
+  left: 75px;
 }
 
 main {
   margin-top: 70px;
-  margin-left: 280px;
+  margin-left: 260px;
   padding: 0;
   margin-bottom: 0;
   background-color: var(--color-bg-main) !important;
@@ -497,27 +497,27 @@ main.collapsed {
 
 @media (max-width: 1024px) {
   .sidebar {
-    width: 240px;
+    width: 260px;
   }
 
   .navbar {
-    left: 240px;
+    left: 260px;
   }
 
   main {
-    margin-left: 240px;
+    margin-left: 260px;
   }
 
   .sidebar.collapsed {
-    width: 70px;
+    width: 75px;
   }
 
   .navbar.collapsed {
-    left: 70px;
+    left: 75px;
   }
 
   main.collapsed {
-    margin-left: 70px;
+    margin-left: 75px;
   }
 }
 
@@ -642,7 +642,7 @@ main.collapsed {
     left: 0;
     top: 0;
     bottom: 0;
-    width: 240px;
+    width: 260px;
     background: var(--color-sidebar);
     color: white;
     z-index: 46;
@@ -827,7 +827,7 @@ main.collapsed {
 
   /* Mobile sidebar optimization */
   .mobile-sidebar {
-    width: 220px;
+    width: 240px;
   }
 
   .mobile-sidebar-header {
