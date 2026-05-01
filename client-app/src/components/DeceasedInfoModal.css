@@ -46,11 +46,6 @@
   font-size: 24px;
   cursor: pointer;
   color: #999;
-  transition: color 0.2s ease;
-}
-
-.deceased-info-modal .modal-close:hover {
-  color: #333;
 }
 
 .deceased-form {

@@ -51,13 +51,7 @@ body.modal-open {
   justify-content: center;
   cursor: pointer;
   font-size: 24px;
-  transition: all 0.3s ease;
   z-index: 10;
-}
-
-.image-modal-close:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: rotate(90deg);
 }
 
 .image-modal-nav {

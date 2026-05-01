@@ -63,13 +63,7 @@ body.modal-open {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: all 0.2s ease;
   line-height: 1;
-}
-
-.alert-modal-close-btn:hover {
-  background: #f5f5f5;
-  color: #666;
 }
 
 .alert-modal-icon {

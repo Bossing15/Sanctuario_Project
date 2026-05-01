@@ -48,12 +48,6 @@
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  transition: all 200ms ease;
-}
-
-.purpose-selection-modal .modal-close:hover {
-  background-color: #f3f4f6;
-  color: #1a1a1a;
 }
 
 .purpose-selection-modal .modal-content {

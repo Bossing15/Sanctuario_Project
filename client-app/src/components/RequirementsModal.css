@@ -66,13 +66,7 @@ body.modal-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
   line-height: 1;
-}
-
-.requirements-close-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: rotate(90deg);
 }
 
 .requirements-modal-body {

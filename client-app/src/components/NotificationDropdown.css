@@ -55,11 +55,6 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.2s ease;
-}
-
-.notification-close-btn:hover {
-  background-color: rgba(5, 150, 105, 0.8);
 }
 
 .notification-close-btn svg {
