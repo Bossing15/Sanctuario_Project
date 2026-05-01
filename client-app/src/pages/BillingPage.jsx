@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaDownload, FaPrint, FaEye } from 'react-icons/fa';
+import { FaDownload, FaPrint, FaEye, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import PaymentModal from '../components/PaymentModal';
 import AlertModal from '../components/AlertModal';
 import './BillingPage.css';
@@ -18,6 +18,7 @@ function BillingPage() {
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [selectedReceiptPayment, setSelectedReceiptPayment] = useState(null);
   const [highlightedPaymentId, setHighlightedPaymentId] = useState(null);
+  const [expandedRows, setExpandedRows] = useState({});
 
   useEffect(() => {
     fetchPendingPayments();
@@ -321,6 +322,13 @@ function BillingPage() {
     }, 0);
   };
 
+  const toggleRowExpanded = (rowId) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [rowId]: !prev[rowId]
+    }));
+  };
+
   const generateReceiptHTML = (payment) => {
     const userName = localStorage.getItem('userName') || 'Guest';
     const userEmail = localStorage.getItem('userEmail') || 'N/A';
@@ -561,77 +569,128 @@ function BillingPage() {
                 <div className="balance-amount">{formatCurrency(getTotalBalance())}</div>
               </div>
 
-              <div className="payments-list">
-                {pendingPayments.map((payment) => (
-                  <div 
-                    key={payment.id} 
-                    id={`payment-${payment.id}`}
-                    className={`payment-item ${highlightedPaymentId === payment.id ? 'highlighted' : ''}`}
-                  >
-                    <div className="payment-info">
-                      <div className="payment-header">
-                        <h4>{payment.description || 'Service Payment'}</h4>
-                        <span className={`payment-status ${payment.status}`}>
-                          {payment.status === 'overdue' ? '⚠️ Overdue' : '⏳ Pending'}
-                        </span>
-                      </div>
-                      <div className="payment-details">
-                        <div className="detail-item">
-                          <span className="detail-label">Invoice Number:</span>
-                          <span className="detail-value" style={{ fontWeight: 'bold', color: '#3b82f6' }}>{payment.invoice_number || 'N/A'}</span>
+              <div className="payments-table-container">
+                <div className="table-header">
+                  <div className="table-cell header-cell expand-cell"></div>
+                  <div className="table-cell header-cell">Invoice Number</div>
+                  <div className="table-cell header-cell">Description</div>
+                  <div className="table-cell header-cell">Amount</div>
+                  <div className="table-cell header-cell">Status</div>
+                  <div className="table-cell header-cell">Due Date</div>
+                  <div className="table-cell header-cell">Actions</div>
+                </div>
+                <div className="table-body">
+                  {pendingPayments.map((payment) => {
+                    const rowId = `payment-${payment.id}`;
+                    const isExpanded = expandedRows[rowId];
+                    
+                    return (
+                      <div key={rowId}>
+                        <div 
+                          className={`table-row ${highlightedPaymentId === payment.id ? 'highlighted' : ''}`}
+                          id={`payment-${payment.id}`}
+                        >
+                          <div className="table-cell expand-cell">
+                            <button 
+                              className="expand-btn"
+                              onClick={() => toggleRowExpanded(rowId)}
+                              title="View details"
+                            >
+                              {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                            </button>
+                          </div>
+                          <div className="table-cell invoice-cell">
+                            <span className="invoice-number">{payment.invoice_number || 'N/A'}</span>
+                          </div>
+                          <div className="table-cell description-cell">
+                            {payment.description || 'Service Payment'}
+                          </div>
+                          <div className="table-cell amount-cell">
+                            {formatCurrency(payment.amount)}
+                          </div>
+                          <div className="table-cell status-cell">
+                            <span className={`status-badge ${payment.status}`}>
+                              {payment.status === 'overdue' ? '⚠️ Overdue' : '⏳ Pending'}
+                            </span>
+                          </div>
+                          <div className="table-cell date-cell">
+                            {formatDate(payment.due_date)}
+                          </div>
+                          <div className="table-cell actions-cell">
+                            <button 
+                              className="action-btn view-btn"
+                              onClick={() => handleViewReceipt(payment)}
+                              title="View Invoice"
+                            >
+                              <FaEye />
+                            </button>
+                            <button 
+                              className="action-btn download-btn"
+                              onClick={() => handleDownloadReceipt(payment)}
+                              title="Download Invoice"
+                            >
+                              <FaDownload />
+                            </button>
+                            <button 
+                              className="action-btn print-btn"
+                              onClick={() => handlePrintReceipt(payment)}
+                              title="Print Invoice"
+                            >
+                              <FaPrint />
+                            </button>
+                            <button 
+                              className="action-btn pay-btn"
+                              onClick={() => handlePayNow(payment)}
+                              title="Pay Now"
+                            >
+                              Pay
+                            </button>
+                          </div>
                         </div>
-                        {payment.transaction_id && (
-                          <div className="detail-item">
-                            <span className="detail-label">Transaction ID:</span>
-                            <span className="detail-value" style={{ fontWeight: 'bold', color: '#10b981' }}>{payment.transaction_id}</span>
+                        {isExpanded && (
+                          <div className="table-row-details">
+                            <div className="details-content">
+                              <div className="detail-item">
+                                <span className="detail-label">Invoice Number:</span>
+                                <span className="detail-value">{payment.invoice_number || 'N/A'}</span>
+                              </div>
+                              <div className="detail-item">
+                                <span className="detail-label">Description:</span>
+                                <span className="detail-value">{payment.description || 'Service Payment'}</span>
+                              </div>
+                              <div className="detail-item">
+                                <span className="detail-label">Amount:</span>
+                                <span className="detail-value">{formatCurrency(payment.amount)}</span>
+                              </div>
+                              <div className="detail-item">
+                                <span className="detail-label">Status:</span>
+                                <span className="detail-value">{payment.status === 'overdue' ? 'Overdue' : 'Pending'}</span>
+                              </div>
+                              <div className="detail-item">
+                                <span className="detail-label">Due Date:</span>
+                                <span className="detail-value">{formatDate(payment.due_date)}</span>
+                              </div>
+                              {payment.transaction_id && (
+                                <div className="detail-item">
+                                  <span className="detail-label">Transaction ID:</span>
+                                  <span className="detail-value">{payment.transaction_id}</span>
+                                </div>
+                              )}
+                              <div className="detail-item">
+                                <span className="detail-label">Plan Type:</span>
+                                <span className="detail-value">{payment.payment_type || 'One-time'}</span>
+                              </div>
+                              <div className="detail-item">
+                                <span className="detail-label">Created Date:</span>
+                                <span className="detail-value">{formatDate(payment.created_at)}</span>
+                              </div>
+                            </div>
                           </div>
                         )}
-                        <div className="detail-item">
-                          <span className="detail-label">Plan:</span>
-                          <span className="detail-value">{payment.payment_type || 'One-time'}</span>
-                        </div>
-                        <div className="detail-item">
-                          <span className="detail-label">Due Date:</span>
-                          <span className="detail-value">{formatDate(payment.due_date)}</span>
-                        </div>
                       </div>
-                    </div>
-                    <div className="payment-action">
-                      <div className="payment-amount">{formatCurrency(payment.amount)}</div>
-                      <div className="payment-action-buttons">
-                        <div className="receipt-actions">
-                          <button 
-                            className="receipt-btn view-btn"
-                            onClick={() => handleViewReceipt(payment)}
-                            title="View Invoice"
-                          >
-                            <FaEye /> View
-                          </button>
-                          <button 
-                            className="receipt-btn download-btn"
-                            onClick={() => handleDownloadReceipt(payment)}
-                            title="Download Invoice"
-                          >
-                            <FaDownload /> Download
-                          </button>
-                          <button 
-                            className="receipt-btn print-btn"
-                            onClick={() => handlePrintReceipt(payment)}
-                            title="Print Invoice"
-                          >
-                            <FaPrint /> Print
-                          </button>
-                        </div>
-                        <button 
-                          className="pay-now-btn"
-                          onClick={() => handlePayNow(payment)}
-                        >
-                          Pay Now
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })}
+                </div>
               </div>
             </>
             )
@@ -642,69 +701,118 @@ function BillingPage() {
                 <p>You don't have any completed payments yet.</p>
               </div>
             ) : (
-              <div className="payments-list">
-                {completedPayments.map((payment) => (
-                  <div key={payment.id} className="payment-item completed">
-                    <div className="payment-info">
-                      <div className="payment-header">
-                        <h4>{payment.description || 'Service Payment'}</h4>
-                        <span className="payment-status completed">
-                          ✓ Paid
-                        </span>
-                      </div>
-                      <div className="payment-details">
-                        <div className="detail-item">
-                          <span className="detail-label">Invoice Number:</span>
-                          <span className="detail-value" style={{ fontWeight: 'bold', color: '#3b82f6' }}>{payment.invoice_number || 'N/A'}</span>
+              <div className="payments-table-container">
+                <div className="table-header">
+                  <div className="table-cell header-cell expand-cell"></div>
+                  <div className="table-cell header-cell">Invoice Number</div>
+                  <div className="table-cell header-cell">Description</div>
+                  <div className="table-cell header-cell">Amount</div>
+                  <div className="table-cell header-cell">Status</div>
+                  <div className="table-cell header-cell">Paid Date</div>
+                  <div className="table-cell header-cell">Actions</div>
+                </div>
+                <div className="table-body">
+                  {completedPayments.map((payment) => {
+                    const rowId = `completed-${payment.id}`;
+                    const isExpanded = expandedRows[rowId];
+                    
+                    return (
+                      <div key={rowId}>
+                        <div className="table-row completed">
+                          <div className="table-cell expand-cell">
+                            <button 
+                              className="expand-btn"
+                              onClick={() => toggleRowExpanded(rowId)}
+                              title="View details"
+                            >
+                              {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                            </button>
+                          </div>
+                          <div className="table-cell invoice-cell">
+                            <span className="invoice-number">{payment.invoice_number || 'N/A'}</span>
+                          </div>
+                          <div className="table-cell description-cell">
+                            {payment.description || 'Service Payment'}
+                          </div>
+                          <div className="table-cell amount-cell">
+                            {formatCurrency(payment.amount)}
+                          </div>
+                          <div className="table-cell status-cell">
+                            <span className="status-badge completed">
+                              ✓ Paid
+                            </span>
+                          </div>
+                          <div className="table-cell date-cell">
+                            {payment.paid_date ? formatDate(payment.paid_date) : 'N/A'}
+                          </div>
+                          <div className="table-cell actions-cell">
+                            <button 
+                              className="action-btn view-btn"
+                              onClick={() => handleViewReceipt(payment)}
+                              title="View Receipt"
+                            >
+                              <FaEye />
+                            </button>
+                            <button 
+                              className="action-btn download-btn"
+                              onClick={() => handleDownloadReceipt(payment)}
+                              title="Download Receipt"
+                            >
+                              <FaDownload />
+                            </button>
+                            <button 
+                              className="action-btn print-btn"
+                              onClick={() => handlePrintReceipt(payment)}
+                              title="Print Receipt"
+                            >
+                              <FaPrint />
+                            </button>
+                          </div>
                         </div>
-                        {payment.transaction_id && (
-                          <div className="detail-item">
-                            <span className="detail-label">Transaction ID:</span>
-                            <span className="detail-value" style={{ fontWeight: 'bold', color: '#10b981' }}>{payment.transaction_id}</span>
+                        {isExpanded && (
+                          <div className="table-row-details">
+                            <div className="details-content">
+                              <div className="detail-item">
+                                <span className="detail-label">Invoice Number:</span>
+                                <span className="detail-value">{payment.invoice_number || 'N/A'}</span>
+                              </div>
+                              <div className="detail-item">
+                                <span className="detail-label">Description:</span>
+                                <span className="detail-value">{payment.description || 'Service Payment'}</span>
+                              </div>
+                              <div className="detail-item">
+                                <span className="detail-label">Amount:</span>
+                                <span className="detail-value">{formatCurrency(payment.amount)}</span>
+                              </div>
+                              <div className="detail-item">
+                                <span className="detail-label">Status:</span>
+                                <span className="detail-value">Paid</span>
+                              </div>
+                              <div className="detail-item">
+                                <span className="detail-label">Paid Date:</span>
+                                <span className="detail-value">{payment.paid_date ? formatDate(payment.paid_date) : 'N/A'}</span>
+                              </div>
+                              {payment.transaction_id && (
+                                <div className="detail-item">
+                                  <span className="detail-label">Transaction ID:</span>
+                                  <span className="detail-value">{payment.transaction_id}</span>
+                                </div>
+                              )}
+                              <div className="detail-item">
+                                <span className="detail-label">Payment Method:</span>
+                                <span className="detail-value">{payment.payment_method || 'N/A'}</span>
+                              </div>
+                              <div className="detail-item">
+                                <span className="detail-label">Plan Type:</span>
+                                <span className="detail-value">{payment.payment_type || 'One-time'}</span>
+                              </div>
+                            </div>
                           </div>
                         )}
-                        <div className="detail-item">
-                          <span className="detail-label">Plan:</span>
-                          <span className="detail-value">{payment.payment_type || 'One-time'}</span>
-                        </div>
-                        <div className="detail-item">
-                          <span className="detail-label">Paid Date:</span>
-                          <span className="detail-value">{payment.paid_date ? formatDate(payment.paid_date) : 'N/A'}</span>
-                        </div>
-                        <div className="detail-item">
-                          <span className="detail-label">Payment Method:</span>
-                          <span className="detail-value">{payment.payment_method}</span>
-                        </div>
                       </div>
-                    </div>
-                    <div className="payment-action">
-                      <div className="payment-amount">{formatCurrency(payment.amount)}</div>
-                      <div className="receipt-actions">
-                        <button 
-                          className="receipt-btn view-btn"
-                          onClick={() => handleViewReceipt(payment)}
-                          title="View Receipt"
-                        >
-                          <FaEye /> View
-                        </button>
-                        <button 
-                          className="receipt-btn download-btn"
-                          onClick={() => handleDownloadReceipt(payment)}
-                          title="Download Receipt"
-                        >
-                          <FaDownload /> Download
-                        </button>
-                        <button 
-                          className="receipt-btn print-btn"
-                          onClick={() => handlePrintReceipt(payment)}
-                          title="Print Receipt"
-                        >
-                          <FaPrint /> Print
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })}
+                </div>
               </div>
             )
           )}
