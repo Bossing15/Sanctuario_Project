@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './NotificationDropdown.css';
 
-function NotificationDropdown({ isOpen, onClose, buttonRef }) {
+function NotificationDropdown({ isOpen, onClose, buttonRef, onUnreadStatusChange }) {
   const [notifications, setNotifications] = useState([]);
   const [activeTab, setActiveTab] = useState('all');
   const [loading, setLoading] = useState(false);
@@ -46,6 +46,12 @@ function NotificationDropdown({ isOpen, onClose, buttonRef }) {
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications || []);
+        
+        // Update unread status in parent
+        const hasUnread = (data.notifications || []).some(n => !n.is_read);
+        if (onUnreadStatusChange) {
+          onUnreadStatusChange(hasUnread);
+        }
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -64,7 +70,7 @@ function NotificationDropdown({ isOpen, onClose, buttonRef }) {
           'Accept': 'application/json',
         },
       });
-      fetchNotifications();
+      await fetchNotifications();
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
@@ -80,7 +86,7 @@ function NotificationDropdown({ isOpen, onClose, buttonRef }) {
           'Accept': 'application/json',
         },
       });
-      fetchNotifications();
+      await fetchNotifications();
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
     }

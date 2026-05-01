@@ -15,6 +15,7 @@ function Navbar() {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
@@ -185,12 +186,16 @@ function Navbar() {
                     onClick={() => setIsNotificationOpen(!isNotificationOpen)}
                   >
                     <FaBell />
+                    {hasUnreadNotifications && (
+                      <span className="notification-unread-badge"></span>
+                    )}
                   </button>
                   
                   <NotificationDropdown 
                     isOpen={isNotificationOpen} 
                     onClose={() => setIsNotificationOpen(false)}
                     buttonRef={notificationRef}
+                    onUnreadStatusChange={setHasUnreadNotifications}
                   />
                 </div>
                 
