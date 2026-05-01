@@ -533,6 +533,19 @@ function BillingPage() {
       </div>
 
       <div className="billing-container">
+        {/* Refresh Button */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => {
+              fetchPendingPayments();
+            }}
+            className="refresh-button"
+            disabled={loading}
+          >
+            {loading ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
+
         {/* Tabs */}
         <div className="billing-tabs">
           <button 
