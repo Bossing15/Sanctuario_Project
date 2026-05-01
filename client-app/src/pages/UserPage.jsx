@@ -512,20 +512,20 @@ function UserPage() {
                             <div className="property-card-body">
                               <h4 className="property-name">{property.propertyName}</h4>
                               
-                              <div className="product-info-grid">
+                              <div className="property-info-grid">
                                 <div className="info-row">
                                   <span className="info-label">Deceased Name:</span>
-                                  <span className="info-value">{product.deceasedName}</span>
+                                  <span className="info-value">{property.deceasedName}</span>
                                 </div>
                                 
                                 <div className="info-row">
                                   <span className="info-label">Date of Death:</span>
-                                  <span className="info-value">{formatDate(product.dateOfDeath)}</span>
+                                  <span className="info-value">{formatDate(property.dateOfDeath)}</span>
                                 </div>
                                 
                                 <div className="info-row">
                                   <span className="info-label">Relationship:</span>
-                                  <span className="info-value">{product.relationship || 'N/A'}</span>
+                                  <span className="info-value">{property.relationship || 'N/A'}</span>
                                 </div>
                                 
                               <div className="info-row">
@@ -535,26 +535,26 @@ function UserPage() {
                                 
                                 <div className="info-row">
                                   <span className="info-label">Plan Type:</span>
-                                  <span className="info-value">{product.planType || 'One-time'}</span>
+                                  <span className="info-value">{property.planType || 'One-time'}</span>
                                 </div>
                                 
                                 <div className="info-row">
                                   <span className="info-label">Amount:</span>
-                                  <span className="info-value amount">{formatCurrency(product.amount)}</span>
+                                  <span className="info-value amount">{formatCurrency(property.amount)}</span>
                                 </div>
                                 
                                 <div className="info-row">
                                   <span className="info-label">Invoice Number:</span>
-                                  <span className="info-value">{product.invoiceNumber || 'N/A'}</span>
+                                  <span className="info-value">{property.invoiceNumber || 'N/A'}</span>
                                 </div>
                                 
                                 <div className="info-row">
                                   <span className="info-label">Purchase Date:</span>
-                                  <span className="info-value">{formatDate(product.purchaseDate)}</span>
+                                  <span className="info-value">{formatDate(property.purchaseDate)}</span>
                                 </div>
 
                                 {/* Lot Information Section */}
-                                {product.lot && (
+                                {property.lot && (
                                   <>
                                     <div className="info-row lot-section-header">
                                       <FaMapMarkerAlt className="lot-icon" />
@@ -563,28 +563,28 @@ function UserPage() {
                                     
                                     <div className="info-row">
                                       <span className="info-label">Plot Number:</span>
-                                      <span className="info-value">{product.lot.plotNumber || 'N/A'}</span>
+                                      <span className="info-value">{property.lot.plotNumber || 'N/A'}</span>
                                     </div>
                                     
                                     <div className="info-row">
                                       <span className="info-label">Section:</span>
-                                      <span className="info-value">{product.lot.section || 'N/A'}</span>
+                                      <span className="info-value">{property.lot.section || 'N/A'}</span>
                                     </div>
                                     
                                     <div className="info-row">
                                       <span className="info-label">Location:</span>
-                                      <span className="info-value">{product.lot.graveLocation || 'N/A'}</span>
+                                      <span className="info-value">{property.lot.graveLocation || 'N/A'}</span>
                                     </div>
                                     
                                     <div className="info-row">
                                       <span className="info-label">Lot Status:</span>
-                                      <span className="info-value">{product.lot.status || 'N/A'}</span>
+                                      <span className="info-value">{property.lot.status || 'N/A'}</span>
                                     </div>
                                     
-                                    {product.lot.notes && (
+                                    {property.lot.notes && (
                                       <div className="info-row">
                                         <span className="info-label">Notes:</span>
-                                        <span className="info-value">{product.lot.notes}</span>
+                                        <span className="info-value">{property.lot.notes}</span>
                                       </div>
                                     )}
                                   </>
