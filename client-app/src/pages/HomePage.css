@@ -991,12 +991,12 @@
   border-top: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.stat-item {
+.caretakers-stats .stat-item {
   text-align: center;
   color: #ffffff;
 }
 
-.stat-number {
+.caretakers-stats .stat-number {
   font-size: 1.5rem;
   font-weight: 700;
   color: #ffffff !important;
@@ -1004,7 +1004,7 @@
   margin-bottom: 0.3rem;
 }
 
-.stat-label {
+.caretakers-stats .stat-label {
   font-size: 0.8rem;
   color: #ffffff !important;
   font-weight: 500;
