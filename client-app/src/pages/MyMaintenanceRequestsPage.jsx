@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaClipboardList, FaClock, FaCheckCircle, FaFileAlt, FaTimes, FaEye, FaTrash } from 'react-icons/fa';
+import { FaClipboardList, FaClock, FaCheckCircle, FaTimes, FaEye } from 'react-icons/fa';
 import AlertModal from '../components/AlertModal';
 import ImageModal from '../components/ImageModal';
 import './MyMaintenanceRequestsPage.css';
@@ -18,6 +18,8 @@ function MyMaintenanceRequestsPage() {
   const [selectedImages, setSelectedImages] = useState([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [expandedRows, setExpandedRows] = useState({});
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedRowDetails, setSelectedRowDetails] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -306,20 +308,6 @@ function MyMaintenanceRequestsPage() {
     }
   };
 
-  const getStatusIcon = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'new':
-        return <FaClock className="status-icon pending" />;
-      case 'in progress':
-        return <FaClock className="status-icon in-progress" />;
-      case 'responded':
-      case 'closed':
-        return <FaCheckCircle className="status-icon completed" />;
-      default:
-        return <FaClock className="status-icon pending" />;
-    }
-  };
-
   const getStatusClass = (status) => {
     switch (status?.toLowerCase()) {
       case 'new':
@@ -350,18 +338,6 @@ function MyMaintenanceRequestsPage() {
         return 'Paid';
       default:
         return status || 'Pending';
-    }
-  };
-
-  const getPaymentStatusIcon = (paymentStatus) => {
-    switch (paymentStatus?.toLowerCase()) {
-      case 'completed':
-        return <FaCheckCircle className="payment-status-icon paid" />;
-      case 'pending':
-      case 'overdue':
-        return <FaClock className="payment-status-icon unpaid" />;
-      default:
-        return <FaClock className="payment-status-icon unpaid" />;
     }
   };
 
@@ -508,11 +484,238 @@ function MyMaintenanceRequestsPage() {
     }).format(amount);
   };
 
-  const toggleRowExpanded = (rowId) => {
-    setExpandedRows(prev => ({
-      ...prev,
-      [rowId]: !prev[rowId]
-    }));
+  const renderDetailsModal = () => {
+    if (!showDetailsModal || !selectedRowDetails) return null;
+
+    const { item, type } = selectedRowDetails;
+
+    return (
+      <div className="details-modal-overlay" onClick={() => setShowDetailsModal(false)}>
+        <div className="details-modal-container" onClick={(e) => e.stopPropagation()}>
+          <div className="details-modal-header">
+            <h2>Request Details</h2>
+            <button 
+              className="modal-close-btn"
+              onClick={() => setShowDetailsModal(false)}
+              title="Close"
+            >
+              <FaTimes />
+            </button>
+          </div>
+
+          <div className="details-modal-content">
+            {type === 'maintenance-request' && (
+              <>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">ID:</span>
+                  <span className="modal-detail-value">#{item.id}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Service:</span>
+                  <span className="modal-detail-value">{extractServiceName(item.product_interest)}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Status:</span>
+                  <span className={`status-badge ${getStatusClass(item.status)}`}>
+                    {getStatusText(item.status)}
+                  </span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Invoice:</span>
+                  <span className="modal-detail-value">{item.invoice_number || `SANC-${item.id}`}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Contact:</span>
+                  <span className="modal-detail-value">{item.phone}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Amount:</span>
+                  <span className="modal-detail-value">{formatCurrency(item.message?.match(/₱([\d,]+)/)?.[1] || '0')}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Date:</span>
+                  <span className="modal-detail-value">{formatDate(item.created_at)}</span>
+                </div>
+                {item.message && (
+                  <div className="modal-detail-item full-width">
+                    <span className="modal-detail-label">Details:</span>
+                    <span className="modal-detail-value">{item.message}</span>
+                  </div>
+                )}
+                {item.maintenance_photos && JSON.parse(item.maintenance_photos).length > 0 && (
+                  <div className="modal-detail-item full-width">
+                    <span className="modal-detail-label">Photos:</span>
+                    <div className="photos-grid-modal">
+                      {JSON.parse(item.maintenance_photos).map((photo, index) => (
+                        <img 
+                          key={index}
+                          src={`http://localhost:8000/${photo}`} 
+                          alt={`Maintenance ${index + 1}`}
+                          onClick={() => {
+                            const photos = JSON.parse(item.maintenance_photos).map(
+                              p => `http://localhost:8000/${p}`
+                            );
+                            setSelectedImages(photos);
+                            setSelectedImageIndex(index);
+                            setShowImageModal(true);
+                          }}
+                          className="photo-thumbnail-modal"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+            {type === 'maintenance-booking' && (
+              <>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">ID:</span>
+                  <span className="modal-detail-value">#{item.id}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Service:</span>
+                  <span className="modal-detail-value">{item.service?.title || item.service?.name || 'Maintenance Service'}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Status:</span>
+                  <span className={`status-badge ${getStatusClass(item.status)}`}>
+                    {item.status || 'Active'}
+                  </span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Payment Status:</span>
+                  <span className={`payment-badge ${getPaymentStatusClass(item.paymentStatus)}`}>
+                    {getPaymentStatusText(item.paymentStatus)}
+                  </span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Invoice:</span>
+                  <span className="modal-detail-value">{item.invoice_number || `SANC-${item.id}`}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Plan Type:</span>
+                  <span className="modal-detail-value">{item.plan_type || 'Standard'}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Amount:</span>
+                  <span className="modal-detail-value">{formatCurrency(item.total_amount || item.amount)}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Date:</span>
+                  <span className="modal-detail-value">{formatDate(item.booking_date || item.created_at)}</span>
+                </div>
+                {item.notes && (
+                  <div className="modal-detail-item full-width">
+                    <span className="modal-detail-label">Notes:</span>
+                    <span className="modal-detail-value">{item.notes}</span>
+                  </div>
+                )}
+              </>
+            )}
+            {type === 'purchase' && (
+              <>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">ID:</span>
+                  <span className="modal-detail-value">#{item.id}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Product:</span>
+                  <span className="modal-detail-value">{item.service?.name || item.product?.name || 'Purchase'}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Status:</span>
+                  <span className={`status-badge ${getStatusClass(item.status)}`}>
+                    {item.status || 'Active'}
+                  </span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Payment Status:</span>
+                  <span className={`payment-badge ${getPaymentStatusClass(item.paymentStatus)}`}>
+                    {getPaymentStatusText(item.paymentStatus)}
+                  </span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Invoice:</span>
+                  <span className="modal-detail-value">{item.invoice_number || `SANC-${item.id}`}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Plan Type:</span>
+                  <span className="modal-detail-value">{item.plan_type || 'Standard'}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Amount:</span>
+                  <span className="modal-detail-value">{formatCurrency(item.amount)}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Date:</span>
+                  <span className="modal-detail-value">{formatDate(item.booking_date || item.created_at)}</span>
+                </div>
+                {item.notes && (
+                  <div className="modal-detail-item full-width">
+                    <span className="modal-detail-label">Notes:</span>
+                    <span className="modal-detail-value">{item.notes}</span>
+                  </div>
+                )}
+              </>
+            )}
+            {type === 'reservation' && (
+              <>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">ID:</span>
+                  <span className="modal-detail-value">#{item.id}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Product:</span>
+                  <span className="modal-detail-value">{item.product?.title || item.service?.title || 'Reservation'}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Status:</span>
+                  <span className={`status-badge ${getStatusClass(item.status)}`}>
+                    {item.status === 'pending' ? 'Pending' : item.status === 'approved' ? 'Approved' : item.status}
+                  </span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Invoice:</span>
+                  <span className="modal-detail-value">{item.invoice_number || `SANC-${item.id}`}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Deceased Name:</span>
+                  <span className="modal-detail-value">{item.deceased_name}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Date of Death:</span>
+                  <span className="modal-detail-value">{formatDate(item.deceased_date_of_death)}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Amount:</span>
+                  <span className="modal-detail-value">{formatCurrency(item.amount)}</span>
+                </div>
+                <div className="modal-detail-item">
+                  <span className="modal-detail-label">Date:</span>
+                  <span className="modal-detail-value">{formatDate(item.created_at)}</span>
+                </div>
+                {item.admin_notes && (
+                  <div className="modal-detail-item full-width">
+                    <span className="modal-detail-label">Admin Notes:</span>
+                    <span className="modal-detail-value">{item.admin_notes}</span>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="details-modal-footer">
+            <button 
+              className="modal-close-footer-btn"
+              onClick={() => setShowDetailsModal(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const allRequests = [...maintenanceRequests, ...maintenanceBookings, ...purchases, ...reservations];
@@ -575,7 +778,10 @@ function MyMaintenanceRequestsPage() {
           <div className="table-cell actions-cell">
             <button 
               className="action-btn expand-btn"
-              onClick={() => toggleRowExpanded(rowId)}
+              onClick={() => {
+                setSelectedRowDetails({ item, type });
+                setShowDetailsModal(true);
+              }}
               title="View details"
             >
               <FaEye />
@@ -595,7 +801,7 @@ function MyMaintenanceRequestsPage() {
                 onClick={() => handlePaymentRedirect(item)}
                 title="Pay now"
               >
-                <FaFileAlt />
+                Pay
               </button>
             )}
             {type === 'maintenance-booking' && item.status?.toLowerCase() === 'readyforpayment' && (
@@ -616,7 +822,7 @@ function MyMaintenanceRequestsPage() {
                 }}
                 title="Pay now"
               >
-                <FaFileAlt />
+                Pay
               </button>
             )}
             {type === 'reservation' && item.status === 'approved' && (
@@ -638,7 +844,7 @@ function MyMaintenanceRequestsPage() {
                 }}
                 title="Pay now"
               >
-                <FaFileAlt />
+                Pay
               </button>
             )}
           </div>
@@ -830,6 +1036,8 @@ function MyMaintenanceRequestsPage() {
           onClose={() => setShowImageModal(false)}
         />
       )}
+
+      {renderDetailsModal()}
     </div>
   );
 }
