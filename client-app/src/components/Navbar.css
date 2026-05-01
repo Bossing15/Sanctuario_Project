@@ -339,13 +339,12 @@
 /* Unread notification badge (red dot) */
 .notification-unread-badge {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 10px;
-  height: 10px;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
   background-color: #dc3545;
   border-radius: 50%;
-  border: 2px solid #ffffff;
   animation: pulse 2s infinite;
 }
 
