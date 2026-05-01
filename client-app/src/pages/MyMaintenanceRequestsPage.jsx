@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaClipboardList, FaClock, FaCheckCircle, FaFileAlt, FaTimes } from 'react-icons/fa';
+import { FaClipboardList, FaClock, FaCheckCircle, FaFileAlt, FaTimes, FaEye, FaTrash } from 'react-icons/fa';
 import AlertModal from '../components/AlertModal';
 import ImageModal from '../components/ImageModal';
 import './MyMaintenanceRequestsPage.css';
@@ -17,6 +17,7 @@ function MyMaintenanceRequestsPage() {
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [expandedRows, setExpandedRows] = useState({});
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -26,9 +27,6 @@ function MyMaintenanceRequestsPage() {
     }
     
     fetchData();
-
-    // Auto-refresh disabled - data loads on page load only
-    // Users can manually refresh if needed
   }, [navigate]);
 
   const fetchData = async () => {
@@ -63,7 +61,6 @@ function MyMaintenanceRequestsPage() {
         const result = await response.json();
         const inquiries = result.data || result.inquiries || result || [];
         
-        // Filter only maintenance-related inquiries
         const maintenanceOnly = inquiries.filter(inquiry => 
           inquiry.product_interest && 
           (inquiry.product_interest.toLowerCase().includes('maintenance') ||
@@ -74,7 +71,6 @@ function MyMaintenanceRequestsPage() {
         const errorData = await response.json().catch(() => ({}));
         console.error('API Error:', errorData);
         
-        // If 401, clear token and redirect to login
         if (response.status === 401) {
           localStorage.removeItem('authToken');
           localStorage.removeItem('userId');
@@ -108,7 +104,6 @@ function MyMaintenanceRequestsPage() {
     }
 
     try {
-      // First get the current user to get their ID
       const userResponse = await fetch('http://localhost:8000/api/user', {
         method: 'GET',
         headers: {
@@ -135,7 +130,6 @@ function MyMaintenanceRequestsPage() {
       const userData = await userResponse.json();
       const userId = userData.id;
 
-      // Then fetch bookings for this user
       const response = await fetch(`http://localhost:8000/api/bookings/user/${userId}`, {
         method: 'GET',
         headers: {
@@ -150,7 +144,6 @@ function MyMaintenanceRequestsPage() {
         const result = await response.json();
         let bookings = result.data || result.bookings || result || [];
         
-        // Fetch payment status for each booking
         const bookingsWithPaymentStatus = await Promise.all(
           bookings.map(async (booking) => {
             try {
@@ -168,7 +161,6 @@ function MyMaintenanceRequestsPage() {
                 const paymentsData = await paymentResponse.json();
                 const payments = Array.isArray(paymentsData) ? paymentsData : (Array.isArray(paymentsData.data) ? paymentsData.data : (Array.isArray(paymentsData.payments) ? paymentsData.payments : []));
                 
-                // Find payment for this booking
                 const payment = payments.find(p => p.booking_id === booking.id);
                 
                 return {
@@ -185,7 +177,6 @@ function MyMaintenanceRequestsPage() {
           })
         );
         
-        // Filter only maintenance bookings (those with service_id and no product_id)
         const maintenanceOnly = bookingsWithPaymentStatus.filter(b => b.service_id && !b.product_id);
         setMaintenanceBookings(maintenanceOnly);
       }
@@ -201,7 +192,6 @@ function MyMaintenanceRequestsPage() {
     }
 
     try {
-      // First get the current user to get their ID
       const userResponse = await fetch('http://localhost:8000/api/user', {
         method: 'GET',
         headers: {
@@ -213,7 +203,6 @@ function MyMaintenanceRequestsPage() {
       });
 
       if (!userResponse.ok) {
-        // If 401, clear token and redirect to login
         if (userResponse.status === 401) {
           localStorage.removeItem('authToken');
           localStorage.removeItem('userId');
@@ -229,7 +218,6 @@ function MyMaintenanceRequestsPage() {
       const userData = await userResponse.json();
       const userId = userData.id;
 
-      // Then fetch bookings for this user
       const response = await fetch(`http://localhost:8000/api/bookings/user/${userId}`, {
         method: 'GET',
         headers: {
@@ -244,7 +232,6 @@ function MyMaintenanceRequestsPage() {
         const result = await response.json();
         let bookings = result.data || result.bookings || result || [];
         
-        // Fetch payment status for each booking
         const bookingsWithPaymentStatus = await Promise.all(
           bookings.map(async (booking) => {
             try {
@@ -262,7 +249,6 @@ function MyMaintenanceRequestsPage() {
                 const paymentsData = await paymentResponse.json();
                 const payments = Array.isArray(paymentsData) ? paymentsData : (Array.isArray(paymentsData.data) ? paymentsData.data : (Array.isArray(paymentsData.payments) ? paymentsData.payments : []));
                 
-                // Find payment for this booking
                 const payment = payments.find(p => p.booking_id === booking.id);
                 
                 return {
@@ -279,8 +265,6 @@ function MyMaintenanceRequestsPage() {
           })
         );
         
-        // Filter out maintenance services (those with service_id and no product_id)
-        // and only keep product bookings
         const productBookings = bookingsWithPaymentStatus.filter(b => b.product_id && !b.service_id);
         setPurchases(productBookings);
       }
@@ -419,7 +403,6 @@ function MyMaintenanceRequestsPage() {
   };
 
   const handlePaymentRedirect = async (request) => {
-    // Store the request data in sessionStorage to be picked up by BillingPage
     const amount = request.message?.match(/₱([\d,]+)/)?.[1] || '0';
     const paymentData = {
       type: 'maintenance-request',
@@ -433,7 +416,6 @@ function MyMaintenanceRequestsPage() {
     console.log('Storing payment data:', paymentData);
     sessionStorage.setItem('pendingPayment', JSON.stringify(paymentData));
     
-    // Create payment record for this inquiry
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch(`http://localhost:8000/api/inquiries/${request.id}/create-payment`, {
@@ -514,7 +496,7 @@ function MyMaintenanceRequestsPage() {
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric'
     });
   };
@@ -526,35 +508,249 @@ function MyMaintenanceRequestsPage() {
     }).format(amount);
   };
 
-  const calculateValidityDate = (createdAt, planType) => {
-    if (!createdAt) return 'N/A';
-    
-    const startDate = new Date(createdAt);
-    const validityDate = new Date(startDate);
-    
-    switch (planType.toLowerCase()) {
-      case 'monthly':
-        validityDate.setMonth(validityDate.getMonth() + 1);
-        break;
-      case 'quarterly':
-        validityDate.setMonth(validityDate.getMonth() + 3);
-        break;
-      case 'yearly':
-        validityDate.setFullYear(validityDate.getFullYear() + 1);
-        break;
-      default:
-        return 'N/A';
-    }
-    
-    return validityDate.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  const toggleRowExpanded = (rowId) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [rowId]: !prev[rowId]
+    }));
   };
 
   const allRequests = [...maintenanceRequests, ...maintenanceBookings, ...purchases, ...reservations];
   const hasRequests = allRequests.length > 0;
+
+  const renderTableRow = (item, type) => {
+    const rowId = `${type}-${item.id}`;
+    const isExpanded = expandedRows[rowId];
+    
+    let serviceName = '';
+    let status = '';
+    let paymentStatus = '';
+    let amount = 0;
+    let date = '';
+    let id = item.id;
+
+    if (type === 'maintenance-request') {
+      serviceName = extractServiceName(item.product_interest);
+      status = getStatusText(item.status);
+      paymentStatus = 'N/A';
+      amount = item.message?.match(/₱([\d,]+)/)?.[1] || '0';
+      date = formatDate(item.created_at);
+    } else if (type === 'maintenance-booking') {
+      serviceName = item.service?.title || item.service?.name || 'Maintenance Service';
+      status = item.status || 'Active';
+      paymentStatus = getPaymentStatusText(item.paymentStatus);
+      amount = item.total_amount || item.amount;
+      date = formatDate(item.booking_date || item.created_at);
+    } else if (type === 'purchase') {
+      serviceName = item.service?.name || item.product?.name || 'Purchase';
+      status = item.status || 'Active';
+      paymentStatus = getPaymentStatusText(item.paymentStatus);
+      amount = item.amount;
+      date = formatDate(item.booking_date || item.created_at);
+    } else if (type === 'reservation') {
+      serviceName = item.product?.title || item.service?.title || 'Reservation';
+      status = item.status === 'pending' ? 'Pending' : item.status === 'approved' ? 'Approved' : item.status;
+      paymentStatus = 'N/A';
+      amount = item.amount;
+      date = formatDate(item.created_at);
+    }
+
+    return (
+      <div key={rowId}>
+        <div className="table-row">
+          <div className="table-cell id-cell">#{id}</div>
+          <div className="table-cell name-cell">{serviceName}</div>
+          <div className="table-cell status-cell">
+            <span className={`status-badge ${getStatusClass(status)}`}>
+              {status}
+            </span>
+          </div>
+          <div className="table-cell payment-cell">
+            <span className={`payment-badge ${getPaymentStatusClass(paymentStatus)}`}>
+              {paymentStatus}
+            </span>
+          </div>
+          <div className="table-cell amount-cell">{formatCurrency(amount)}</div>
+          <div className="table-cell date-cell">{date}</div>
+          <div className="table-cell actions-cell">
+            <button 
+              className="action-btn expand-btn"
+              onClick={() => toggleRowExpanded(rowId)}
+              title="View details"
+            >
+              <FaEye />
+            </button>
+            {type === 'reservation' && item.status === 'pending' && (
+              <button 
+                className="action-btn delete-btn"
+                onClick={() => handleCancelReservation(item.id)}
+                title="Cancel reservation"
+              >
+                <FaTimes />
+              </button>
+            )}
+            {(type === 'maintenance-request' && (item.status?.toLowerCase() === 'responded' || item.status?.toLowerCase() === 'closed')) && (
+              <button 
+                className="action-btn pay-btn"
+                onClick={() => handlePaymentRedirect(item)}
+                title="Pay now"
+              >
+                <FaFileAlt />
+              </button>
+            )}
+            {type === 'maintenance-booking' && item.status?.toLowerCase() === 'readyforpayment' && (
+              <button 
+                className="action-btn pay-btn"
+                onClick={() => {
+                  const paymentData = {
+                    type: 'maintenance-booking',
+                    bookingId: item.id,
+                    invoiceNumber: item.invoice_number || `SANC-${item.id}`,
+                    description: item.service?.title || item.service?.name || 'Maintenance Service',
+                    amount: item.total_amount || item.amount,
+                    planType: item.plan_type || 'Standard',
+                    createdAt: item.created_at
+                  };
+                  sessionStorage.setItem('pendingPayment', JSON.stringify(paymentData));
+                  navigate('/billing');
+                }}
+                title="Pay now"
+              >
+                <FaFileAlt />
+              </button>
+            )}
+            {type === 'reservation' && item.status === 'approved' && (
+              <button 
+                className="action-btn pay-btn"
+                onClick={() => {
+                  const paymentData = {
+                    type: 'reservation',
+                    reservationId: item.id,
+                    reservationCode: item.reservation_code,
+                    description: item.product?.title || item.service?.title || 'Reservation',
+                    amount: item.amount,
+                    planType: item.plan_type || 'Standard',
+                    deceasedName: item.deceased_name,
+                    createdAt: item.created_at
+                  };
+                  sessionStorage.setItem('pendingPayment', JSON.stringify(paymentData));
+                  navigate('/billing');
+                }}
+                title="Pay now"
+              >
+                <FaFileAlt />
+              </button>
+            )}
+          </div>
+        </div>
+        {isExpanded && (
+          <div className="table-row-details">
+            <div className="details-content">
+              {type === 'maintenance-request' && (
+                <>
+                  <div className="detail-item">
+                    <span className="detail-label">Invoice:</span>
+                    <span className="detail-value">{item.invoice_number || `SANC-${item.id}`}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Contact:</span>
+                    <span className="detail-value">{item.phone}</span>
+                  </div>
+                  {item.message && (
+                    <div className="detail-item full-width">
+                      <span className="detail-label">Details:</span>
+                      <span className="detail-value">{item.message}</span>
+                    </div>
+                  )}
+                  {item.maintenance_photos && JSON.parse(item.maintenance_photos).length > 0 && (
+                    <div className="detail-item full-width">
+                      <span className="detail-label">Photos:</span>
+                      <div className="photos-grid-compact">
+                        {JSON.parse(item.maintenance_photos).map((photo, index) => (
+                          <img 
+                            key={index}
+                            src={`http://localhost:8000/${photo}`} 
+                            alt={`Maintenance ${index + 1}`}
+                            onClick={() => {
+                              const photos = JSON.parse(item.maintenance_photos).map(
+                                p => `http://localhost:8000/${p}`
+                              );
+                              setSelectedImages(photos);
+                              setSelectedImageIndex(index);
+                              setShowImageModal(true);
+                            }}
+                            className="photo-thumbnail-compact"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+              {type === 'maintenance-booking' && (
+                <>
+                  <div className="detail-item">
+                    <span className="detail-label">Invoice:</span>
+                    <span className="detail-value">{item.invoice_number || `SANC-${item.id}`}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Plan Type:</span>
+                    <span className="detail-value">{item.plan_type || 'Standard'}</span>
+                  </div>
+                  {item.notes && (
+                    <div className="detail-item full-width">
+                      <span className="detail-label">Notes:</span>
+                      <span className="detail-value">{item.notes}</span>
+                    </div>
+                  )}
+                </>
+              )}
+              {type === 'purchase' && (
+                <>
+                  <div className="detail-item">
+                    <span className="detail-label">Invoice:</span>
+                    <span className="detail-value">{item.invoice_number || `SANC-${item.id}`}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Plan Type:</span>
+                    <span className="detail-value">{item.plan_type || 'Standard'}</span>
+                  </div>
+                  {item.notes && (
+                    <div className="detail-item full-width">
+                      <span className="detail-label">Notes:</span>
+                      <span className="detail-value">{item.notes}</span>
+                    </div>
+                  )}
+                </>
+              )}
+              {type === 'reservation' && (
+                <>
+                  <div className="detail-item">
+                    <span className="detail-label">Invoice:</span>
+                    <span className="detail-value">{item.invoice_number || `SANC-${item.id}`}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Deceased Name:</span>
+                    <span className="detail-value">{item.deceased_name}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Date of Death:</span>
+                    <span className="detail-value">{formatDate(item.deceased_date_of_death)}</span>
+                  </div>
+                  {item.admin_notes && (
+                    <div className="detail-item full-width">
+                      <span className="detail-label">Admin Notes:</span>
+                      <span className="detail-value">{item.admin_notes}</span>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="my-maintenance-page">
@@ -598,414 +794,24 @@ function MyMaintenanceRequestsPage() {
             </button>
           </div>
         ) : (
-          <div className="requests-list">
-            {/* Requests Section - Consolidated */}
-            <div className="section-header">
-              <FaClipboardList className="section-icon" />
-              <h2>Requests</h2>
+          <div className="requests-table-container">
+            <div className="table-header">
+              <div className="table-cell id-cell">ID</div>
+              <div className="table-cell name-cell">Service/Product Name</div>
+              <div className="table-cell status-cell">Status</div>
+              <div className="table-cell payment-cell">Payment Status</div>
+              <div className="table-cell amount-cell">Amount</div>
+              <div className="table-cell date-cell">Date</div>
+              <div className="table-cell actions-cell">Actions</div>
             </div>
 
-            {/* Maintenance Requests */}
-            {maintenanceRequests.map((request) => (
-                  <div key={`maint-${request.id}`} className="request-card">
-                    <div className="request-header">
-                      <div className="request-title-section">
-                        <h3>{extractServiceName(request.product_interest)}</h3>
-                        <span className="plan-badge">{extractPlanType(request.product_interest)} Plan</span>
-                      </div>
-                      <div className={`status-badge ${getStatusClass(request.status)}`}>
-                        {getStatusIcon(request.status)}
-                        <span>{getStatusText(request.status)}</span>
-                      </div>
-                    </div>
-
-                    <div className="request-details">
-                      <div className="detail-row">
-                        <span className="detail-label">Invoice Number:</span>
-                        <span className="detail-value" style={{ fontWeight: 'bold', color: '#3b82f6' }}>
-                          {request.invoice_number || `SANC-${request.id}-${String(new Date(request.created_at).getTime()).slice(-6)}`}
-                        </span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Request ID:</span>
-                        <span className="detail-value">#{request.id}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Submitted:</span>
-                        <span className="detail-value">{formatDate(request.created_at)}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Valid Until:</span>
-                        <span className="detail-value validity-date">
-                          {calculateValidityDate(request.created_at, extractPlanType(request.product_interest))}
-                        </span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Contact:</span>
-                        <span className="detail-value">{request.phone}</span>
-                      </div>
-                    </div>
-
-                    {request.message && (
-                      <div className="request-message">
-                        <h4>Request Details:</h4>
-                        <p>{request.message}</p>
-                      </div>
-                    )}
-
-                    {request.maintenance_photos && JSON.parse(request.maintenance_photos).length > 0 && (
-                      <div className="maintenance-photos-section">
-                        <h4>Maintenance Photos:</h4>
-                        <div className="photos-grid">
-                          {JSON.parse(request.maintenance_photos).map((photo, index) => (
-                            <div key={index} className="photo-thumbnail">
-                              <img 
-                                src={`http://localhost:8000/${photo}`} 
-                                alt={`Maintenance ${index + 1}`}
-                                onClick={() => {
-                                  const photos = JSON.parse(request.maintenance_photos).map(
-                                    p => `http://localhost:8000/${p}`
-                                  );
-                                  setSelectedImages(photos);
-                                  setSelectedImageIndex(index);
-                                  setShowImageModal(true);
-                                }}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="request-footer">
-                      <div className="status-info">
-                        {request.status?.toLowerCase() === 'new' && (
-                          <p className="status-description">
-                            ⏳ Your request is being reviewed by our team. We'll contact you soon!
-                          </p>
-                        )}
-                        {request.status?.toLowerCase() === 'in progress' && (
-                          <p className="status-description">
-                            🔄 Our team is working on your maintenance request. You'll receive photos before payment.
-                          </p>
-                        )}
-                        {request.status?.toLowerCase() === 'responded' && (
-                          <p className="status-description">
-                            ✅ Our team has responded to your request. You can now proceed to payment.
-                          </p>
-                        )}
-                        {request.status?.toLowerCase() === 'closed' && (
-                          <p className="status-description">
-                            ✅ Your maintenance request has been completed. You can now proceed to payment.
-                          </p>
-                        )}
-                        {request.status?.toLowerCase() === 'paid' && (
-                          <p className="status-description">
-                            ✅ Payment completed! Your maintenance request has been confirmed.
-                          </p>
-                        )}
-                      </div>
-                      {(request.status?.toLowerCase() === 'responded' || request.status?.toLowerCase() === 'closed') && (
-                        <button
-                          className="pay-now-btn"
-                          onClick={() => handlePaymentRedirect(request)}
-                        >
-                          Pay Now
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-
-            {/* Maintenance Bookings */}
-            {maintenanceBookings.map((booking) => (
-                  <div key={`maintenance-booking-${booking.id}`} className="request-card purchase-card">
-                    <div className="request-header">
-                      <div className="request-title-section">
-                        <h3>{booking.service?.title || booking.service?.name || 'Maintenance Service'}</h3>
-                        <span className="plan-badge">{booking.plan_type || 'Standard'}</span>
-                      </div>
-                      <div className="purchase-status-badges">
-                        <div className={`status-badge ${getStatusClass(booking.status)}`}>
-                          <FaClipboardList className="status-icon" />
-                          <span>{booking.status || 'Active'}</span>
-                        </div>
-                        <div className={`payment-status-badge ${getPaymentStatusClass(booking.paymentStatus)}`}>
-                          {getPaymentStatusIcon(booking.paymentStatus)}
-                          <span>{getPaymentStatusText(booking.paymentStatus)}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="request-details">
-                      <div className="detail-row">
-                        <span className="detail-label">Invoice Number:</span>
-                        <span className="detail-value" style={{ fontWeight: 'bold', color: '#3b82f6' }}>{booking.invoice_number || `SANC-${booking.id}`}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Booking ID:</span>
-                        <span className="detail-value">#{booking.id}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Amount:</span>
-                        <span className="detail-value amount">{formatCurrency(booking.total_amount || booking.amount)}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Requested:</span>
-                        <span className="detail-value">{formatDate(booking.booking_date || booking.created_at)}</span>
-                      </div>
-                      {booking.notes && (
-                        <div className="detail-row">
-                          <span className="detail-label">Notes:</span>
-                          <span className="detail-value">{booking.notes}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="request-footer">
-                      <div className="status-info">
-                        {booking.status?.toLowerCase() === 'pendingreview' && (
-                          <p className="status-description">
-                            ⏳ Your maintenance request is pending admin approval. We'll contact you soon!
-                          </p>
-                        )}
-                        {booking.status?.toLowerCase() === 'readyforpayment' && (
-                          <p className="status-description">
-                            💳 Your request has been approved! Please proceed to payment.
-                          </p>
-                        )}
-                        {booking.status?.toLowerCase() === 'paid' && (
-                          <p className="status-description">
-                            ✅ Payment completed! Your maintenance request has been confirmed.
-                          </p>
-                        )}
-                        {booking.status?.toLowerCase() === 'completed' && (
-                          <p className="status-description">
-                            ✅ Your maintenance service has been completed. Thank you!
-                          </p>
-                        )}
-                      </div>
-                      <div className="action-buttons">
-                        {booking.status?.toLowerCase() === 'readyforpayment' && (
-                          <button
-                            className="pay-now-btn"
-                            onClick={() => {
-                              const paymentData = {
-                                type: 'maintenance-booking',
-                                bookingId: booking.id,
-                                invoiceNumber: booking.invoice_number || `SANC-${booking.id}`,
-                                description: booking.service?.title || booking.service?.name || 'Maintenance Service',
-                                amount: booking.total_amount || booking.amount,
-                                planType: booking.plan_type || 'Standard',
-                                createdAt: booking.created_at
-                              };
-                              console.log('Storing payment data for maintenance booking:', paymentData);
-                              sessionStorage.setItem('pendingPayment', JSON.stringify(paymentData));
-                              navigate('/billing');
-                            }}
-                          >
-                            <FaFileAlt /> Pay Now
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-            {/* Purchases */}
-            {purchases.map((purchase) => (
-                  <div key={`purchase-${purchase.id}`} className="request-card purchase-card">
-                    <div className="request-header">
-                      <div className="request-title-section">
-                        <h3>{purchase.service?.name || purchase.product?.name || 'Purchase'}</h3>
-                        <span className="plan-badge">{purchase.plan_type || 'Standard'}</span>
-                      </div>
-                      <div className="purchase-status-badges">
-                        <div className={`status-badge ${getStatusClass(purchase.status)}`}>
-                          <FaCheckCircle className="status-icon" />
-                          <span>{purchase.status || 'Active'}</span>
-                        </div>
-                        <div className={`payment-status-badge ${getPaymentStatusClass(purchase.paymentStatus)}`}>
-                          {getPaymentStatusIcon(purchase.paymentStatus)}
-                          <span>{getPaymentStatusText(purchase.paymentStatus)}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="request-details">
-                      <div className="detail-row">
-                        <span className="detail-label">Invoice Number:</span>
-                        <span className="detail-value" style={{ fontWeight: 'bold', color: '#3b82f6' }}>{purchase.invoice_number || `SANC-${purchase.id}`}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Booking ID:</span>
-                        <span className="detail-value">#{purchase.id}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Amount:</span>
-                        <span className="detail-value amount">{formatCurrency(purchase.amount)}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Purchased:</span>
-                        <span className="detail-value">{formatDate(purchase.booking_date || purchase.created_at)}</span>
-                      </div>
-                      {purchase.notes && (
-                        <div className="detail-row">
-                          <span className="detail-label">Notes:</span>
-                          <span className="detail-value">{purchase.notes}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="request-footer">
-                      <div className="status-info">
-                        {purchase.status?.toLowerCase() === 'pending' && (
-                          <p className="status-description">
-                            ⏳ Your purchase is being processed. We'll contact you with more details soon.
-                          </p>
-                        )}
-                        {purchase.status?.toLowerCase() === 'active' && (
-                          <p className="status-description">
-                            ✅ Your purchase is active. Thank you for choosing our services!
-                          </p>
-                        )}
-                        {purchase.status?.toLowerCase() === 'completed' && (
-                          <p className="status-description">
-                            ✅ Your purchase has been completed. Thank you for choosing our services!
-                          </p>
-                        )}
-                        {purchase.paymentStatus?.toLowerCase() === 'pending' && (
-                          <p className="payment-status-description">
-                            💳 Payment pending - Please complete your payment to activate this service.
-                          </p>
-                        )}
-                        {purchase.paymentStatus?.toLowerCase() === 'completed' && (
-                          <p className="payment-status-description paid">
-                            ✅ Payment completed - Your service is now active!
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-            {/* Reservations */}
-            {reservations.map((reservation) => (
-                  <div key={`reservation-${reservation.id}`} className="request-card reservation-card">
-                    <div className="request-header">
-                      <div className="request-title-section">
-                        <h3>{reservation.product?.title || reservation.service?.title || 'Reservation'}</h3>
-                        <span className="plan-badge">{reservation.plan_type || 'Standard'}</span>
-                      </div>
-                      <div className={`status-badge ${reservation.status === 'pending' ? 'pending' : reservation.status === 'approved' ? 'completed' : reservation.status === 'rejected' ? 'rejected' : reservation.status === 'cancelled' ? 'cancelled' : 'pending'}`}>
-                        {reservation.status === 'pending' && <FaClock className="status-icon" />}
-                        {reservation.status === 'approved' && <FaCheckCircle className="status-icon" />}
-                        {reservation.status === 'rejected' && <FaTimes className="status-icon" />}
-                        {reservation.status === 'cancelled' && <FaTimes className="status-icon" />}
-                        <span>
-                          {reservation.status === 'pending' && 'Reserved - Waiting for Admin Approval'}
-                          {reservation.status === 'approved' && 'Approved - Ready to Pay'}
-                          {reservation.status === 'rejected' && 'Rejected'}
-                          {reservation.status === 'cancelled' && 'Cancelled by You'}
-                          {reservation.status === 'paid' && 'Paid'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="request-details">
-                      <div className="detail-row">
-                        <span className="detail-label">Invoice Number:</span>
-                        <span className="detail-value" style={{ fontWeight: 'bold', color: '#3b82f6' }}>{reservation.invoice_number || `SANC-${reservation.id}`}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Deceased Name:</span>
-                        <span className="detail-value">{reservation.deceased_name}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Date of Death:</span>
-                        <span className="detail-value">{formatDate(reservation.deceased_date_of_death)}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Amount:</span>
-                        <span className="detail-value amount">{formatCurrency(reservation.amount)}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Reserved:</span>
-                        <span className="detail-value">{formatDate(reservation.created_at)}</span>
-                      </div>
-                    </div>
-
-                    {reservation.admin_notes && (
-                      <div className="request-message">
-                        <h4>Admin Notes:</h4>
-                        <p>{reservation.admin_notes}</p>
-                      </div>
-                    )}
-
-                    <div className="request-footer">
-                      <div className="status-info">
-                        {reservation.status === 'pending' && (
-                          <p className="status-description">
-                            ⏳ Your reservation is pending admin approval. We'll notify you once reviewed.
-                          </p>
-                        )}
-                        {reservation.status === 'approved' && (
-                          <p className="status-description">
-                            ✅ Your reservation has been approved! You can now proceed to payment.
-                          </p>
-                        )}
-                        {reservation.status === 'rejected' && (
-                          <p className="status-description">
-                            ❌ Your reservation has been rejected. Please contact us for more information.
-                          </p>
-                        )}
-                        {reservation.status === 'cancelled' && (
-                          <p className="status-description">
-                            ❌ Your reservation has been cancelled. You can create a new reservation anytime.
-                          </p>
-                        )}
-                        {reservation.status === 'paid' && (
-                          <p className="status-description">
-                            ✅ Payment completed! Your reservation is confirmed.
-                          </p>
-                        )}
-                      </div>
-                      <div className="action-buttons">
-                        {reservation.status === 'pending' && (
-                          <button
-                            className="cancel-btn"
-                            onClick={() => handleCancelReservation(reservation.id)}
-                          >
-                            <FaTimes /> Cancel Reservation
-                          </button>
-                        )}
-                        {reservation.status === 'approved' && (
-                          <button
-                            className="pay-now-btn"
-                            onClick={() => {
-                              const paymentData = {
-                                type: 'reservation',
-                                reservationId: reservation.id,
-                                reservationCode: reservation.reservation_code,
-                                description: reservation.product?.title || reservation.service?.title || 'Reservation',
-                                amount: reservation.amount,
-                                planType: reservation.plan_type || 'Standard',
-                                deceasedName: reservation.deceased_name,
-                                createdAt: reservation.created_at
-                              };
-                              console.log('Storing payment data with reservation code:', paymentData);
-                              sessionStorage.setItem('pendingPayment', JSON.stringify(paymentData));
-                              navigate('/billing');
-                            }}
-                          >
-                            Pay Now
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+            <div className="table-body">
+              {maintenanceRequests.map((request) => renderTableRow(request, 'maintenance-request'))}
+              {maintenanceBookings.map((booking) => renderTableRow(booking, 'maintenance-booking'))}
+              {purchases.map((purchase) => renderTableRow(purchase, 'purchase'))}
+              {reservations.map((reservation) => renderTableRow(reservation, 'reservation'))}
             </div>
+          </div>
         )}
       </div>
 
