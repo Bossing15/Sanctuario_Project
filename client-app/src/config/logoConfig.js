@@ -4,8 +4,16 @@
  * Prevents duplication and makes it easy to update logo paths globally
  */
 
-// Main Sanctuario Logo
+// Main Sanctuario Logo - Public path for flexibility
 export const MAIN_LOGO = '/Sanctuario_Logo_Good.png';
+
+// Logo Fallback SVG (in case image fails to load)
+export const LOGO_FALLBACK_SVG = (
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="45" fill="#16a34a" opacity="0.1" />
+    <path d="M50 20 L65 35 L60 50 L65 65 L50 80 L35 65 L40 50 L35 35 Z" fill="#16a34a" />
+  </svg>
+);
 
 // Payment Method Logos
 export const PAYMENT_LOGOS = {
@@ -41,12 +49,21 @@ export const LOGO_ALT_TEXT = {
   chinabank: 'China Bank',
 };
 
-// Logo CSS Classes
+// Logo CSS Classes - Simplified and flexible
 export const LOGO_CLASSES = {
-  navbar: 'brand-logo-img navbar',
-  page: 'brand-logo-img page',
-  navLogo: 'nav-logo enlarged-logo',
+  navbar: 'navbar-logo',
+  page: 'page-logo',
+  navLogo: 'nav-logo-container',
   bankLogo: 'bank-logo clickable',
   ewalletCard: 'ewallet-card clickable',
   brandLogo: 'brand-logo',
+};
+
+// Logo Size Presets for easy customization
+export const LOGO_SIZES = {
+  navbar: { width: 'auto', height: '50px' },
+  mobile: { width: 'auto', height: '40px' },
+  page: { width: 'auto', height: '60px' },
+  small: { width: 'auto', height: '32px' },
+  large: { width: 'auto', height: '80px' },
 };

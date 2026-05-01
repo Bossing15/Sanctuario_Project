@@ -4,7 +4,7 @@ import { FaUserCircle, FaChevronDown, FaClipboardList, FaCreditCard, FaBell, FaS
 import NotificationDropdown from './NotificationDropdown';
 import ProfileModal from './ProfileModal';
 import useSiteSettings from '../hooks/useSiteSettings';
-import { MAIN_LOGO, LOGO_ALT_TEXT, LOGO_CLASSES } from '../config/logoConfig';
+import { MAIN_LOGO, LOGO_ALT_TEXT } from '../config/logoConfig';
 import './Navbar.css';
 
 function Navbar() {
@@ -110,11 +110,14 @@ function Navbar() {
       <nav className={`navbar${isMobileMenuOpen ? ' open' : ''}${isScrolled ? ' scrolled' : ''}`}>
         <div className="nav-container">
           {/* Logo on the left */}
-          <Link to="/home" className="nav-logo">
+          <Link to="/home" className="nav-logo-container">
             <img 
               src={MAIN_LOGO}
               alt={LOGO_ALT_TEXT.main}
-              className={LOGO_CLASSES.navbar}
+              className="navbar-logo"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
             />
           </Link>
 
