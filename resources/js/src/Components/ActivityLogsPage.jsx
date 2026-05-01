@@ -173,7 +173,6 @@ function ActivityLogsPage() {
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Action</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Entity</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Description</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">IP Address</th>
                 </tr>
               </thead>
               <tbody>
@@ -200,7 +199,6 @@ function ActivityLogsPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700">{log.description}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{log.ip_address}</td>
                   </tr>
                 ))}
               </tbody>
