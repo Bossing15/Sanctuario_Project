@@ -341,8 +341,8 @@
   position: absolute;
   top: 6px;
   right: 6px;
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
   background-color: #dc3545;
   border-radius: 50%;
   animation: pulse 2s infinite;
