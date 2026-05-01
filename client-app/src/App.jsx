@@ -24,7 +24,7 @@ import MyMaintenanceRequestsPage from './pages/MyMaintenanceRequestsPage';
 import MyReservationsPage from './pages/MyReservationsPage';
 import InternmentPage from './pages/InternmentPage';
 import MaintenancePage from './pages/MaintenancePage';
-import ProductsServicesPage from './pages/ProductsServicesPage';
+import PropertiesServicesPage from './pages/PropertiesServicesPage';
 import LawnLotsPage from './pages/LawnLotsPage';
 import FamilyEstatesPage from './pages/FamilyEstatesPage';
 import ColumbariumsPage from './pages/ColumbariumsPage';
@@ -66,7 +66,7 @@ function Layout() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/team" element={<TeamPage />} />
         <Route path="/services" element={<ServicesPage />} />
-        <Route path="/products-services" element={<ProductsServicesPage />} />
+        <Route path="/properties-services" element={<PropertiesServicesPage />} />
         <Route path="/internment" element={<InternmentPage />} />
         <Route path="/lawn-lots" element={<LawnLotsPage />} />
         <Route path="/family-estates" element={<FamilyEstatesPage />} />

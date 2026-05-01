@@ -22,7 +22,7 @@ import AdminPaymentSuccess from "./Components/AdminPaymentSuccess";
 import AdminPaymentCancel from "./Components/AdminPaymentCancel";
 import Maintenance from "./Components/Maintenance";
 import Services from "./Components/Services";
-import Products from "./Components/Products";
+import Properties from "./Components/Properties";
 import ServiceDetailEditor from "./Components/ServiceDetailEditor";
 import ActivityLogsPage from "./Components/ActivityLogsPage";
 import SmsManagement from "./Components/SmsManagement";
@@ -178,9 +178,9 @@ const App = () => {
               <ServiceDetailEditor />
             </ProtectedRoute>
           } />
-          <Route path="/products" element={
+          <Route path="/properties" element={
             <ProtectedRoute requiredRole="admin">
-              <Products />
+              <Properties />
             </ProtectedRoute>
           } />
           <Route path="/messages" element={

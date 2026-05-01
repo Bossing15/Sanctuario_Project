@@ -15,7 +15,7 @@ import cremationImg from '../assets/images/cremation.jpg';
 function ColumbariumsPage() {
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(columbariumImg);
-  const [product, setProduct] = useState(null);
+  const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [showPurposeModal, setShowPurposeModal] = useState(false);
@@ -27,12 +27,12 @@ function ColumbariumsPage() {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
-    fetchProduct();
+    fetchProperty();
   }, []);
 
-  const fetchProduct = async () => {
+  const fetchProperty = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/public/products', {
+      const response = await fetch('http://localhost:8000/api/public/properties', {
         headers: {
           'Accept': 'application/json',
         },
@@ -40,11 +40,11 @@ function ColumbariumsPage() {
 
       if (response.ok) {
         const data = await response.json();
-        const columbariums = data.products?.find(p => p.title === 'Columbariums');
-        setProduct(columbariums);
+        const columbariums = data.properties?.find(p => p.title === 'Columbariums');
+        setProperty(columbariums);
       }
     } catch (error) {
-      console.error('Error fetching product:', error);
+      console.error('Error fetching property:', error);
     } finally {
       setLoading(false);
     }
@@ -57,7 +57,7 @@ function ColumbariumsPage() {
       return;
     }
     
-    if (product) {
+    if (property) {
       setShowPricingModal(true);
     }
   };
@@ -120,24 +120,24 @@ function ColumbariumsPage() {
             <p>Elegant above-ground niches for your loved one</p>
             {loading ? (
               <p className="package-price">Loading pricing...</p>
-            ) : product ? (
+            ) : property ? (
               <div className="pricing-options">
-                {product.price_monthly && (
+                {property.price_monthly && (
                   <div className="price-row">
                     <span>Monthly Price (₱)</span>
-                    <span className="price-value">₱{parseFloat(product.price_monthly).toFixed(2)}</span>
+                    <span className="price-value">₱{parseFloat(property.price_monthly).toFixed(2)}</span>
                   </div>
                 )}
-                {product.price_quarterly && (
+                {property.price_quarterly && (
                   <div className="price-row">
                     <span>Quarterly Price (₱)</span>
-                    <span className="price-value">₱{parseFloat(product.price_quarterly).toFixed(2)}</span>
+                    <span className="price-value">₱{parseFloat(property.price_quarterly).toFixed(2)}</span>
                   </div>
                 )}
-                {product.price_yearly && (
+                {property.price_yearly && (
                   <div className="price-row">
                     <span>Yearly Price (₱)</span>
-                    <span className="price-value">₱{parseFloat(product.price_yearly).toFixed(2)}</span>
+                    <span className="price-value">₱{parseFloat(property.price_yearly).toFixed(2)}</span>
                   </div>
                 )}
               </div>
@@ -153,30 +153,30 @@ function ColumbariumsPage() {
           </button>
         </div>
       </div>
-      <div className="other-products">
-        <h2>Other Products and Services</h2>
-        <div className="products-grid">
-          <div className="product-card" onClick={() => navigate('/lawn-lots')}>
-            <div className="product-card-image"><img src={lawnLotsImg} alt="Lawn Lots" /></div>
-            <div className="product-card-content"><h3>Lawn Lots</h3><p>Beautiful garden-style burial spaces</p></div>
+      <div className="other-properties">
+        <h2>Other Properties and Services</h2>
+        <div className="properties-grid">
+          <div className="property-card" onClick={() => navigate('/lawn-lots')}>
+            <div className="property-card-image"><img src={lawnLotsImg} alt="Lawn Lots" /></div>
+            <div className="property-card-content"><h3>Lawn Lots</h3><p>Beautiful garden-style burial spaces</p></div>
           </div>
-          <div className="product-card" onClick={() => navigate('/family-estates')}>
-            <div className="product-card-image"><img src={familyEstateImg} alt="Family Estates" /></div>
-            <div className="product-card-content"><h3>Family Estates</h3><p>Spacious family burial grounds</p></div>
+          <div className="property-card" onClick={() => navigate('/family-estates')}>
+            <div className="property-card-image"><img src={familyEstateImg} alt="Family Estates" /></div>
+            <div className="property-card-content"><h3>Family Estates</h3><p>Spacious family burial grounds</p></div>
           </div>
-          <div className="product-card" onClick={() => navigate('/internment')}>
-            <div className="product-card-image"><img src={intermentImg} alt="Interment" /></div>
-            <div className="product-card-content"><h3>Interment</h3><p>Honoring your departed loved ones</p></div>
+          <div className="property-card" onClick={() => navigate('/internment')}>
+            <div className="property-card-image"><img src={intermentImg} alt="Interment" /></div>
+            <div className="property-card-content"><h3>Interment</h3><p>Honoring your departed loved ones</p></div>
           </div>
-          <div className="product-card" onClick={() => navigate('/cremation')}>
-            <div className="product-card-image"><img src={cremationImg} alt="Cremation" /></div>
-            <div className="product-card-content"><h3>Cremation</h3><p>Respectful cremation services</p></div>
+          <div className="property-card" onClick={() => navigate('/cremation')}>
+            <div className="property-card-image"><img src={cremationImg} alt="Cremation" /></div>
+            <div className="property-card-content"><h3>Cremation</h3><p>Respectful cremation services</p></div>
           </div>
         </div>
       </div>
 
       {/* Pricing Selection Modal */}
-      {showPricingModal && product && (
+      {showPricingModal && property && (
         <div className="modal-overlay" onClick={() => setShowPricingModal(false)}>
           <div className="pricing-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
@@ -184,30 +184,30 @@ function ColumbariumsPage() {
               <button className="modal-close" onClick={() => setShowPricingModal(false)}>✕</button>
             </div>
             <div className="modal-content">
-              <p className="modal-subtitle">Choose your preferred payment plan for {product.title}</p>
+              <p className="modal-subtitle">Choose your preferred payment plan for {property.title}</p>
               <div className="plan-options">
-                {product.price_monthly && (
+                {property.price_monthly && (
                   <div className="plan-card">
                     <h3>Monthly Plan</h3>
-                    <p className="plan-price">₱{parseFloat(product.price_monthly).toFixed(2)}</p>
+                    <p className="plan-price">₱{parseFloat(property.price_monthly).toFixed(2)}</p>
                     <p className="plan-description">Pay monthly for flexibility</p>
-                    <button className="plan-btn" onClick={() => handleSelectPlan('Monthly', product.price_monthly)} style={{ backgroundColor: '#10b981' }}>Select Plan</button>
+                    <button className="plan-btn" onClick={() => handleSelectPlan('Monthly', property.price_monthly)} style={{ backgroundColor: '#10b981' }}>Select Plan</button>
                   </div>
                 )}
-                {product.price_quarterly && (
+                {property.price_quarterly && (
                   <div className="plan-card">
                     <h3>Quarterly Plan</h3>
-                    <p className="plan-price">₱{parseFloat(product.price_quarterly).toFixed(2)}</p>
+                    <p className="plan-price">₱{parseFloat(property.price_quarterly).toFixed(2)}</p>
                     <p className="plan-description">Pay every 3 months</p>
-                    <button className="plan-btn" onClick={() => handleSelectPlan('Quarterly', product.price_quarterly)} style={{ backgroundColor: '#10b981' }}>Select Plan</button>
+                    <button className="plan-btn" onClick={() => handleSelectPlan('Quarterly', property.price_quarterly)} style={{ backgroundColor: '#10b981' }}>Select Plan</button>
                   </div>
                 )}
-                {product.price_yearly && (
+                {property.price_yearly && (
                   <div className="plan-card">
                     <h3>Yearly Plan</h3>
-                    <p className="plan-price">₱{parseFloat(product.price_yearly).toFixed(2)}</p>
+                    <p className="plan-price">₱{parseFloat(property.price_yearly).toFixed(2)}</p>
                     <p className="plan-description">Best value - pay annually</p>
-                    <button className="plan-btn" onClick={() => handleSelectPlan('Yearly', product.price_yearly)} style={{ backgroundColor: '#10b981' }}>Select Plan</button>
+                    <button className="plan-btn" onClick={() => handleSelectPlan('Yearly', property.price_yearly)} style={{ backgroundColor: '#10b981' }}>Select Plan</button>
                   </div>
                 )}
               </div>
@@ -236,14 +236,14 @@ function ColumbariumsPage() {
       )}
 
       {/* Payment Modal with Lot Selector */}
-      {showPaymentModal && product && selectedPlan && deceasedInfo && (
+      {showPaymentModal && property && selectedPlan && deceasedInfo && (
         <PaymentModal
-          service={product}
+          service={property}
           planType={selectedPlan.planType}
           amount={selectedPlan.amount}
           onClose={handleClosePaymentModal}
-          isLawnLotProduct={true}
-          productSlug="columbariums"
+          isLawnLotProperty={true}
+          propertySlug="columbariums"
           deceasedList={deceasedInfo.deceasedList}
           requestPurpose={requestPurpose}
           idFile={deceasedInfo.idFile}

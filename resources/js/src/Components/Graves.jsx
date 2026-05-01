@@ -437,7 +437,7 @@ export default function Graves() {
                   }}>
                     <input
                       type="text"
-                      placeholder="Search graves by ID, deceased name, location, customer, or product type..."
+                      placeholder="Search graves by ID, deceased name, location, customer, or property type..."
                       value={graveSearchQuery}
                       onChange={(e) => setGraveSearchQuery(e.target.value)}
                       style={{
@@ -463,7 +463,7 @@ export default function Graves() {
                         <th>Deceased_Name</th>
                         <th>Grave_Location</th>
                         <th>Customer</th>
-                        <th>Product_Type</th>
+                        <th>Property_Type</th>
                         <th>Relationship_to_Deceased</th>
                         <th>Status</th>
                         <th>Date_Added</th>
@@ -482,7 +482,7 @@ export default function Graves() {
                           grave.deceased_name.toLowerCase().includes(query) ||
                           grave.grave_location.toLowerCase().includes(query) ||
                           grave.customer.toLowerCase().includes(query) ||
-                          (grave.product_type && grave.product_type.toLowerCase().includes(query))
+                          (grave.property_type && grave.property_type.toLowerCase().includes(query))
                         );
                       }).length > 0 ? (
                         [...gravesData].sort((a, b) => {
@@ -496,7 +496,7 @@ export default function Graves() {
                             grave.deceased_name.toLowerCase().includes(query) ||
                             grave.grave_location.toLowerCase().includes(query) ||
                             grave.customer.toLowerCase().includes(query) ||
-                            (grave.product_type && grave.product_type.toLowerCase().includes(query))
+                            (grave.property_type && grave.property_type.toLowerCase().includes(query))
                           );
                         }).map((grave, index) => (
                           <tr key={grave.id}>
@@ -506,7 +506,7 @@ export default function Graves() {
                             <td>{grave.customer}</td>
                             <td>
                               <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-[#f0f5f2] text-[#1B3022] rounded-lg">
-                                {grave.product_type}
+                                {grave.property_type}
                               </span>
                             </td>
                             <td>{grave.relationship_to_deceased}</td>

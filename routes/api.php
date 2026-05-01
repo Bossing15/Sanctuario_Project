@@ -261,13 +261,13 @@ Route::middleware('auth.multiple')->group(function () {
         Route::delete('/{id}', [App\Http\Controllers\ServiceController::class, 'destroy']);
     });
     
-    // Product routes
-    Route::prefix('products')->group(function () {
-        Route::get('/', [App\Http\Controllers\ProductController::class, 'index']);
-        Route::get('/{id}', [App\Http\Controllers\ProductController::class, 'show']);
-        Route::post('/', [App\Http\Controllers\ProductController::class, 'store']);
-        Route::post('/{id}', [App\Http\Controllers\ProductController::class, 'update']);
-        Route::delete('/{id}', [App\Http\Controllers\ProductController::class, 'destroy']);
+    // Property routes
+    Route::prefix('properties')->group(function () {
+        Route::get('/', [App\Http\Controllers\PropertyServiceController::class, 'index']);
+        Route::get('/{id}', [App\Http\Controllers\PropertyServiceController::class, 'show']);
+        Route::post('/', [App\Http\Controllers\PropertyServiceController::class, 'store']);
+        Route::post('/{id}', [App\Http\Controllers\PropertyServiceController::class, 'update']);
+        Route::delete('/{id}', [App\Http\Controllers\PropertyServiceController::class, 'destroy']);
     });
     
     // Payment Management routes - protected by billing permission
@@ -410,8 +410,8 @@ Route::prefix('family-estates')->group(function () {
 // Public service routes (for client-side)
 Route::get('/public/services', [App\Http\Controllers\ServiceController::class, 'publicIndex']);
 
-// Public products route (for client-side)
-Route::get('/public/products', [App\Http\Controllers\ProductController::class, 'publicIndex']);
+// Public properties route (for client-side)
+Route::get('/public/properties', [App\Http\Controllers\PropertyServiceController::class, 'publicIndex']);
 
 // Public payment methods route (for testing)
 Route::get('/public/payment-methods', function() {

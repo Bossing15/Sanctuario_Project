@@ -77,7 +77,7 @@ class Request extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Property::class, 'product_id');
     }
 
     public function service(): BelongsTo

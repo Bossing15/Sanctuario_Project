@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Product;
+use App\Models\Property;
 use App\Models\Service;
 
 class FixServiceProductMismatch extends Command
@@ -29,9 +29,9 @@ class FixServiceProductMismatch extends Command
     {
         $this->info('Starting to fix service/product mismatch...');
 
-        // Get Interment and Cremation from products table
-        $interment = Product::where('slug', 'interment')->first();
-        $cremation = Product::where('slug', 'cremation')->first();
+        // Get Interment and Cremation from properties table
+        $interment = Property::where('slug', 'interment')->first();
+        $cremation = Property::where('slug', 'cremation')->first();
 
         if (!$interment && !$cremation) {
             $this->info('No Interment or Cremation products found. Database may already be correct.');
@@ -87,7 +87,7 @@ class FixServiceProductMismatch extends Command
         }
 
         // Verify the final state
-        $products = Product::all();
+        $properties = Property::all();
         $services = Service::all();
 
         $this->info('');

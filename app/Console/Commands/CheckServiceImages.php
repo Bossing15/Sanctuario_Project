@@ -4,12 +4,12 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Service;
-use App\Models\Product;
+use App\Models\Property;
 
 class CheckServiceImages extends Command
 {
     protected $signature = 'check:images';
-    protected $description = 'Check and update service and product images';
+    protected $description = 'Check and update service and property images';
 
     public function handle()
     {
@@ -19,10 +19,10 @@ class CheckServiceImages extends Command
             $this->line("Service ID: {$service->id}, Title: {$service->title}, Image: " . ($service->image_path ?? 'NULL'));
         }
 
-        $this->info('Checking products...');
-        $products = Product::all();
-        foreach ($products as $product) {
-            $this->line("Product ID: {$product->id}, Title: {$product->title}, Image: " . ($product->image_path ?? 'NULL'));
+        $this->info('Checking properties...');
+        $properties = Property::all();
+        foreach ($properties as $property) {
+            $this->line("Property ID: {$property->id}, Title: {$property->title}, Image: " . ($property->image_path ?? 'NULL'));
         }
 
         // Update services
@@ -31,11 +31,11 @@ class CheckServiceImages extends Command
         Service::where('title', 'Interment')->update(['image_path' => 'services/interment.jpg']);
         Service::where('title', 'Cremation')->update(['image_path' => 'services/cremation.jpg']);
 
-        // Update products
-        $this->info('Updating products...');
-        Product::where('title', 'Lawn Lots')->update(['image_path' => 'products/lawn_lots.jpg']);
-        Product::where('title', 'Family Estates')->update(['image_path' => 'products/family_estates.jpg']);
-        Product::where('title', 'Columbariums')->update(['image_path' => 'products/columbariums.jpg']);
+        // Update properties
+        $this->info('Updating properties...');
+        Property::where('title', 'Lawn Lots')->update(['image_path' => 'properties/lawn_lots.jpg']);
+        Property::where('title', 'Family Estates')->update(['image_path' => 'properties/family_estates.jpg']);
+        Property::where('title', 'Columbariums')->update(['image_path' => 'properties/columbariums.jpg']);
 
         $this->info('Done! Checking again...');
         $services = Service::all();
@@ -43,9 +43,9 @@ class CheckServiceImages extends Command
             $this->line("Service ID: {$service->id}, Title: {$service->title}, Image: " . ($service->image_path ?? 'NULL'));
         }
 
-        $products = Product::all();
-        foreach ($products as $product) {
-            $this->line("Product ID: {$product->id}, Title: {$product->title}, Image: " . ($product->image_path ?? 'NULL'));
+        $properties = Property::all();
+        foreach ($properties as $property) {
+            $this->line("Property ID: {$property->id}, Title: {$property->title}, Image: " . ($property->image_path ?? 'NULL'));
         }
     }
 }

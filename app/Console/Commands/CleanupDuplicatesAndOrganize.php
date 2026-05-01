@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Product;
+use App\Models\Property;
 use App\Models\Service;
 
 class CleanupDuplicatesAndOrganize extends Command
@@ -33,7 +33,7 @@ class CleanupDuplicatesAndOrganize extends Command
         // Step 1: Keep only the correct products (IDs 2, 3, 4)
         $this->info('Step 1: Cleaning up products...');
         $productsToKeep = [2, 3, 4]; // Lawn Lots, Columbariums, Family Estates
-        $productsToDelete = Product::whereNotIn('id', $productsToKeep)->get();
+        $productsToDelete = Property::whereNotIn('id', $productsToKeep)->get();
 
         foreach ($productsToDelete as $product) {
             $this->info('  - Deleting product: ' . $product->title . ' (ID: ' . $product->id . ')');
@@ -60,7 +60,7 @@ class CleanupDuplicatesAndOrganize extends Command
         $this->info('Final Database State:');
         $this->info('');
 
-        $products = Product::orderBy('id')->get();
+        $products = Property::orderBy('id')->get();
         $this->info('Products (' . $products->count() . '):');
         foreach ($products as $product) {
             $this->info('  ID ' . $product->id . ': ' . $product->title . ' (slug: ' . $product->slug . ')');

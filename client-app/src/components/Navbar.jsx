@@ -146,8 +146,8 @@ function Navbar() {
               onMouseLeave={() => setIsOffersDropdownOpen(false)}
             >
               <Link 
-                to="/products-services"
-                className={`nav-dropdown-btn ${location.pathname === '/products-services' || location.pathname === '/lawn-lots' || location.pathname === '/family-estates' || location.pathname === '/columbariums' || location.pathname === '/internment' || location.pathname === '/cremation' || location.pathname === '/maintenance' ? 'active' : ''}`}
+                to="/properties-services"
+                className={`nav-dropdown-btn ${location.pathname === '/properties-services' || location.pathname === '/lawn-lots' || location.pathname === '/family-estates' || location.pathname === '/columbariums' || location.pathname === '/internment' || location.pathname === '/cremation' || location.pathname === '/maintenance' ? 'active' : ''}`}
                 onClick={() => setIsOffersDropdownOpen(false)}
               >
                 {getSetting('nav_products_services', 'Products & Services')} <FaChevronDown className={`nav-chevron ${isOffersDropdownOpen ? 'open' : ''}`} />

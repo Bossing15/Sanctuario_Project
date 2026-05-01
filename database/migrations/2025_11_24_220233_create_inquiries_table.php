@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('full_name');
             $table->string('email');
             $table->string('phone');
-            $table->string('product_interest');
+            $table->string('property_interest');
             $table->text('message');
             $table->enum('status', ['New', 'In Progress', 'Responded', 'Closed'])->default('New');
             $table->timestamps();

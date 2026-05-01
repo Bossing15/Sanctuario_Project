@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Product;
+use App\Models\Property;
 
 class ProductSeeder extends Seeder
 {
@@ -17,7 +17,7 @@ class ProductSeeder extends Seeder
         // NOTE: Interment and Cremation are SERVICES, not products
         // They are created in the MaintenanceServiceSeeder
         
-        Product::firstOrCreate(
+        Property::firstOrCreate(
             ['slug' => 'lawn-lots'],
             [
                 'title' => 'Lawn Lots',
@@ -29,7 +29,7 @@ class ProductSeeder extends Seeder
             ]
         );
 
-        Product::firstOrCreate(
+        Property::firstOrCreate(
             ['slug' => 'family-estates'],
             [
                 'title' => 'Family Estates',
@@ -41,7 +41,7 @@ class ProductSeeder extends Seeder
             ]
         );
 
-        Product::firstOrCreate(
+        Property::firstOrCreate(
             ['slug' => 'columbariums'],
             [
                 'title' => 'Columbariums',

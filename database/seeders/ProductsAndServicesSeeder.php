@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Product;
+use App\Models\Property;
 use App\Models\Service;
 
 class ProductsAndServicesSeeder extends Seeder
@@ -52,7 +52,7 @@ class ProductsAndServicesSeeder extends Seeder
         ];
 
         foreach ($products as $product) {
-            Product::updateOrCreate(
+            Property::updateOrCreate(
                 ['title' => $product['title']],
                 $product
             );

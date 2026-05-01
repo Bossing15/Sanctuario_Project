@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Booking;
 use App\Models\Client;
 use App\Models\Service;
-use App\Models\Product;
+use App\Models\Property;
 use App\Models\Grave;
 use App\Models\LawnLot;
 use App\Models\Columbarium;
@@ -44,19 +44,19 @@ class AuthorizationService
      */
     private function checkProductAuthorization(Booking $booking): string
     {
-        // Get the product to determine lot type
-        $product = Product::find($booking->product_id);
-        if (!$product) {
+        // Get the property to determine lot type
+        $property = Property::find($booking->product_id);
+        if (!$property) {
             return 'AUTO_APPROVED';
         }
 
-        // If no lot selected, auto-approve (service-like product)
+        // If no lot selected, auto-approve (service-like property)
         if (!$booking->grave_id) {
             return 'AUTO_APPROVED';
         }
 
-        // Check if lot is available based on product type
-        $isAvailable = $this->isLotAvailable($product->slug, $booking->grave_id);
+        // Check if lot is available based on property type
+        $isAvailable = $this->isLotAvailable($property->slug, $booking->grave_id);
 
         return $isAvailable ? 'AUTO_APPROVED' : 'REJECTED';
     }

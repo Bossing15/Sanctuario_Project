@@ -247,7 +247,7 @@ function BillingPage() {
             
             // Filter maintenance bookings that are ready for payment
             const maintenanceReadyForPayment = bookings.filter(b => 
-              b.service_id && !b.product_id && b.status?.toLowerCase() === 'readyforpayment'
+              b.service_id && !b.property_id && b.status?.toLowerCase() === 'readyforpayment'
             );
             
             console.log('Maintenance bookings ready for payment:', maintenanceReadyForPayment);

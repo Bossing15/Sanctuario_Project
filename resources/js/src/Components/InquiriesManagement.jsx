@@ -64,8 +64,8 @@ function InquiriesManagement() {
         const data = await response.json();
         // Filter out maintenance-related inquiries
         const nonMaintenanceInquiries = (data.inquiries || []).filter(inquiry => {
-          const productInterest = (inquiry.product_interest || '').toLowerCase();
-          return !productInterest.includes('maintenance') && !productInterest.includes('grave');
+          const propertyInterest = (inquiry.property_interest || '').toLowerCase();
+          return !propertyInterest.includes('maintenance') && !propertyInterest.includes('grave');
         });
         setInquiries(nonMaintenanceInquiries);
       }
@@ -86,7 +86,7 @@ function InquiriesManagement() {
 
     // Service filter
     if (serviceFilter !== 'All') {
-      filtered = filtered.filter(inq => inq.product_interest === serviceFilter);
+      filtered = filtered.filter(inq => inq.property_interest === serviceFilter);
     }
 
     // Search filter
@@ -215,8 +215,8 @@ function InquiriesManagement() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <img src={inquiryIcon} alt="Products Icon" className="w-10 h-10 object-contain mr-4" />
-            <h3 className="text-3xl font-bold text-gray-800">Products Management</h3>
+            <img src={inquiryIcon} alt="Properties Icon" className="w-10 h-10 object-contain mr-4" />
+            <h3 className="text-3xl font-bold text-gray-800">Properties Management</h3>
           </div>
         </div>
         <div className="flex justify-end mt-4">
@@ -352,7 +352,7 @@ function InquiriesManagement() {
                         <div>{inquiry.email}</div>
                         <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>{inquiry.phone}</div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{inquiry.product_interest}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{inquiry.property_interest}</td>
                       <td className="px-6 py-4 text-sm">
                         <span className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg ${
                           inquiry.status === 'New' 
@@ -412,7 +412,7 @@ function InquiriesManagement() {
               </div>
               <div className="detail-row">
                 <label className="detail-label">Service Interested:</label>
-                <span className="detail-value">{selectedInquiry.product_interest}</span>
+                <span className="detail-value">{selectedInquiry.property_interest}</span>
               </div>
               <div className="detail-row">
                 <label className="detail-label">Date Submitted:</label>
@@ -441,7 +441,7 @@ function InquiriesManagement() {
 
             <div className="modal-footer">
               <a
-                href={`mailto:${selectedInquiry.email}?subject=Re: ${selectedInquiry.product_interest} Inquiry`}
+                href={`mailto:${selectedInquiry.email}?subject=Re: ${selectedInquiry.property_interest} Inquiry`}
                 className={`modal-btn secondary ${!canManageInquiries ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={(e) => !canManageInquiries && e.preventDefault()}
                 title={!canManageInquiries ? 'You do not have permission to respond' : ''}

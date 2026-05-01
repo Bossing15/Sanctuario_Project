@@ -157,9 +157,9 @@ const Dashboard = () => {
       if (response.ok) {
         const data = await response.json();
         const maintenanceOnly = (data.inquiries || []).filter(inquiry =>
-          inquiry.product_interest &&
-          (inquiry.product_interest.toLowerCase().includes('maintenance') ||
-           inquiry.product_interest.toLowerCase().includes('grave'))
+          inquiry.property_interest &&
+          (inquiry.property_interest.toLowerCase().includes('maintenance') ||
+           inquiry.property_interest.toLowerCase().includes('grave'))
         );
         setMaintenanceRequests(maintenanceOnly);
       } else {
@@ -200,9 +200,9 @@ const Dashboard = () => {
         
         // Enrich bookings with client details
         const enrichedBookings = (Array.isArray(bookingsData) ? bookingsData : []).map((booking) => {
-          // Extract service/product names from relationships
+          // Extract service/property names from relationships
           const serviceName = booking.service?.title || booking.service?.name || booking.service_name || '';
-          const productName = booking.product?.title || booking.product?.name || booking.product_name || '';
+          const propertyName = booking.property?.title || booking.property?.name || booking.property_name || '';
           
           // Get client info from user relationship (bookings use user_id for customer)
           const clientName = booking.user?.name || booking.client?.name || booking.customer_name || 'N/A';
@@ -212,7 +212,7 @@ const Dashboard = () => {
           return {
             ...booking,
             service_name: serviceName,
-            product_name: productName,
+            property_name: propertyName,
             customer_name: clientName,
             deceased_name: deceasedName,
             client: booking.user || booking.client || { name: clientName, phone: clientPhone }
@@ -709,7 +709,7 @@ const Dashboard = () => {
                   <th>Customer Name</th>
                   <th>Contact Number</th>
                   <th>Date_Added</th>
-                  <th>Product/Service</th>
+                  <th>Property/Service</th>
                   <th>Amount</th>
                   <th>Authorization</th>
                   <th>Status</th>
@@ -725,11 +725,11 @@ const Dashboard = () => {
                   </tr>
                 ) : (
                   (() => {
-                    // Separate service bookings from product bookings
-                    const serviceBookings = purchases.filter(p => p.service_id && !p.product_id);
-                    const productBookings = purchases.filter(p => p.product_id && !p.service_id);
+                    // Separate service bookings from property bookings
+                    const serviceBookings = purchases.filter(p => p.service_id && !p.property_id);
+                    const propertyBookings = purchases.filter(p => p.property_id && !p.service_id);
                     
-                    // Combine maintenance, service, product, and reservation data
+                    // Combine maintenance, service, property, and reservation data
                     const combinedData = [
                       ...maintenanceRequests.map(req => ({
                         ...req,
@@ -741,7 +741,7 @@ const Dashboard = () => {
                         type: 'Service',
                         sortDate: new Date(booking.created_at || booking.booking_date)
                       })),
-                      ...productBookings.map(booking => ({
+                      ...propertyBookings.map(booking => ({
                         ...booking,
                         type: 'Purchase',
                         sortDate: new Date(booking.created_at || booking.booking_date)
@@ -762,9 +762,9 @@ const Dashboard = () => {
                         const contact = item.type === 'Maintenance'
                           ? (item.phone || '').toLowerCase()
                           : (item.client?.phone || '').toLowerCase();
-                        const productService = item.type === 'Maintenance'
-                          ? (item.product_interest || '').toLowerCase()
-                          : (item.service_name || item.product_name || '').toLowerCase();
+                        const propertyService = item.type === 'Maintenance'
+                          ? (item.property_interest || '').toLowerCase()
+                          : (item.service_name || item.property_name || '').toLowerCase();
                         const status = item.type === 'Maintenance'
                           ? (item.status || '').toLowerCase()
                           : (item.status || '').toLowerCase();
@@ -779,7 +779,7 @@ const Dashboard = () => {
                           item.id.toString().includes(query) ||
                           customerName.includes(query) ||
                           contact.includes(query) ||
-                          productService.includes(query) ||
+                          propertyService.includes(query) ||
                           status.includes(query) ||
                           authStatus.includes(query) ||
                           deceasedName.includes(query) ||
@@ -799,7 +799,7 @@ const Dashboard = () => {
                               <td className="font-bold" data-label="Customer Name">{item.full_name || 'N/A'}</td>
                               <td data-label="Contact Number">{item.phone || 'N/A'}</td>
                               <td className="date-cell" data-label="Date Added">{formatDate(item.created_at)}</td>
-                              <td data-label="Product/Service">{item.product_interest}</td>
+                              <td data-label="Product/Service">{item.property_interest}</td>
                               <td data-label="Amount">-</td>
                               <td className="text-center" data-label="Authorization">
                                 <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg">
@@ -865,11 +865,11 @@ const Dashboard = () => {
                               <td className="font-bold" data-label="Customer Name">{item.client?.name || item.customer_name || 'N/A'}</td>
                               <td data-label="Contact Number">{item.client?.phone || 'N/A'}</td>
                               <td className="date-cell" data-label="Date Added">{formatDate(item.created_at || item.booking_date)}</td>
-                              <td data-label="Product/Service">
+                              <td data-label="Property/Service">
                                 <div className="flex flex-col gap-1">
-                                  <span className="font-semibold">{item.service_name || item.product_name || 'N/A'}</span>
+                                  <span className="font-semibold">{item.service_name || item.property_name || 'N/A'}</span>
                                   <span className="text-xs text-gray-500">
-                                    {item.service?.category || item.product?.category || 'N/A'}
+                                    {item.service?.category || item.property?.category || 'N/A'}
                                   </span>
                                 </div>
                               </td>
@@ -1453,7 +1453,7 @@ const MaintenanceModal = ({ request, canManageInquiries, onClose, onUpdate }) =>
               </div>
               <div>
                 <span className="text-sm text-gray-600">Plan:</span>
-                <p className="font-semibold">{extractPlanType(request.product_interest)}</p>
+                <p className="font-semibold">{extractPlanType(request.property_interest)}</p>
               </div>
               <div>
                 <span className="text-sm text-gray-600">Plot Number:</span>
@@ -1466,7 +1466,7 @@ const MaintenanceModal = ({ request, canManageInquiries, onClose, onUpdate }) =>
               <div className="col-span-2">
                 <span className="text-sm text-gray-600">Service Validity:</span>
                 <p className="font-semibold text-green-600">
-                  Valid until {calculateValidityDate(request.created_at, extractPlanType(request.product_interest))}
+                  Valid until {calculateValidityDate(request.created_at, extractPlanType(request.property_interest))}
                 </p>
               </div>
             </div>

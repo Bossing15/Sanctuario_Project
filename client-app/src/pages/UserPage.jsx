@@ -27,7 +27,7 @@ function UserPage() {
   const [activeTab, setActiveTab] = useState(tabFromUrl);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [pendingPayments, setPendingPayments] = useState([]);
-  const [purchasedProducts, setPurchasedProducts] = useState([]);
+  const [purchasedProperties, setPurchasedProperties] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
@@ -48,7 +48,7 @@ function UserPage() {
     if (activeTab === 'billing') {
       fetchPendingPayments();
     } else if (activeTab === 'profile') {
-      fetchPurchasedProducts();
+      fetchPurchasedProperties();
     }
   }, [activeTab]);
 
@@ -107,7 +107,7 @@ function UserPage() {
           .filter(res => res.status === 'approved')
           .map(res => ({
             id: res.id,
-            description: res.product?.title || res.service?.title || 'Reservation',
+            description: res.property?.title || res.service?.title || 'Reservation',
             amount: res.amount,
             payment_type: res.plan_type || 'One-time',
             due_date: res.created_at,
@@ -126,7 +126,7 @@ function UserPage() {
     }
   };
 
-  const fetchPurchasedProducts = async () => {
+  const fetchPurchasedProperties = async () => {
     const token = localStorage.getItem('authToken');
     if (!token) {
       return;
@@ -146,18 +146,18 @@ function UserPage() {
         credentials: 'include',
       });
 
-      let products = [];
+      let properties = [];
       if (reservationsResponse.ok) {
         const data = await reservationsResponse.json();
         console.log('All reservations:', data.reservations);
         
         // Get paid/completed reservations
-        const paidProducts = (data.reservations || [])
+        const paidProperties = (data.reservations || [])
           .filter(res => res.status === 'paid' || res.status === 'completed')
           .map(res => ({
             id: res.id,
-            productName: res.product?.title || res.service?.title || 'Product/Service',
-            productType: res.lot_type || 'Unknown',
+            propertyName: res.property?.title || res.service?.title || 'Property/Service',
+            propertyType: res.lot_type || 'Unknown',
             deceasedName: res.deceased_name,
             dateOfDeath: res.deceased_date_of_death,
             relationship: res.deceased_relationship,
@@ -180,23 +180,23 @@ function UserPage() {
             } : null,
           }));
         
-        console.log('Filtered purchased products:', paidProducts);
+        console.log('Filtered purchased properties:', paidProperties);
         console.log('Total reservations:', data.reservations?.length);
-        console.log('Paid/Completed count:', paidProducts.length);
+        console.log('Paid/Completed count:', paidProperties.length);
         
-        // If no paid products, show all reservations for debugging
-        if (paidProducts.length === 0) {
-          console.log('No paid products found. All reservation statuses:', 
+        // If no paid properties, show all reservations for debugging
+        if (paidProperties.length === 0) {
+          console.log('No paid properties found. All reservation statuses:', 
             data.reservations?.map(r => ({ id: r.id, status: r.status, deceased: r.deceased_name }))
           );
         }
         
-        products = paidProducts;
+        properties = paidProperties;
       }
 
-      setPurchasedProducts(products);
+      setPurchasedProperties(properties);
     } catch (error) {
-      console.error('Error fetching purchased products:', error);
+      console.error('Error fetching purchased properties:', error);
     } finally {
       setLoading(false);
     }
@@ -482,35 +482,35 @@ function UserPage() {
                     </div>
                   </div>
 
-                  {/* Purchased Products Section */}
-                  <div className="purchased-products-section">
-                    <h3>My Purchased Products</h3>
+                  {/* Purchased Properties Section */}
+                  <div className="purchased-properties-section">
+                    <h3>My Purchased Properties</h3>
                     
                     {loading ? (
                       <div className="loading-state">
                         <div className="spinner"></div>
-                        <p>Loading your products...</p>
+                        <p>Loading your properties...</p>
                       </div>
-                    ) : purchasedProducts.length === 0 ? (
-                      <div className="no-products-state">
+                    ) : purchasedProperties.length === 0 ? (
+                      <div className="no-properties-state">
                         <div className="empty-icon">📦</div>
-                        <h4>No Products Yet</h4>
-                        <p>You haven't purchased any products yet. Start exploring our offerings!</p>
+                        <h4>No Properties Yet</h4>
+                        <p>You haven't purchased any properties yet. Start exploring our offerings!</p>
                       </div>
                     ) : (
-                      <div className="products-grid">
-                        {purchasedProducts.map((product) => (
-                          <div key={product.id} className="product-card-item">
-                            <div className="product-card-header">
-                              <div className="product-status-badge">
+                      <div className="properties-grid">
+                        {purchasedProperties.map((property) => (
+                          <div key={property.id} className="property-card-item">
+                            <div className="property-card-header">
+                              <div className="property-status-badge">
                                 <FaCheckCircle className="status-icon" />
                                 <span>Purchased</span>
                               </div>
-                              <div className="product-code">{product.reservationCode}</div>
+                              <div className="property-code">{property.reservationCode}</div>
                             </div>
                             
-                            <div className="product-card-body">
-                              <h4 className="product-name">{product.productName}</h4>
+                            <div className="property-card-body">
+                              <h4 className="property-name">{property.propertyName}</h4>
                               
                               <div className="product-info-grid">
                                 <div className="info-row">
@@ -528,9 +528,9 @@ function UserPage() {
                                   <span className="info-value">{product.relationship || 'N/A'}</span>
                                 </div>
                                 
-                                <div className="info-row">
-                                  <span className="info-label">Product Type:</span>
-                                  <span className="info-value">{product.productType}</span>
+                              <div className="info-row">
+                                  <span className="info-label">Property Type:</span>
+                                  <span className="info-value">{property.propertyType}</span>
                                 </div>
                                 
                                 <div className="info-row">
@@ -592,7 +592,7 @@ function UserPage() {
                               </div>
                             </div>
                             
-                            <div className="product-card-footer">
+                            <div className="property-card-footer">
                               <span className="status-badge completed">✓ Completed</span>
                             </div>
                           </div>

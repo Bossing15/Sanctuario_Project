@@ -6,7 +6,7 @@ use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class PropertyController extends Controller
+class PropertyServiceController extends Controller
 {
     public function index()
     {

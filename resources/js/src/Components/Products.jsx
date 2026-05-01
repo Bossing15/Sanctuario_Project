@@ -4,7 +4,7 @@ import maintenanceIcon from "../assets/icons/icons8-services-50.png";
 import { TableSkeleton } from "./SkeletonLoader";
 import usePermissions from "../utils/usePermissions";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
-import ProductEditor from "./ProductEditor";
+import ProductEditor from "./PropertyEditor";
 import ServiceDetailEditorInline from "./ServiceDetailEditorInline";
 import StatsCards from "./StatsCards";
 import CrudActions from "./CrudActions";
@@ -12,25 +12,25 @@ import { getSequentialIdFromIndex } from "../utils/tableIdGenerator";
 import crudUtils from "../utils/crudUtils";
 import "./MaintenanceHeader.css";
 
-const Products = () => {
+const Properties = () => {
   const navigate = useNavigate();
   const { canPerformActions } = usePermissions();
-  const canManageProducts = canPerformActions("graves");
+  const canManageProperties = canPerformActions("graves");
   
   const [viewMode, setViewMode] = useState("Table");
-  const [activeProductTab, setActiveProductTab] = useState("Lawn Lots");
-  const [products, setProducts] = useState([]);
+  const [activePropertyTab, setActivePropertyTab] = useState("Lawn Lots");
+  const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [productSearchQuery, setProductSearchQuery] = useState("");
+  const [propertySearchQuery, setPropertySearchQuery] = useState("");
   const [notification, setNotification] = useState(null);
-  const [showProductEditor, setShowProductEditor] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
+  const [showPropertyEditor, setShowPropertyEditor] = useState(false);
+  const [editingProperty, setEditingProperty] = useState(null);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [productToDelete, setProductToDelete] = useState(null);
+  const [propertyToDelete, setPropertyToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    fetchProducts();
+    fetchProperties();
   }, []);
 
   const showNotification = (message, type = "success") => {
@@ -38,11 +38,11 @@ const Products = () => {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const fetchProducts = async () => {
+  const fetchProperties = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("authToken");
-      const response = await fetch("/api/products", {
+      const response = await fetch("/api/properties", {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Accept": "application/json",
@@ -51,27 +51,27 @@ const Products = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setProducts(data.products);
+        setProperties(data.properties);
       }
     } catch (error) {
-      console.error("Error fetching products:", error);
-      showNotification("Error fetching products", "error");
+      console.error("Error fetching properties:", error);
+      showNotification("Error fetching properties", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddProduct = () => {
-    setEditingProduct(null);
-    setShowProductEditor(true);
+  const handleAddProperty = () => {
+    setEditingProperty(null);
+    setShowPropertyEditor(true);
   };
 
-  const handleEditProduct = (product) => {
-    setEditingProduct(product);
-    setShowProductEditor(true);
+  const handleEditProperty = (property) => {
+    setEditingProperty(property);
+    setShowPropertyEditor(true);
   };
 
-  const handleSaveProduct = async (formData, imageFile) => {
+  const handleSaveProperty = async (formData, imageFile) => {
     try {
       const token = localStorage.getItem("authToken");
       const submitData = new FormData();
@@ -89,11 +89,11 @@ const Products = () => {
         submitData.append("image", imageFile);
       }
 
-      const url = editingProduct?.id 
-        ? `/api/products/${editingProduct.id}` 
-        : "/api/products";
+      const url = editingProperty?.id 
+        ? `/api/properties/${editingProperty.id}` 
+        : "/api/properties";
       
-      const method = editingProduct?.id ? "POST" : "POST";
+      const method = editingProperty?.id ? "POST" : "POST";
 
       const response = await fetch(url, {
         method,
@@ -102,26 +102,26 @@ const Products = () => {
       });
 
       if (response.ok) {
-        setShowProductEditor(false);
-        setEditingProduct(null);
-        await fetchProducts();
+        setShowPropertyEditor(false);
+        setEditingProperty(null);
+        await fetchProperties();
         showNotification(
-          editingProduct?.id 
-            ? "Product updated successfully!" 
-            : "Product created successfully!",
+          editingProperty?.id 
+            ? "Property updated successfully!" 
+            : "Property created successfully!",
           "success"
         );
       } else {
-        showNotification("Failed to save product", "error");
+        showNotification("Failed to save property", "error");
       }
     } catch (error) {
-      console.error("Error saving product:", error);
-      showNotification("Error saving product", "error");
+      console.error("Error saving property:", error);
+      showNotification("Error saving property", "error");
     }
   };
 
-  const handleDeleteProduct = (productId) => {
-    setProductToDelete(productId);
+  const handleDeleteProperty = (propertyId) => {
+    setPropertyToDelete(propertyId);
     setShowDeleteConfirmModal(true);
   };
 
@@ -129,32 +129,32 @@ const Products = () => {
     showNotification("Maintenance header updated!", "success");
   };
 
-  const handleViewProduct = (product) => {
-    setEditingProduct(product);
-    setShowProductEditor(true);
+  const handleViewProperty = (property) => {
+    setEditingProperty(property);
+    setShowPropertyEditor(true);
   };
 
-  const confirmDeleteProduct = async () => {
-    if (!productToDelete) return;
+  const confirmDeleteProperty = async () => {
+    if (!propertyToDelete) return;
     setIsDeleting(true);
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch(`/api/products/${productToDelete}`, {
+      const response = await fetch(`/api/properties/${propertyToDelete}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" },
       });
 
       if (response.ok) {
-        await fetchProducts();
-        showNotification("Product deleted successfully!", "success");
+        await fetchProperties();
+        showNotification("Property deleted successfully!", "success");
         setShowDeleteConfirmModal(false);
-        setProductToDelete(null);
+        setPropertyToDelete(null);
       } else {
-        showNotification("Failed to delete product", "error");
+        showNotification("Failed to delete property", "error");
       }
     } catch (error) {
-      console.error("Error deleting product:", error);
-      showNotification("Error deleting product", "error");
+      console.error("Error deleting property:", error);
+      showNotification("Error deleting property", "error");
     } finally {
       setIsDeleting(false);
     }
@@ -162,31 +162,31 @@ const Products = () => {
 
   const closeDeleteConfirmModal = () => {
     setShowDeleteConfirmModal(false);
-    setProductToDelete(null);
+    setPropertyToDelete(null);
   };
 
-  const getFilteredProducts = () => {
-    const query = productSearchQuery.toLowerCase();
-    return products.filter((product) => {
+  const getFilteredProperties = () => {
+    const query = propertySearchQuery.toLowerCase();
+    return properties.filter((property) => {
       return (
-        product.id.toString().includes(query) ||
-        product.title.toLowerCase().includes(query) ||
-        product.category.toLowerCase().includes(query) ||
-        product.status.toLowerCase().includes(query)
+        property.id.toString().includes(query) ||
+        property.title.toLowerCase().includes(query) ||
+        property.category.toLowerCase().includes(query) ||
+        property.status.toLowerCase().includes(query)
       );
     });
   };
 
-  const getCardViewProducts = () => {
-    const query = productSearchQuery.toLowerCase();
+  const getCardViewProperties = () => {
+    const query = propertySearchQuery.toLowerCase();
     
-    return products.filter((product) => {
+    return properties.filter((property) => {
       const matchesSearch = 
-        product.id.toString().includes(query) ||
-        product.title.toLowerCase().includes(query) ||
-        product.category.toLowerCase().includes(query) ||
-        product.status.toLowerCase().includes(query);
-      return matchesSearch && product.title.toLowerCase() === activeProductTab.toLowerCase();
+        property.id.toString().includes(query) ||
+        property.title.toLowerCase().includes(query) ||
+        property.category.toLowerCase().includes(query) ||
+        property.status.toLowerCase().includes(query);
+      return matchesSearch && property.title.toLowerCase() === activePropertyTab.toLowerCase();
     });
   };
 
@@ -203,41 +203,41 @@ const Products = () => {
       {showDeleteConfirmModal && (
         <DeleteConfirmationModal
           isOpen={showDeleteConfirmModal}
-          title="Delete Product"
-          message="Are you sure you want to delete this product? This action cannot be undone."
-          onConfirm={confirmDeleteProduct}
+          title="Delete Property"
+          message="Are you sure you want to delete this property? This action cannot be undone."
+          onConfirm={confirmDeleteProperty}
           onCancel={closeDeleteConfirmModal}
           isLoading={isDeleting}
         />
       )}
 
-      {(!editingProduct) ? (
+      {(!editingProperty) ? (
         <ProductEditor
-          product={editingProduct}
-          isOpen={showProductEditor}
+          property={editingProperty}
+          isOpen={showPropertyEditor}
           onClose={() => {
-            setShowProductEditor(false);
-            setEditingProduct(null);
+            setShowPropertyEditor(false);
+            setEditingProperty(null);
           }}
-          onSave={handleSaveProduct}
-          canManageServices={canManageProducts}
+          onSave={handleSaveProperty}
+          canManageServices={canManageProperties}
         />
       ) : (
         <ProductEditor
-          product={editingProduct}
-          isOpen={showProductEditor}
+          property={editingProperty}
+          isOpen={showPropertyEditor}
           onClose={() => {
-            setShowProductEditor(false);
-            setEditingProduct(null);
+            setShowPropertyEditor(false);
+            setEditingProperty(null);
           }}
-          onSave={handleSaveProduct}
-          canManageServices={canManageProducts}
+          onSave={handleSaveProperty}
+          canManageServices={canManageProperties}
         />
       )}
 
       <div className="flex items-center mb-8">
-        <img src={maintenanceIcon} alt="Products Icon" className="w-10 h-10 object-contain mr-4" />
-        <h1 className="text-3xl font-bold text-gray-800">Products Management</h1>
+        <img src={maintenanceIcon} alt="Properties Icon" className="w-10 h-10 object-contain mr-4" />
+        <h1 className="text-3xl font-bold text-gray-800">Properties Management</h1>
       </div>
 
       {/* View Mode Tabs */}
@@ -477,4 +477,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default Properties;

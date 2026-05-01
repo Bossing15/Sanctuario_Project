@@ -79,8 +79,8 @@ function MyServicesPage() {
         
         // Filter only maintenance inquiries
         const maintenanceInquiries = allInquiries.filter(inquiry => 
-          inquiry.product_interest && 
-          inquiry.product_interest.toLowerCase().includes('maintenance')
+          inquiry.property_interest && 
+          inquiry.property_interest.toLowerCase().includes('maintenance')
         );
 
         // Convert inquiries to booking format and combine with bookings
@@ -89,7 +89,7 @@ function MyServicesPage() {
           client: { name: inquiry.full_name },
           booking_date: inquiry.created_at,
           created_at: inquiry.created_at,
-          service: { name: inquiry.product_interest },
+          service: { name: inquiry.property_interest },
           status: inquiry.status,
           total_amount: 0,
           notes: inquiry.message,

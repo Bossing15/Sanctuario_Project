@@ -15,7 +15,7 @@ class Inquiry extends Model
         'message',
         'status',
         'service_type',
-        'product_interest',
+        'property_interest',
         'grave_location',
         'maintenance_photos',
         'invoice_number',

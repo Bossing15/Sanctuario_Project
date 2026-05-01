@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import './ProductsServicesPage.css';
+import './PropertiesServicesPage.css';
 import heroBg from '../assets/images/Sanctuario3_1.jpg';
 import lawnLotsImg from '../assets/images/lawn_lots.jpg';
 import familyEstateImg from '../assets/images/familt_estate.jpg';
@@ -9,10 +9,10 @@ import intermentImg from '../assets/images/interment.jpg';
 import cremationImg from '../assets/images/cremation.jpg';
 import maintenanceImg from '../assets/images/pexels-dr-mohammad-hoque-86842308-29413845.jpg';
 
-function ProductsServicesPage() {
+function PropertiesServicesPage() {
   const navigate = useNavigate();
 
-  const products = [
+  const properties = [
     {
       id: 1,
       title: 'Lawn Lots',
@@ -61,37 +61,37 @@ function ProductsServicesPage() {
   ];
 
   return (
-    <div className="products-services-page">
+    <div className="properties-services-page">
       {/* Hero Banner */}
       <div className="ps-hero" style={{ backgroundImage: `url(${heroBg})` }}>
         <div className="ps-hero-overlay"></div>
         <div className="ps-hero-content">
-          <h1>Products & Services</h1>
+          <h1>Properties & Services</h1>
         </div>
       </div>
 
-      {/* Products Section */}
-      <div className="ps-section products-section">
+      {/* Properties Section */}
+      <div className="ps-section properties-section">
         <div className="ps-section-header">
-          <h2>Products</h2>
+          <h2>Properties</h2>
           <div className="section-underline"></div>
         </div>
 
-        <div className="products-grid">
-          {products.map(product => (
+        <div className="properties-grid">
+          {properties.map(property => (
             <div 
-              key={product.id} 
-              className="product-card"
-              style={{ backgroundImage: product.image }}
+              key={property.id} 
+              className="property-card"
+              style={{ backgroundImage: property.image }}
             >
               <div className="card-overlay"></div>
               <div className="card-content">
-                <h3>{product.title}</h3>
+                <h3>{property.title}</h3>
                 <div className="card-underline"></div>
-                <p>{product.description}</p>
+                <p>{property.description}</p>
                 <button 
                   className="read-more-btn"
-                  onClick={() => navigate(product.path)}
+                  onClick={() => navigate(property.path)}
                 >
                   Read More →
                 </button>
@@ -135,4 +135,4 @@ function ProductsServicesPage() {
   );
 }
 
-export default ProductsServicesPage;
+export default PropertiesServicesPage;

@@ -161,20 +161,20 @@ function AuthorizationModal({ request, onClose, onApprove, onReject }) {
             </div>
           </div>
 
-          {/* Service/Product Information */}
+          {/* Service/Property Information */}
           <div className="modal-section">
-            <span className="modal-section-title">Service/Product Information</span>
+            <span className="modal-section-title">Service/Property Information</span>
             <div className="modal-info-grid">
               <div className="modal-info-item">
                 <label>Type</label>
                 <span>
-                  {request.product?.title || request.product?.name || request.service?.title || request.service?.name || 'N/A'}
+                  {request.property?.title || request.property?.name || request.service?.title || request.service?.name || 'N/A'}
                 </span>
               </div>
               <div className="modal-info-item">
                 <label>Category</label>
                 <span>
-                  {request.product?.category || request.service?.category || 'N/A'}
+                  {request.property?.category || request.service?.category || 'N/A'}
                 </span>
               </div>
               <div className="modal-info-item">

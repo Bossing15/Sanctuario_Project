@@ -64,9 +64,9 @@ function MyMaintenanceRequestsPage() {
         const inquiries = result.data || result.inquiries || result || [];
         
         const maintenanceOnly = inquiries.filter(inquiry => 
-          inquiry.product_interest && 
-          (inquiry.product_interest.toLowerCase().includes('maintenance') ||
-           inquiry.product_interest.toLowerCase().includes('grave'))
+          inquiry.property_interest && 
+          (inquiry.property_interest.toLowerCase().includes('maintenance') ||
+           inquiry.property_interest.toLowerCase().includes('grave'))
         );
         setMaintenanceRequests(maintenanceOnly);
       } else {
@@ -384,9 +384,9 @@ function MyMaintenanceRequestsPage() {
       type: 'maintenance-request',
       requestId: request.id,
       invoiceNumber: request.invoice_number,
-      description: extractServiceName(request.product_interest),
+      description: extractServiceName(request.property_interest),
       amount: parseFloat(amount.replace(/,/g, '')) || 0,
-      planType: extractPlanType(request.product_interest),
+      planType: extractPlanType(request.property_interest),
       createdAt: request.created_at
     };
     console.log('Storing payment data:', paymentData);
@@ -512,7 +512,7 @@ function MyMaintenanceRequestsPage() {
                 </div>
                 <div className="modal-detail-item">
                   <span className="modal-detail-label">Service:</span>
-                  <span className="modal-detail-value">{extractServiceName(item.product_interest)}</span>
+                  <span className="modal-detail-value">{extractServiceName(item.property_interest)}</span>
                 </div>
                 <div className="modal-detail-item">
                   <span className="modal-detail-label">Status:</span>
@@ -733,7 +733,7 @@ function MyMaintenanceRequestsPage() {
     let id = item.id;
 
     if (type === 'maintenance-request') {
-      serviceName = extractServiceName(item.product_interest);
+      serviceName = extractServiceName(item.property_interest);
       status = getStatusText(item.status);
       paymentStatus = 'N/A';
       amount = item.message?.match(/₱([\d,]+)/)?.[1] || '0';

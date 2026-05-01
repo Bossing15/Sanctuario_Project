@@ -38,10 +38,10 @@ class PaymentManagementController extends Controller
                         $graveId = $payment->booking->grave_id;
                         $productId = $payment->booking->product_id;
                         
-                        // Get the product to determine the type
-                        $product = \App\Models\Product::find($productId);
+                        // Get the property to determine the type
+                        $property = \App\Models\Property::find($productId);
                         
-                        if ($product) {
+                        if ($property) {
                             $lotInfo = null;
                             
                             switch ($product->slug) {

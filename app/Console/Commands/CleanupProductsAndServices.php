@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Product;
+use App\Models\Property;
 use App\Models\Service;
 
 class CleanupProductsAndServices extends Command
@@ -31,7 +31,7 @@ class CleanupProductsAndServices extends Command
 
         // Keep only these product IDs: 2 (Lawn Lots), 3 (Columbariums), 4 (Family Estates)
         $productsToKeep = [2, 3, 4];
-        $productsToDelete = Product::whereNotIn('id', $productsToKeep)->get();
+        $productsToDelete = Property::whereNotIn('id', $productsToKeep)->get();
         
         $this->info("Deleting " . $productsToDelete->count() . " old/duplicate products...");
         foreach ($productsToDelete as $product) {
@@ -50,7 +50,7 @@ class CleanupProductsAndServices extends Command
         }
 
         $this->info('Cleanup completed successfully!');
-        $this->info('Remaining products: ' . Product::count());
+        $this->info('Remaining products: ' . Property::count());
         $this->info('Remaining services: ' . Service::count());
     }
 }

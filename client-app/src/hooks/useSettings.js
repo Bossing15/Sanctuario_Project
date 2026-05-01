@@ -65,8 +65,8 @@ const useSettings = () => {
       about_values_title: 'Our Values',
       
       // Services
-      services_title: 'Our Products & Services',
-      services_description: 'At Sanctuario De Carmona Memorial Park, we provide comprehensive memorial products and services.',
+      services_title: 'Our Properties & Services',
+      services_description: 'At Sanctuario De Carmona Memorial Park, we provide comprehensive memorial properties and services.',
       services_cta_text: 'Explore Our Services',
       
       // Contact
