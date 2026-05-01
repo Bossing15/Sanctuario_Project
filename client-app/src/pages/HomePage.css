@@ -108,8 +108,9 @@
 /* Hero Section */
 .home-hero {
   background-image: linear-gradient(
-      rgba(0, 0, 0, 0.6),
-      rgba(0, 0, 0, 0.6)
+      to bottom,
+      rgba(0, 0, 0, 0.3),
+      rgba(0, 0, 0, 0.5)
     ),
     url('../assets/images/pic7.jpg');
   background-size: cover;
@@ -119,12 +120,26 @@
   min-height: 600px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   color: white;
-  text-align: left;
+  text-align: center;
   margin-bottom: 0;
   padding: 0 clamp(20px, 5vw, 80px);
   padding-top: clamp(120px, 15vh, 180px);
+  position: relative;
+}
+
+/* Subtle dark gradient overlay at the bottom */
+.home-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25));
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Mobile optimization for hero */
@@ -149,56 +164,66 @@
 }
 
 .hero-content {
-  max-width: min(700px, 90vw);
+  max-width: min(900px, 90vw);
   width: 100%;
-  text-align: left;
+  text-align: center;
+  position: relative;
+  z-index: 2;
 }
 
 .hero-content h1 {
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  margin-bottom: 2.5rem;
+  font-family: 'Georgia', 'Garamond', 'Cambria', serif;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
   font-weight: 700;
-  line-height: 1.2;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  line-height: 1.4;
+  text-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
+  letter-spacing: -0.5px;
+  font-style: normal;
 }
 
 .hero-content p {
   font-size: clamp(1rem, 2.5vw, 1.3rem);
-  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
-  line-height: 1.6;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  max-width: 600px;
+  margin-bottom: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.7;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .hero-subtitle {
-  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  font-size: clamp(1.1rem, 2.8vw, 1.6rem);
   margin-bottom: 3.5rem;
   margin-top: 0;
   line-height: 1.8;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
   max-width: 650px;
-  font-weight: 400;
-  opacity: 0.95;
-  letter-spacing: 0.3px;
+  font-weight: 500;
+  opacity: 0.98;
+  letter-spacing: 0.2px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .explore-services-button {
   background: linear-gradient(135deg, #1b7a3a, #157a3a);
   color: white;
   border: none;
-  padding: clamp(12px, 3vw, 18px) clamp(24px, 5vw, 40px);
+  padding: clamp(14px, 3vw, 20px) clamp(28px, 5vw, 48px);
   border-radius: 50px;
   font-size: clamp(1rem, 2.5vw, 1.2rem);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 6px 20px rgba(27, 122, 58, 0.3);
+  box-shadow: 0 8px 24px rgba(27, 122, 58, 0.4);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  min-height: 44px; /* Touch-friendly */
-  min-width: 120px;
-  margin-top: 3rem;
+  letter-spacing: 1.2px;
+  min-height: 48px;
+  min-width: 140px;
+  margin-top: clamp(2.5rem, 6vw, 4rem);
   display: inline-block;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
 @media (max-width: 768px) {
@@ -211,8 +236,8 @@
 
 .explore-services-button:hover {
   background: linear-gradient(135deg, #145a2a, #0f4620);
-  box-shadow: 0 8px 25px rgba(27, 122, 58, 0.4);
-  transform: translateY(-3px);
+  box-shadow: 0 10px 32px rgba(27, 122, 58, 0.5);
+  transform: translateY(-4px);
 }
 
 .cta-buttons {
