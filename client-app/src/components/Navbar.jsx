@@ -173,7 +173,6 @@ function Navbar() {
             <Link to="/about" className={location.pathname === '/about' ? 'active' : ''}>{getSetting('nav_about', 'About us')}</Link>
             <Link to="/payments" className={location.pathname === '/payments' ? 'active' : ''}>{getSetting('nav_payments', 'Payments')}</Link>
             <Link to="/contact" className={location.pathname === '/contact' ? 'active' : ''}>{getSetting('nav_contact', 'Contact us')}</Link>
-            <Link to="/blog" className={location.pathname === '/blog' ? 'active' : ''}>{getSetting('nav_blog', 'Blogs')}</Link>
           </div>
           
           <div className="nav-contact-search">
@@ -333,12 +332,6 @@ function Navbar() {
             className={`mobile-sidebar-item ${location.pathname === '/about' ? 'active' : ''}`}
           >
             <span className="mobile-sidebar-item-label">{getSetting('nav_about', 'About Us')}</span>
-          </button>
-          <button 
-            onClick={() => handleNavClick('/blog')}
-            className={`mobile-sidebar-item ${location.pathname === '/blog' ? 'active' : ''}`}
-          >
-            <span className="mobile-sidebar-item-label">{getSetting('nav_blog', 'Blogs')}</span>
           </button>
           <button 
             onClick={() => handleNavClick('/contact')}

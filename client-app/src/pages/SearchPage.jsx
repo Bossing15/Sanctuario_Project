@@ -8,18 +8,6 @@ import './SearchPage.css';
 const searchData = [
   // Add all searchable items here
   {
-    type: 'blog',
-    title: 'Grave Yard Maintenance',
-    keywords: ['grave', 'maintenance', 'yard', 'clean', 'service'],
-    path: '/blog/2', // The detail page
-  },
-  {
-    type: 'blog',
-    title: 'Caring for Memorial Sites',
-    keywords: ['memorial', 'caring', 'sites', 'care'],
-    path: '/blog/1',
-  },
-  {
     type: 'service',
     title: 'Payment for Grave Maintenance',
     keywords: ['payment', 'grave', 'maintenance', 'pay'],
@@ -61,7 +49,6 @@ function SearchPage() {
             <Link to="/services">Services</Link>
             <Link to="/about">About us</Link>
             <Link to="/contact">Contact us</Link>
-            <Link to="/blog">Blog</Link>
             <a href="tel:+639123456789" className="phone-number">
               <FaPhone /> +63 912 3456 789
             </a>

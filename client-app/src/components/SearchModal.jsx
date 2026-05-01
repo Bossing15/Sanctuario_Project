@@ -35,7 +35,6 @@ function SearchModal({ isOpen, onClose }) {
       { keywords: ['home', 'memorial'], path: '/home' },
       { keywords: ['about', 'about us', 'company'], path: '/about' },
       { keywords: ['contact', 'contact us', 'phone', 'email'], path: '/contact' },
-      { keywords: ['blog', 'news', 'articles'], path: '/blog' },
       { keywords: ['privacy', 'policy'], path: '/privacy' },
 
       // Services overview
@@ -48,9 +47,6 @@ function SearchModal({ isOpen, onClose }) {
       { keywords: ['grave cleaning', 'clean gravesite', 'cleaning', 'clean'], path: '/services?service=grave-maintenance' },
       { keywords: ['grave painting demonstration', 'painting demo', 'painting demonstration'], path: '/services?service=grave-painting-demo' },
       { keywords: ['grave cleaning demonstration', 'cleaning demo', 'cleaning demonstration'], path: '/services?service=grave-cleaning-demo' },
-
-      // Blog related
-      { keywords: ['blog article', 'blog post', 'grave yard maintenance article', 'memorial sites care'], path: '/blog' },
 
       // Authentication / utility pages
       { keywords: ['login', 'sign in'], path: '/login' },
