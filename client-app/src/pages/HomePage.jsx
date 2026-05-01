@@ -181,7 +181,7 @@ function HomePage() {
             <div className="caretakers-features" ref={caretakerFeaturesRef}>
               <div className="caretaker-feature">
                 <div className="feature-icon satisfaction-icon">
-                  <div className="icon-content">📋</div>
+                  <img src={require('../assets/images/customer-satisfaction.png')} alt="Customer Satisfaction" className="icon-image" />
                 </div>
                 <h3>100% Satisfaction Guarantee</h3>
                 <p>If you're not happy with our maintenance and cleaning, we'll be back to fix the missed areas for free.</p>
@@ -189,7 +189,7 @@ function HomePage() {
               
               <div className="caretaker-feature">
                 <div className="feature-icon experience-icon">
-                  <div className="icon-content">🏆</div>
+                  <img src={require('../assets/images/farming.png')} alt="Experienced Caretakers" className="icon-image" />
                 </div>
                 <h3>Experienced Caretakers</h3>
                 <p>Our caretakers are experienced with more than a decade of experience, to make sure that your loved one's grave is in safe hands.</p>
@@ -197,7 +197,7 @@ function HomePage() {
               
               <div className="caretaker-feature">
                 <div className="feature-icon equipment-icon">
-                  <div className="icon-content">🛠️</div>
+                  <img src={require('../assets/images/review.png')} alt="Equipment & Supplies" className="icon-image" />
                 </div>
                 <h3>Equipment & Supplies Provided</h3>
                 <p>Our caretakers provide all the essential equipment & supplies needed for proper maintenance and care.</p>
