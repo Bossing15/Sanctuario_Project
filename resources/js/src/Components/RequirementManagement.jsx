@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import requirementIcon from "../assets/icons/Requirements.png";
 import usePermissions from '../utils/usePermissions';
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import ArchiveConfirmationModal from "./ArchiveConfirmationModal";
 import { TableSkeleton } from "./SkeletonLoader";
 import StatsCards from "./StatsCards";
 
@@ -262,9 +262,9 @@ export default function RequirementManagement() {
   });
 
   // Delete confirmation modal state
-  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [requirementToDelete, setRequirementToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [showArchiveConfirmModal, setShowArchiveConfirmModal] = useState(false);
+  const [requirementToArchive, setRequirementToArchive] = useState(null);
+  const [isArchiving, setIsArchiving] = useState(false);
 
   useEffect(() => {
     if (activeTab === "requirements") {
@@ -427,44 +427,46 @@ export default function RequirementManagement() {
     }
   };
 
-  const handleDeleteRequirement = (id) => {
-    setRequirementToDelete(id);
-    setShowDeleteConfirmModal(true);
+  const handleArchiveRequirement = (id) => {
+    setRequirementToArchive(id);
+    setShowArchiveConfirmModal(true);
   };
 
-  const confirmDeleteRequirement = async () => {
-    if (!requirementToDelete) return;
+  const confirmArchiveRequirement = async () => {
+    if (!requirementToArchive) return;
 
     if (!canManageRequirements) {
       return;
     }
 
-    setIsDeleting(true);
+    setIsArchiving(true);
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`/api/requirements/${requirementToDelete}`, {
-        method: 'DELETE',
+      const response = await fetch(`/api/requirements/${requirementToArchive}`, {
+        method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
+          'Content-Type': 'application/json'
         },
+        body: JSON.stringify({ archived: true })
       });
 
       if (response.ok) {
         fetchRequirements();
-        setShowDeleteConfirmModal(false);
-        setRequirementToDelete(null);
+        setShowArchiveConfirmModal(false);
+        setRequirementToArchive(null);
       }
     } catch (error) {
-      console.error('Error deleting requirement:', error);
+      console.error('Error archiving requirement:', error);
     } finally {
-      setIsDeleting(false);
+      setIsArchiving(false);
     }
   };
 
-  const closeDeleteConfirmModal = () => {
-    setShowDeleteConfirmModal(false);
-    setRequirementToDelete(null);
+  const closeArchiveConfirmModal = () => {
+    setShowArchiveConfirmModal(false);
+    setRequirementToArchive(null);
   };
 
   return (
@@ -746,12 +748,12 @@ export default function RequirementManagement() {
                               Edit
                             </button>
                             <button
-                              onClick={() => handleDeleteRequirement(requirement.id)}
+                              onClick={() => handleArchiveRequirement(requirement.id)}
                               disabled={!canManageRequirements}
                               className={`action-btn danger ${!canManageRequirements ? 'opacity-50 cursor-not-allowed' : ''}`}
-                              title={!canManageRequirements ? 'You do not have permission to delete requirements' : ''}
+                              title={!canManageRequirements ? 'You do not have permission to archive requirements' : ''}
                             >
-                              Delete
+                              Archive
                             </button>
                           </div>
                         </td>
@@ -810,13 +812,15 @@ export default function RequirementManagement() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal
-        show={showDeleteConfirmModal}
+      {/* Archive Confirmation Modal */}
+      <ArchiveConfirmationModal
+        isOpen={showArchiveConfirmModal}
+        title="Archive Requirement"
+        message="Are you sure you want to archive this requirement?"
         itemName="this requirement"
-        onConfirm={confirmDeleteRequirement}
-        onCancel={closeDeleteConfirmModal}
-        isLoading={isDeleting}
+        onConfirm={confirmArchiveRequirement}
+        onCancel={closeArchiveConfirmModal}
+        isLoading={isArchiving}
       />
     </div>
   );

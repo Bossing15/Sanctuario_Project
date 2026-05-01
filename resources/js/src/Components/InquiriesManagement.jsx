@@ -4,7 +4,7 @@ import '../styles/tables.css';
 import inquiryIcon from "../assets/icons/icons8-services-50.png";
 import usePermissions from '../utils/usePermissions';
 import { TableSkeleton } from './SkeletonLoader';
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import ArchiveConfirmationModal from "./ArchiveConfirmationModal";
 import { preserveScrollPosition, restoreScrollPosition } from '../utils/scrollPreserver';
 
 function InquiriesManagement() {
@@ -24,9 +24,9 @@ function InquiriesManagement() {
   const [dateRange, setDateRange] = useState('All');
 
   // Delete confirmation modal state
-  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [inquiryToDelete, setInquiryToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [showArchiveConfirmModal, setShowArchiveConfirmModal] = useState(false);
+  const [inquiryToArchive, setInquiryToArchive] = useState(null);
+  const [isArchiving, setIsArchiving] = useState(false);
 
   useEffect(() => {
     fetchInquiries();
@@ -142,40 +142,42 @@ function InquiriesManagement() {
     }
   };
 
-  const deleteInquiry = (inquiryId) => {
-    setInquiryToDelete(inquiryId);
-    setShowDeleteConfirmModal(true);
+  const archiveInquiry = (inquiryId) => {
+    setInquiryToArchive(inquiryId);
+    setShowArchiveConfirmModal(true);
   };
 
-  const confirmDeleteInquiry = async () => {
-    if (!inquiryToDelete) return;
+  const confirmArchiveInquiry = async () => {
+    if (!inquiryToArchive) return;
 
-    setIsDeleting(true);
+    setIsArchiving(true);
     try {
-      const response = await fetch(`/api/admin/inquiries/${inquiryToDelete}`, {
-        method: 'DELETE',
+      const response = await fetch(`/api/admin/inquiries/${inquiryToArchive}`, {
+        method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
           'Accept': 'application/json',
+          'Content-Type': 'application/json'
         },
+        body: JSON.stringify({ archived: true })
       });
 
       if (response.ok) {
         fetchInquiries();
         setShowDetailModal(false);
-        setShowDeleteConfirmModal(false);
-        setInquiryToDelete(null);
+        setShowArchiveConfirmModal(false);
+        setInquiryToArchive(null);
       }
     } catch (error) {
-      console.error('Error deleting inquiry:', error);
+      console.error('Error archiving inquiry:', error);
     } finally {
-      setIsDeleting(false);
+      setIsArchiving(false);
     }
   };
 
-  const closeDeleteConfirmModal = () => {
-    setShowDeleteConfirmModal(false);
-    setInquiryToDelete(null);
+  const closeArchiveConfirmModal = () => {
+    setShowArchiveConfirmModal(false);
+    setInquiryToArchive(null);
   };
 
   const getStatusBadgeClass = (status) => {
@@ -458,24 +460,26 @@ function InquiriesManagement() {
               </a>
               <button
                 className={`modal-btn danger ${!canManageInquiries ? 'opacity-50 cursor-not-allowed' : ''}`}
-                onClick={() => canManageInquiries && deleteInquiry(selectedInquiry.id)}
+                onClick={() => canManageInquiries && archiveInquiry(selectedInquiry.id)}
                 disabled={!canManageInquiries}
-                title={!canManageInquiries ? 'You do not have permission to delete' : ''}
+                title={!canManageInquiries ? 'You do not have permission to archive' : ''}
               >
-                Delete
+                Archive
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal
-        show={showDeleteConfirmModal}
+      {/* Archive Confirmation Modal */}
+      <ArchiveConfirmationModal
+        isOpen={showArchiveConfirmModal}
+        title="Archive Inquiry"
+        message="Are you sure you want to archive this inquiry?"
         itemName="this inquiry"
-        onConfirm={confirmDeleteInquiry}
-        onCancel={closeDeleteConfirmModal}
-        isLoading={isDeleting}
+        onConfirm={confirmArchiveInquiry}
+        onCancel={closeArchiveConfirmModal}
+        isLoading={isArchiving}
       />
     </div>
   );

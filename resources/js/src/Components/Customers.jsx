@@ -5,7 +5,7 @@ import { formatDate } from '../utils/dateFormatter';
 import StatsCards from "./StatsCards";
 import CrudActions from "./CrudActions";
 import crudUtils from "../utils/crudUtils";
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import ArchiveConfirmationModal from "./ArchiveConfirmationModal";
 import usePermissions from "../utils/usePermissions";
 import { preserveScrollPosition, restoreScrollPosition } from "../utils/scrollPreserver";
 import { getSequentialIdFromIndex } from "../utils/tableIdGenerator";
@@ -18,9 +18,9 @@ const CustomersPage = () => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [customerToDelete, setCustomerToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [showArchiveConfirmModal, setShowArchiveConfirmModal] = useState(false);
+  const [customerToArchive, setCustomerToArchive] = useState(null);
+  const [isArchiving, setIsArchiving] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -223,41 +223,41 @@ const CustomersPage = () => {
     );
   };
 
-  const handleDeleteCustomer = (id) => {
-    setCustomerToDelete(id);
-    setShowDeleteConfirmModal(true);
+  const handleArchiveCustomer = (id) => {
+    setCustomerToArchive(id);
+    setShowArchiveConfirmModal(true);
   };
 
-  const confirmDeleteCustomer = async () => {
-    if (!customerToDelete) return;
+  const confirmArchiveCustomer = async () => {
+    if (!customerToArchive) return;
 
-    setIsDeleting(true);
+    setIsArchiving(true);
     try {
       const token = localStorage.getItem("authToken");
-      const result = await crudUtils.deleteItem(
-        "/api/clients",
-        customerToDelete,
-        token
-      );
+      const response = await fetch(`/api/clients/${customerToArchive}`, {
+        method: "PATCH",
+        headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ archived: true })
+      });
       
-      if (result.success) {
+      if (response.ok) {
         fetchCustomers();
-        setShowDeleteConfirmModal(false);
-        setCustomerToDelete(null);
+        setShowArchiveConfirmModal(false);
+        setCustomerToArchive(null);
       } else {
-        alert(result.error || "Failed to delete customer");
+        alert("Failed to archive customer");
       }
     } catch (error) {
-      console.error("Error deleting customer:", error);
-      alert("Error deleting customer");
+      console.error("Error archiving customer:", error);
+      alert("Error archiving customer");
     } finally {
-      setIsDeleting(false);
+      setIsArchiving(false);
     }
   };
 
-  const closeDeleteConfirmModal = () => {
-    setShowDeleteConfirmModal(false);
-    setCustomerToDelete(null);
+  const closeArchiveConfirmModal = () => {
+    setShowArchiveConfirmModal(false);
+    setCustomerToArchive(null);
   };
 
   if (loading) {
@@ -721,11 +721,11 @@ const CustomersPage = () => {
                             <CrudActions
                               onView={() => handleViewCustomer(customer.id)}
                               onEdit={() => {}}
-                              onDelete={() => handleDeleteCustomer(customer.id)}
+                              onArchive={() => handleArchiveCustomer(customer.id)}
                               onToggleStatus={() => {}}
                               showView={true}
                               showEdit={false}
-                              showDelete={!isComponentDisabled('customers')}
+                              showArchive={!isComponentDisabled('customers')}
                               showToggle={false}
                               size="sm"
                             />
@@ -757,14 +757,15 @@ const CustomersPage = () => {
         )}
       </div>
 
-      {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal
-        show={showDeleteConfirmModal}
-        message="Are you sure you want to delete this customer?"
+      {/* Archive Confirmation Modal */}
+      <ArchiveConfirmationModal
+        isOpen={showArchiveConfirmModal}
+        title="Archive Customer"
+        message="Are you sure you want to archive this customer?"
         itemName="this customer"
-        onConfirm={confirmDeleteCustomer}
-        onCancel={closeDeleteConfirmModal}
-        isLoading={isDeleting}
+        onConfirm={confirmArchiveCustomer}
+        onCancel={closeArchiveConfirmModal}
+        isLoading={isArchiving}
       />
     </div>
   );

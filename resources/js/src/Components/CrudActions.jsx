@@ -4,23 +4,23 @@ import './CrudActions.css';
 export default function CrudActions({
   onView,
   onEdit,
-  onDelete,
+  onArchive,
   onToggleStatus,
   showView = true,
   showEdit = true,
-  showDelete = true,
+  showArchive = true,
   showToggle = true,
   disabled = false,
   size = 'md'
 }) {
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleDelete = async () => {
+  const handleArchive = async () => {
     setIsLoading(true);
     try {
-      await onDelete();
-      setShowDeleteConfirm(false);
+      await onArchive();
+      setShowArchiveConfirm(false);
     } finally {
       setIsLoading(false);
     }
@@ -61,29 +61,29 @@ export default function CrudActions({
         </button>
       )}
 
-      {showDelete && onDelete && (
+      {showArchive && onArchive && (
         <>
-          {!showDeleteConfirm ? (
+          {!showArchiveConfirm ? (
             <button
-              onClick={() => setShowDeleteConfirm(true)}
+              onClick={() => setShowArchiveConfirm(true)}
               disabled={disabled || isLoading}
-              className="action-btn delete-btn"
-              title="Delete item"
+              className="action-btn archive-btn"
+              title="Archive item"
             >
-              Delete
+              Archive
             </button>
           ) : (
-            <div className="delete-confirm">
+            <div className="archive-confirm">
               <span className="confirm-text">Sure?</span>
               <button
-                onClick={handleDelete}
+                onClick={handleArchive}
                 disabled={isLoading}
                 className="action-btn confirm-yes"
               >
                 {isLoading ? '...' : 'Yes'}
               </button>
               <button
-                onClick={() => setShowDeleteConfirm(false)}
+                onClick={() => setShowArchiveConfirm(false)}
                 disabled={isLoading}
                 className="action-btn confirm-no"
               >

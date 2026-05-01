@@ -3,7 +3,7 @@ import { formatDate } from '../utils/dateFormatter';
 import StatsCards from './StatsCards';
 import CrudActions from './CrudActions';
 import crudUtils from '../utils/crudUtils';
-import DeleteConfirmationModal from './DeleteConfirmationModal';
+import ArchiveConfirmationModal from './ArchiveConfirmationModal';
 import { preserveScrollPosition, restoreScrollPosition } from '../utils/scrollPreserver';
 import { getSequentialIdFromIndex } from '../utils/tableIdGenerator';
 
@@ -13,9 +13,9 @@ const PaymentManagement = ({ canManageBilling = true }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
-  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [paymentToDelete, setPaymentToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [showArchiveConfirmModal, setShowArchiveConfirmModal] = useState(false);
+  const [paymentToArchive, setPaymentToArchive] = useState(null);
+  const [isArchiving, setIsArchiving] = useState(false);
 
   useEffect(() => {
     fetchPayments();
@@ -105,41 +105,41 @@ const PaymentManagement = ({ canManageBilling = true }) => {
     setShowReceiptModal(true);
   };
 
-  const handleDeletePayment = (id) => {
-    setPaymentToDelete(id);
-    setShowDeleteConfirmModal(true);
+  const handleArchivePayment = (id) => {
+    setPaymentToArchive(id);
+    setShowArchiveConfirmModal(true);
   };
 
-  const confirmDeletePayment = async () => {
-    if (!paymentToDelete) return;
+  const confirmArchivePayment = async () => {
+    if (!paymentToArchive) return;
 
-    setIsDeleting(true);
+    setIsArchiving(true);
     try {
       const token = localStorage.getItem("authToken");
-      const result = await crudUtils.deleteItem(
-        "/api/payments",
-        paymentToDelete,
-        token
-      );
+      const response = await fetch(`/api/payments/${paymentToArchive}`, {
+        method: "PATCH",
+        headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ archived: true })
+      });
       
-      if (result.success) {
+      if (response.ok) {
         fetchPayments();
-        setShowDeleteConfirmModal(false);
-        setPaymentToDelete(null);
+        setShowArchiveConfirmModal(false);
+        setPaymentToArchive(null);
       } else {
-        alert(result.error || "Failed to delete payment");
+        alert("Failed to archive payment");
       }
     } catch (error) {
-      console.error("Error deleting payment:", error);
-      alert("Error deleting payment");
+      console.error("Error archiving payment:", error);
+      alert("Error archiving payment");
     } finally {
-      setIsDeleting(false);
+      setIsArchiving(false);
     }
   };
 
-  const closeDeleteConfirmModal = () => {
-    setShowDeleteConfirmModal(false);
-    setPaymentToDelete(null);
+  const closeArchiveConfirmModal = () => {
+    setShowArchiveConfirmModal(false);
+    setPaymentToArchive(null);
   };
 
   const handleDownloadPDF = () => {
@@ -271,11 +271,11 @@ const PaymentManagement = ({ canManageBilling = true }) => {
                     <CrudActions
                       onView={() => handleGenerateReceipt(payment)}
                       onEdit={() => {}}
-                      onDelete={() => handleDeletePayment(payment.id)}
+                      onArchive={() => handleArchivePayment(payment.id)}
                       onToggleStatus={() => {}}
                       showView={true}
                       showEdit={false}
-                      showDelete={canManageBilling}
+                      showArchive={canManageBilling}
                       showToggle={false}
                       size="sm"
                     />
@@ -432,14 +432,15 @@ const PaymentManagement = ({ canManageBilling = true }) => {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal
-        show={showDeleteConfirmModal}
-        message="Are you sure you want to delete this payment?"
+      {/* Archive Confirmation Modal */}
+      <ArchiveConfirmationModal
+        isOpen={showArchiveConfirmModal}
+        title="Archive Payment"
+        message="Are you sure you want to archive this payment?"
         itemName="this payment"
-        onConfirm={confirmDeletePayment}
-        onCancel={closeDeleteConfirmModal}
-        isLoading={isDeleting}
+        onConfirm={confirmArchivePayment}
+        onCancel={closeArchiveConfirmModal}
+        isLoading={isArchiving}
       />
 
     </div>

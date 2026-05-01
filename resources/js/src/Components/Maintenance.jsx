@@ -4,7 +4,7 @@ import { TableSkeleton } from "./SkeletonLoader";
 import StatsCards from "./StatsCards";
 import CrudActions from "./CrudActions";
 import crudUtils from "../utils/crudUtils";
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import ArchiveConfirmationModal from "./ArchiveConfirmationModal";
 import { getSequentialIdFromIndex } from "../utils/tableIdGenerator";
 
 const Maintenance = () => {
@@ -12,9 +12,9 @@ const Maintenance = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [requestToDelete, setRequestToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [showArchiveConfirmModal, setShowArchiveConfirmModal] = useState(false);
+  const [requestToArchive, setRequestToArchive] = useState(null);
+  const [isArchiving, setIsArchiving] = useState(false);
 
   useEffect(() => {
     fetchMaintenanceRequests();
@@ -54,41 +54,41 @@ const Maintenance = () => {
     }
   };
 
-  const handleDeleteRequest = (id) => {
-    setRequestToDelete(id);
-    setShowDeleteConfirmModal(true);
+  const handleArchiveRequest = (id) => {
+    setRequestToArchive(id);
+    setShowArchiveConfirmModal(true);
   };
 
-  const confirmDeleteRequest = async () => {
-    if (!requestToDelete) return;
+  const confirmArchiveRequest = async () => {
+    if (!requestToArchive) return;
 
-    setIsDeleting(true);
+    setIsArchiving(true);
     try {
       const token = localStorage.getItem("authToken");
-      const result = await crudUtils.deleteItem(
-        "/api/maintenance-requests",
-        requestToDelete,
-        token
-      );
+      const response = await fetch(`/api/maintenance-requests/${requestToArchive}`, {
+        method: "PATCH",
+        headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ archived: true })
+      });
       
-      if (result.success) {
+      if (response.ok) {
         fetchMaintenanceRequests();
-        setShowDeleteConfirmModal(false);
-        setRequestToDelete(null);
+        setShowArchiveConfirmModal(false);
+        setRequestToArchive(null);
       } else {
-        alert(result.error || "Failed to delete request");
+        alert("Failed to archive request");
       }
     } catch (error) {
-      console.error("Error deleting request:", error);
-      alert("Error deleting request");
+      console.error("Error archiving request:", error);
+      alert("Error archiving request");
     } finally {
-      setIsDeleting(false);
+      setIsArchiving(false);
     }
   };
 
-  const closeDeleteConfirmModal = () => {
-    setShowDeleteConfirmModal(false);
-    setRequestToDelete(null);
+  const closeArchiveConfirmModal = () => {
+    setShowArchiveConfirmModal(false);
+    setRequestToArchive(null);
   };
 
   return (
@@ -222,11 +222,11 @@ const Maintenance = () => {
                           <CrudActions
                             onView={() => {}}
                             onEdit={() => {}}
-                            onDelete={() => handleDeleteRequest(request.id)}
+                            onArchive={() => handleArchiveRequest(request.id)}
                             onToggleStatus={() => handleToggleStatus(request.id, request.status)}
                             showView={false}
                             showEdit={false}
-                            showDelete={true}
+                            showArchive={true}
                             showToggle={false}
                             size="sm"
                           />
@@ -241,14 +241,15 @@ const Maintenance = () => {
         )}
       </div>
 
-      {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal
-        show={showDeleteConfirmModal}
-        message="Are you sure you want to delete this maintenance request?"
+      {/* Archive Confirmation Modal */}
+      <ArchiveConfirmationModal
+        isOpen={showArchiveConfirmModal}
+        title="Archive Maintenance Request"
+        message="Are you sure you want to archive this maintenance request?"
         itemName="this request"
-        onConfirm={confirmDeleteRequest}
-        onCancel={closeDeleteConfirmModal}
-        isLoading={isDeleting}
+        onConfirm={confirmArchiveRequest}
+        onCancel={closeArchiveConfirmModal}
+        isLoading={isArchiving}
       />
     </div>
   );

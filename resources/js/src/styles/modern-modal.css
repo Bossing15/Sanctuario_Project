@@ -338,6 +338,34 @@ body.modal-open {
   background-color: #fecaca;
 }
 
+/* Warning Button - Amber/Orange for Archive */
+.modal-btn-warning {
+  padding: 10px 20px;
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.modal-btn-warning:hover {
+  background-color: #fef3c7;
+  border-color: #fcd34d;
+  color: #d97706;
+}
+
+.modal-btn-warning:active {
+  background-color: #fde68a;
+}
+
 /* Success Feedback Animation */
 @keyframes successCheckmark {
   0% {

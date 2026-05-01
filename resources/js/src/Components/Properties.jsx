@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import maintenanceIcon from "../assets/icons/icons8-services-50.png";
 import { TableSkeleton } from "./SkeletonLoader";
 import usePermissions from "../utils/usePermissions";
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
-import ProductEditor from "./PropertyEditor";
+import ArchiveConfirmationModal from "./ArchiveConfirmationModal";
+import PropertyEditor from "./PropertyEditor";
 import ServiceDetailEditorInline from "./ServiceDetailEditorInline";
 import StatsCards from "./StatsCards";
 import CrudActions from "./CrudActions";
@@ -25,9 +25,9 @@ const Properties = () => {
   const [notification, setNotification] = useState(null);
   const [showPropertyEditor, setShowPropertyEditor] = useState(false);
   const [editingProperty, setEditingProperty] = useState(null);
-  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [propertyToDelete, setPropertyToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [showArchiveConfirmModal, setShowArchiveConfirmModal] = useState(false);
+  const [propertyToArchive, setPropertyToArchive] = useState(null);
+  const [isArchiving, setIsArchiving] = useState(false);
 
   useEffect(() => {
     fetchProperties();
@@ -120,9 +120,9 @@ const Properties = () => {
     }
   };
 
-  const handleDeleteProperty = (propertyId) => {
-    setPropertyToDelete(propertyId);
-    setShowDeleteConfirmModal(true);
+  const handleArchiveProperty = (propertyId) => {
+    setPropertyToArchive(propertyId);
+    setShowArchiveConfirmModal(true);
   };
 
   const handleSaveMaintenanceHeader = async (formData) => {
@@ -134,35 +134,36 @@ const Properties = () => {
     setShowPropertyEditor(true);
   };
 
-  const confirmDeleteProperty = async () => {
-    if (!propertyToDelete) return;
-    setIsDeleting(true);
+  const confirmArchiveProperty = async () => {
+    if (!propertyToArchive) return;
+    setIsArchiving(true);
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch(`/api/properties/${propertyToDelete}`, {
-        method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" },
+      const response = await fetch(`/api/properties/${propertyToArchive}`, {
+        method: "PATCH",
+        headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ archived: true })
       });
 
       if (response.ok) {
         await fetchProperties();
-        showNotification("Property deleted successfully!", "success");
-        setShowDeleteConfirmModal(false);
-        setPropertyToDelete(null);
+        showNotification("Property archived successfully!", "success");
+        setShowArchiveConfirmModal(false);
+        setPropertyToArchive(null);
       } else {
-        showNotification("Failed to delete property", "error");
+        showNotification("Failed to archive property", "error");
       }
     } catch (error) {
-      console.error("Error deleting property:", error);
-      showNotification("Error deleting property", "error");
+      console.error("Error archiving property:", error);
+      showNotification("Error archiving property", "error");
     } finally {
-      setIsDeleting(false);
+      setIsArchiving(false);
     }
   };
 
-  const closeDeleteConfirmModal = () => {
-    setShowDeleteConfirmModal(false);
-    setPropertyToDelete(null);
+  const closeArchiveConfirmModal = () => {
+    setShowArchiveConfirmModal(false);
+    setPropertyToArchive(null);
   };
 
   const getFilteredProperties = () => {
@@ -200,14 +201,14 @@ const Properties = () => {
         </div>
       )}
 
-      {showDeleteConfirmModal && (
-        <DeleteConfirmationModal
-          isOpen={showDeleteConfirmModal}
-          title="Delete Property"
-          message="Are you sure you want to delete this property? This action cannot be undone."
-          onConfirm={confirmDeleteProperty}
-          onCancel={closeDeleteConfirmModal}
-          isLoading={isDeleting}
+      {showArchiveConfirmModal && (
+        <ArchiveConfirmationModal
+          isOpen={showArchiveConfirmModal}
+          title="Archive Property"
+          message="Are you sure you want to archive this property? You can restore it later."
+          onConfirm={confirmArchiveProperty}
+          onCancel={closeArchiveConfirmModal}
+          isLoading={isArchiving}
         />
       )}
 
@@ -373,13 +374,13 @@ const Properties = () => {
                           </td>
                           <td className="text-center">
                             <CrudActions
-                              onView={() => handleViewProduct(product)}
-                              onEdit={() => handleEditProduct(product)}
-                              onDelete={() => handleDeleteProduct(product.id)}
+                              onView={() => handleViewProperty(product)}
+                              onEdit={() => handleEditProperty(product)}
+                              onArchive={() => handleArchiveProperty(product.id)}
                               onToggleStatus={() => {}}
                               showView={true}
                               showEdit={true}
-                              showDelete={true}
+                              showArchive={true}
                               showToggle={false}
                               disabled={!canManageProducts}
                               size="sm"

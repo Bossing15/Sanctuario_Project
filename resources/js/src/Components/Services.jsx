@@ -2,7 +2,7 @@
 import maintenanceIcon from "../assets/icons/Maintenance.png";
 import { TableSkeleton } from "./SkeletonLoader";
 import usePermissions from "../utils/usePermissions";
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import ArchiveConfirmationModal from "./ArchiveConfirmationModal";
 import ServiceEditor from "./ServiceEditor";
 import InlineServiceEditor from "./InlineServiceEditor";
 import ServiceDetailEditorInline from "./ServiceDetailEditorInline";
@@ -24,9 +24,9 @@ const Services = () => {
   const [notification, setNotification] = useState(null);
   const [showServiceEditor, setShowServiceEditor] = useState(false);
   const [editingService, setEditingService] = useState(null);
-  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [serviceToDelete, setServiceToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [showArchiveConfirmModal, setShowArchiveConfirmModal] = useState(false);
+  const [serviceToArchive, setServiceToArchive] = useState(null);
+  const [isArchiving, setIsArchiving] = useState(false);
 
   useEffect(() => {
     fetchServices();
@@ -123,9 +123,9 @@ const Services = () => {
     }
   };
 
-  const handleDeleteService = (serviceId) => {
-    setServiceToDelete(serviceId);
-    setShowDeleteConfirmModal(true);
+  const handleArchiveService = (serviceId) => {
+    setServiceToArchive(serviceId);
+    setShowArchiveConfirmModal(true);
   };
 
   const handleSaveMaintenanceHeader = async (formData) => {
@@ -138,35 +138,36 @@ const Services = () => {
     setShowServiceEditor(true);
   };
 
-  const confirmDeleteService = async () => {
-    if (!serviceToDelete) return;
-    setIsDeleting(true);
+  const confirmArchiveService = async () => {
+    if (!serviceToArchive) return;
+    setIsArchiving(true);
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch(`/api/services/${serviceToDelete}`, {
-        method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" },
+      const response = await fetch(`/api/services/${serviceToArchive}`, {
+        method: "PATCH",
+        headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ archived: true })
       });
 
       if (response.ok) {
         await fetchServices();
-        showNotification("Service deleted successfully!", "success");
-        setShowDeleteConfirmModal(false);
-        setServiceToDelete(null);
+        showNotification("Service archived successfully!", "success");
+        setShowArchiveConfirmModal(false);
+        setServiceToArchive(null);
       } else {
-        showNotification("Failed to delete service", "error");
+        showNotification("Failed to archive service", "error");
       }
     } catch (error) {
-      console.error("Error deleting service:", error);
-      showNotification("Error deleting service", "error");
+      console.error("Error archiving service:", error);
+      showNotification("Error archiving service", "error");
     } finally {
-      setIsDeleting(false);
+      setIsArchiving(false);
     }
   };
 
-  const closeDeleteConfirmModal = () => {
-    setShowDeleteConfirmModal(false);
-    setServiceToDelete(null);
+  const closeArchiveConfirmModal = () => {
+    setShowArchiveConfirmModal(false);
+    setServiceToArchive(null);
   };
 
   const getCardViewServices = () => {
@@ -213,14 +214,14 @@ const Services = () => {
         </div>
       )}
 
-      {showDeleteConfirmModal && (
-        <DeleteConfirmationModal
-          isOpen={showDeleteConfirmModal}
-          title="Delete Service"
-          message="Are you sure you want to delete this service? This action cannot be undone."
-          onConfirm={confirmDeleteService}
-          onCancel={closeDeleteConfirmModal}
-          isLoading={isDeleting}
+      {showArchiveConfirmModal && (
+        <ArchiveConfirmationModal
+          isOpen={showArchiveConfirmModal}
+          title="Archive Service"
+          message="Are you sure you want to archive this service? You can restore it later."
+          onConfirm={confirmArchiveService}
+          onCancel={closeArchiveConfirmModal}
+          isLoading={isArchiving}
         />
       )}
 
@@ -391,11 +392,11 @@ const Services = () => {
                             <CrudActions
                               onView={() => handleViewService(service)}
                               onEdit={() => handleEditService(service)}
-                              onDelete={() => handleDeleteService(service.id)}
+                              onArchive={() => handleArchiveService(service.id)}
                               onToggleStatus={() => {}}
                               showView={true}
                               showEdit={true}
-                              showDelete={true}
+                              showArchive={true}
                               showToggle={false}
                               disabled={!canManageServices}
                               size="sm"
@@ -545,15 +546,15 @@ const Services = () => {
                               Edit
                             </button>
                             <button
-                              onClick={() => handleDeleteService(service.id)}
+                              onClick={() => handleArchiveService(service.id)}
                               disabled={!canManageServices}
                               className={`flex-1 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
                                 canManageServices
-                                  ? "bg-red-600 text-white hover:bg-red-700"
+                                  ? "bg-amber-600 text-white hover:bg-amber-700"
                                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
                               }`}
                             >
-                              Delete
+                              Archive
                             </button>
                           </div>
                         </div>

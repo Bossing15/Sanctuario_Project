@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TableSkeleton } from './SkeletonLoader';
 import CrudActions from './CrudActions';
 import crudUtils from '../utils/crudUtils';
-import DeleteConfirmationModal from './DeleteConfirmationModal';
+import ArchiveConfirmationModal from './ArchiveConfirmationModal';
 import './Purchases.css';
 import { getSequentialIdFromIndex } from '../utils/tableIdGenerator';
 
@@ -11,9 +11,9 @@ const Purchases = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [purchaseToDelete, setPurchaseToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [showArchiveConfirmModal, setShowArchiveConfirmModal] = useState(false);
+  const [purchaseToArchive, setPurchaseToArchive] = useState(null);
+  const [isArchiving, setIsArchiving] = useState(false);
 
   useEffect(() => {
     fetchPurchases();
@@ -88,42 +88,41 @@ const Purchases = () => {
     return `₱${parseFloat(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
   };
 
-  const handleDeletePurchase = (id) => {
-    setPurchaseToDelete(id);
-    setShowDeleteConfirmModal(true);
+  const handleArchivePurchase = (id) => {
+    setPurchaseToArchive(id);
+    setShowArchiveConfirmModal(true);
   };
 
-  const confirmDeletePurchase = async () => {
-    if (!purchaseToDelete) return;
+  const confirmArchivePurchase = async () => {
+    if (!purchaseToArchive) return;
 
-    setIsDeleting(true);
+    setIsArchiving(true);
     try {
       const token = localStorage.getItem("authToken");
-      const result = await crudUtils.deleteItem(
-        "/api/bookings",
-        purchaseToDelete,
-        token
-      );
+      const response = await fetch(`/api/bookings/${purchaseToArchive}`, {
+        method: "PATCH",
+        headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ archived: true })
+      });
       
-      if (result.success) {
+      if (response.ok) {
         fetchPurchases();
-        setShowDeleteConfirmModal(false);
-        setPurchaseToDelete(null);
+        setShowArchiveConfirmModal(false);
+        setPurchaseToArchive(null);
       } else {
-        alert(result.error || "Failed to delete purchase");
+        alert("Failed to archive purchase");
       }
     } catch (error) {
-      console.error("Error deleting purchase:", error);
-      alert("Error deleting purchase");
+      console.error("Error archiving purchase:", error);
+      alert("Error archiving purchase");
     } finally {
-      setIsDeleting(false);
+      setIsArchiving(false);
     }
   };
 
-  const closeDeleteConfirmModal = () => {
-    setShowDeleteConfirmModal(false);
-    setPurchaseToDelete(null);
-  };
+  const closeArchiveConfirmModal = () => {
+    setShowArchiveConfirmModal(false);
+    setPurchaseToArchive(null);
   };
 
   const getStatusBadge = (status) => {
@@ -265,11 +264,11 @@ const Purchases = () => {
                         <CrudActions
                           onView={() => {}}
                           onEdit={() => {}}
-                          onDelete={() => handleDeletePurchase(purchase.id)}
+                          onArchive={() => handleArchivePurchase(purchase.id)}
                           onToggleStatus={() => {}}
                           showView={false}
                           showEdit={false}
-                          showDelete={true}
+                          showArchive={true}
                           showToggle={false}
                           size="sm"
                         />
@@ -283,14 +282,15 @@ const Purchases = () => {
         )}
       </div>
 
-      {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal
-        show={showDeleteConfirmModal}
-        message="Are you sure you want to delete this purchase?"
+      {/* Archive Confirmation Modal */}
+      <ArchiveConfirmationModal
+        isOpen={showArchiveConfirmModal}
+        title="Archive Purchase"
+        message="Are you sure you want to archive this purchase?"
         itemName="this purchase"
-        onConfirm={confirmDeletePurchase}
-        onCancel={closeDeleteConfirmModal}
-        isLoading={isDeleting}
+        onConfirm={confirmArchivePurchase}
+        onCancel={closeArchiveConfirmModal}
+        isLoading={isArchiving}
       />
     </div>
   );

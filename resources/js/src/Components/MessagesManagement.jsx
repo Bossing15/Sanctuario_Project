@@ -8,6 +8,7 @@ import SmsModal from './SmsModal';
 import { TableSkeleton } from './SkeletonLoader';
 import CrudActions from './CrudActions';
 import crudUtils from '../utils/crudUtils';
+import ArchiveConfirmationModal from './ArchiveConfirmationModal';
 import { preserveScrollPosition, restoreScrollPosition } from '../utils/scrollPreserver';
 
 const MessagesManagement = () => {
@@ -23,6 +24,9 @@ const MessagesManagement = () => {
   const [filterStatus, setFilterStatus] = useState('All');
   const [activeTab, setActiveTab] = useState('messages');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showArchiveConfirmModal, setShowArchiveConfirmModal] = useState(false);
+  const [messageToArchive, setMessageToArchive] = useState(null);
+  const [isArchiving, setIsArchiving] = useState(false);
 
   useEffect(() => {
     fetchMessages();
@@ -121,67 +125,47 @@ const MessagesManagement = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    setConfirmModal({
-      show: true,
-      message: 'Are you sure you want to delete this message?',
-      onConfirm: async () => {
-        try {
-          const token = localStorage.getItem('authToken');
-          const response = await fetch(`/api/admin/contact-messages/${id}`, {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            }
-          });
-
-          const data = await response.json();
-          if (data.success) {
-            setMessages(messages.filter(msg => msg.id !== id));
-            setAlertModal({
-              show: true,
-              type: 'success',
-              message: 'Message deleted successfully'
-            });
-            setShowDetailModal(false);
-          }
-        } catch (error) {
-          console.error('Error deleting message:', error);
-          setAlertModal({
-            show: true,
-            type: 'error',
-            message: 'Failed to delete message'
-          });
-        }
-      }
-    });
+  const handleArchiveMessage = async (id) => {
+    setMessageToArchive(id);
+    setShowArchiveConfirmModal(true);
   };
 
-  const handleDeleteMessage = async (id) => {
-    const token = localStorage.getItem("authToken");
-    const result = await crudUtils.deleteItem(
-      "/api/admin/contact-messages",
-      id,
-      token
-    );
-    
-    if (result.success) {
-      setMessages(messages.filter(msg => msg.id !== id));
-      setAlertModal({
-        show: true,
-        type: 'success',
-        message: 'Message deleted successfully'
+  const confirmArchiveMessage = async () => {
+    if (!messageToArchive) return;
+
+    setIsArchiving(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`/api/admin/contact-messages/${messageToArchive}`, {
+        method: "PATCH",
+        headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ archived: true })
       });
-      setShowDetailModal(false);
-    } else {
-      setAlertModal({
-        show: true,
-        type: 'error',
-        message: result.error || 'Failed to delete message'
-      });
+      
+      if (response.ok) {
+        setMessages(messages.filter(msg => msg.id !== messageToArchive));
+        setAlertModal({
+          show: true,
+          type: 'success',
+          message: 'Message archived successfully'
+        });
+        setShowDetailModal(false);
+        setShowArchiveConfirmModal(false);
+        setMessageToArchive(null);
+      } else {
+        alert("Failed to archive message");
+      }
+    } catch (error) {
+      console.error("Error archiving message:", error);
+      alert("Error archiving message");
+    } finally {
+      setIsArchiving(false);
     }
+  };
+
+  const closeArchiveConfirmModal = () => {
+    setShowArchiveConfirmModal(false);
+    setMessageToArchive(null);
   };
 
   const openDetailModal = (message) => {
@@ -566,11 +550,11 @@ const MessagesManagement = () => {
               <CrudActions
                 onView={() => {}}
                 onEdit={() => {}}
-                onDelete={() => handleDeleteMessage(selectedMessage.id)}
+                onArchive={() => handleArchiveMessage(selectedMessage.id)}
                 onToggleStatus={() => {}}
                 showView={false}
                 showEdit={false}
-                showDelete={true}
+                showArchive={true}
                 showToggle={false}
                 disabled={!canManageMessages}
                 size="md"
@@ -598,6 +582,17 @@ const MessagesManagement = () => {
           onCancel={() => setConfirmModal({ show: false, message: '', onConfirm: null })}
         />
       )}
+
+      {/* Archive Confirmation Modal */}
+      <ArchiveConfirmationModal
+        isOpen={showArchiveConfirmModal}
+        title="Archive Message"
+        message="Are you sure you want to archive this message?"
+        itemName="this message"
+        onConfirm={confirmArchiveMessage}
+        onCancel={closeArchiveConfirmModal}
+        isLoading={isArchiving}
+      />
     </div>
   );
 };
