@@ -993,19 +993,20 @@
 
 .stat-item {
   text-align: center;
+  color: #ffffff;
 }
 
 .stat-number {
   font-size: 1.5rem;
   font-weight: 700;
-  color: white;
+  color: #ffffff !important;
   line-height: 1;
   margin-bottom: 0.3rem;
 }
 
 .stat-label {
   font-size: 0.8rem;
-  color: #ffffff;
+  color: #ffffff !important;
   font-weight: 500;
 }
 
