@@ -14,6 +14,10 @@ function HomePage() {
   const processStepsRef = useRef(null);
   const caretakersHeaderRef = useRef(null);
   const caretakerFeaturesRef = useRef(null);
+  const whoWeAreTextRef = useRef(null);
+  const whoWeAreImageRef = useRef(null);
+  const servicesHeaderRef = useRef(null);
+  const servicesListRef = useRef(null);
 
   useEffect(() => {
     const observerOptions = {
@@ -32,6 +36,18 @@ function HomePage() {
           }
           
           if (element.classList.contains('caretakers-header')) {
+            element.classList.add('animate');
+          }
+
+          if (element.classList.contains('who-we-are-text')) {
+            element.classList.add('animate');
+          }
+
+          if (element.classList.contains('who-we-are-image')) {
+            element.classList.add('animate');
+          }
+
+          if (element.classList.contains('services-header')) {
             element.classList.add('animate');
           }
           
@@ -70,6 +86,16 @@ function HomePage() {
               }, index * 100 + 200);
             });
           }
+
+          // Animate services list items
+          if (element.classList.contains('services-list')) {
+            const items = element.querySelectorAll('.services-list li');
+            items.forEach((item, index) => {
+              setTimeout(() => {
+                item.classList.add('animate');
+              }, index * 80);
+            });
+          }
         } else {
           // Reset animations when element goes out of view
           if (element.classList.contains('quick-easy-header')) {
@@ -77,6 +103,18 @@ function HomePage() {
           }
           
           if (element.classList.contains('caretakers-header')) {
+            element.classList.remove('animate');
+          }
+
+          if (element.classList.contains('who-we-are-text')) {
+            element.classList.remove('animate');
+          }
+
+          if (element.classList.contains('who-we-are-image')) {
+            element.classList.remove('animate');
+          }
+
+          if (element.classList.contains('services-header')) {
             element.classList.remove('animate');
           }
           
@@ -107,6 +145,14 @@ function HomePage() {
               icon.classList.remove('animate');
             });
           }
+
+          // Reset services list items
+          if (element.classList.contains('services-list')) {
+            const items = element.querySelectorAll('.services-list li');
+            items.forEach((item) => {
+              item.classList.remove('animate');
+            });
+          }
         }
       });
     }, observerOptions);
@@ -116,6 +162,10 @@ function HomePage() {
     if (processStepsRef.current) observer.observe(processStepsRef.current);
     if (caretakersHeaderRef.current) observer.observe(caretakersHeaderRef.current);
     if (caretakerFeaturesRef.current) observer.observe(caretakerFeaturesRef.current);
+    if (whoWeAreTextRef.current) observer.observe(whoWeAreTextRef.current);
+    if (whoWeAreImageRef.current) observer.observe(whoWeAreImageRef.current);
+    if (servicesHeaderRef.current) observer.observe(servicesHeaderRef.current);
+    if (servicesListRef.current) observer.observe(servicesListRef.current);
 
     return () => {
       observer.disconnect();
@@ -221,7 +271,7 @@ function HomePage() {
         {/* Who We Are Section */}
         <div className="feature-card who-we-are-section">
           <div className="who-we-are-content">
-            <div className="who-we-are-text">
+            <div className="who-we-are-text" ref={whoWeAreTextRef}>
               <span className="who-we-are-label">ABOUT US</span>
               <h2 className="who-we-are-title">{getSetting('about_title', 'Who We Are')}</h2>
               <p className="who-we-are-description">
@@ -239,8 +289,8 @@ function HomePage() {
                 Learn More About Us
               </button>
             </div>
-            <div className="who-we-are-image">
-              <img src={require('../assets/images/pic7.jpg')} alt="Sanctuario De Carmona Memorial Park" />
+            <div className="who-we-are-image" ref={whoWeAreImageRef}>
+              <img src={require('../assets/images/bg_our_team.jpg')} alt="Sanctuario De Carmona Memorial Park" />
             </div>
           </div>
         </div>
@@ -248,11 +298,13 @@ function HomePage() {
         {/* Services Section with Text - Moved to Bottom */}
         <div className="feature-card services-section">
           <div className="services-content">
-            <h2 className="services-title">{getSetting('services_title', 'Our Products & Services')}</h2>
-            <p className="services-description">
-              {getSetting('services_description', 'At Sanctuario De Carmona Memorial Park, we provide comprehensive memorial products and services designed to honor your loved ones with dignity and respect. Our peaceful sanctuary offers a tranquil environment for remembrance and reflection.')}
-            </p>
-            <ul className="services-list">
+            <div className="services-header" ref={servicesHeaderRef}>
+              <h2 className="services-title">{getSetting('services_title', 'Our Products & Services')}</h2>
+              <p className="services-description">
+                {getSetting('services_description', 'At Sanctuario De Carmona Memorial Park, we provide comprehensive memorial products and services designed to honor your loved ones with dignity and respect. Our peaceful sanctuary offers a tranquil environment for remembrance and reflection.')}
+              </p>
+            </div>
+            <ul className="services-list" ref={servicesListRef}>
               <li>Memorial Lots & Burial Services</li>
               <li>Columbarium & Cremation Services</li>
               <li>Memorial Planning & Consultation</li>

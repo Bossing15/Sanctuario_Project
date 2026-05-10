@@ -765,7 +765,6 @@ main.collapsed {
     bottom: 1.5rem;
     left: 0;
     right: 0;
-    border-top: 1px solid rgba(212, 196, 168, 0.1);
     padding: 1rem 1rem 0 1rem;
   }
 

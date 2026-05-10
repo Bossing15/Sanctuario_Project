@@ -32,7 +32,7 @@ function LawnLotsPage() {
 
   const fetchProduct = async () => {
     try {
-      const url = 'http://localhost:8000/api/public/products';
+      const url = 'http://localhost:8000/api/public/properties';
       console.log('Fetching from:', url);
       const response = await fetch(url, {
         headers: {
@@ -48,15 +48,15 @@ function LawnLotsPage() {
         const text = await response.text();
         console.log('Response text:', text.substring(0, 500));
         const data = JSON.parse(text);
-        console.log('Product data:', data);
-        console.log('Products array:', data.products);
+        console.log('Property data:', data);
+        console.log('Properties array:', data.properties);
         
-        if (data.products && Array.isArray(data.products)) {
-          const lawnLots = data.products.find(p => p.title === 'Lawn Lots');
-          console.log('Found Lawn Lots product:', lawnLots);
+        if (data.properties && Array.isArray(data.properties)) {
+          const lawnLots = data.properties.find(p => p.title === 'Lawn Lots');
+          console.log('Found Lawn Lots property:', lawnLots);
           setProduct(lawnLots);
         } else {
-          console.error('Products is not an array:', data.products);
+          console.error('Properties is not an array:', data.properties);
           setProduct(null);
         }
       } else {
@@ -64,7 +64,7 @@ function LawnLotsPage() {
         console.error('Error response:', response.status, text.substring(0, 200));
       }
     } catch (error) {
-      console.error('Error fetching product:', error);
+      console.error('Error fetching property:', error);
     } finally {
       setLoading(false);
     }

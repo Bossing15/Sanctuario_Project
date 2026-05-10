@@ -79,7 +79,6 @@ function ContactPage() {
         <div className="hero-overlay"></div>
         <div className="hero-content">
           <h1>Contact Us</h1>
-          <p className="hero-subtitle">We are available until 5pm, 365 days a year.</p>
         </div>
       </div>
 

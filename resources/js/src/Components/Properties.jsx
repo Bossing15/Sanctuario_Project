@@ -5,6 +5,7 @@ import { TableSkeleton } from "./SkeletonLoader";
 import usePermissions from "../utils/usePermissions";
 import ArchiveConfirmationModal from "./ArchiveConfirmationModal";
 import PropertyEditor from "./PropertyEditor";
+import ProductEditor from "./ProductEditor";
 import ServiceDetailEditorInline from "./ServiceDetailEditorInline";
 import StatsCards from "./StatsCards";
 import CrudActions from "./CrudActions";
@@ -272,18 +273,18 @@ const Properties = () => {
           {viewMode === "Table" && (
             <>
               <StatsCards stats={[
-                { label: 'Total Products', value: products.length },
-                { label: 'Active', value: products.filter(p => p.status === 'Active').length },
-                { label: 'Lawn Lots', value: products.filter(p => p.title === 'Lawn Lots').length },
-                { label: 'Family Estates', value: products.filter(p => p.title === 'Family Estates').length },
-                { label: 'Columbariums', value: products.filter(p => p.title === 'Columbariums').length }
+                { label: 'Total Properties', value: properties.length },
+                { label: 'Active', value: properties.filter(p => p.status === 'Active').length },
+                { label: 'Lawn Lots', value: properties.filter(p => p.title === 'Lawn Lots').length },
+                { label: 'Family Estates', value: properties.filter(p => p.title === 'Family Estates').length },
+                { label: 'Columbariums', value: properties.filter(p => p.title === 'Columbariums').length }
               ]} />
 
               <div className="flex items-center justify-between mb-6">
-                <h5 className="text-xl font-semibold text-gray-800">Products List</h5>
+                <h5 className="text-xl font-semibold text-gray-800">Properties List</h5>
                 <div className="flex gap-2">
                   <button 
-                    onClick={fetchProducts}
+                    onClick={fetchProperties}
                     className="refresh-btn"
                   >
                     Refresh
@@ -303,9 +304,9 @@ const Properties = () => {
                 }}>
                   <input
                     type="text"
-                    placeholder="Search products by name, category, or status..."
-                    value={productSearchQuery}
-                    onChange={(e) => setProductSearchQuery(e.target.value)}
+                    placeholder="Search properties by name, category, or status..."
+                    value={propertySearchQuery}
+                    onChange={(e) => setPropertySearchQuery(e.target.value)}
                     style={{
                       flex: 1,
                       border: 'none',
@@ -325,8 +326,8 @@ const Properties = () => {
                 <table>
                   <thead>
                     <tr>
-                      <th>Product_ID</th>
-                      <th>Product_Name</th>
+                      <th>Property_ID</th>
+                      <th>Property_Name</th>
                       <th>Category</th>
                       <th>Monthly_Price</th>
                       <th>Quarterly_Price</th>
@@ -336,33 +337,17 @@ const Properties = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {products.filter((product) => {
-                      const query = productSearchQuery.toLowerCase();
-                      return (
-                        product.id.toString().includes(query) ||
-                        product.title.toLowerCase().includes(query) ||
-                        product.category.toLowerCase().includes(query) ||
-                        product.status.toLowerCase().includes(query)
-                      );
-                    }).length > 0 ? (
-                      products.filter((product) => {
-                        const query = productSearchQuery.toLowerCase();
-                        return (
-                          product.id.toString().includes(query) ||
-                          product.title.toLowerCase().includes(query) ||
-                          product.category.toLowerCase().includes(query) ||
-                          product.status.toLowerCase().includes(query)
-                        );
-                      }).map((product, index) => (
-                        <tr key={product.id}>
+                    {getFilteredProperties().length > 0 ? (
+                      getFilteredProperties().map((property, index) => (
+                        <tr key={property.id}>
                           <td className="font-mono">{getSequentialIdFromIndex(index)}</td>
-                          <td className="font-bold">{product.title}</td>
-                          <td>{product.category}</td>
-                          <td>{product.price_monthly || "N/A"}</td>
-                          <td>{product.price_quarterly || "N/A"}</td>
-                          <td>{product.price_yearly || "N/A"}</td>
+                          <td className="font-bold">{property.title}</td>
+                          <td>{property.category}</td>
+                          <td>{property.price_monthly || "N/A"}</td>
+                          <td>{property.price_quarterly || "N/A"}</td>
+                          <td>{property.price_yearly || "N/A"}</td>
                           <td className="text-center">
-                            {product.status === "Active" ? (
+                            {property.status === "Active" ? (
                               <span className="inline-flex items-center gap-0.5 px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg shadow-sm">
                                 Active
                               </span>
@@ -374,15 +359,15 @@ const Properties = () => {
                           </td>
                           <td className="text-center">
                             <CrudActions
-                              onView={() => handleViewProperty(product)}
-                              onEdit={() => handleEditProperty(product)}
-                              onArchive={() => handleArchiveProperty(product.id)}
+                              onView={() => handleViewProperty(property)}
+                              onEdit={() => handleEditProperty(property)}
+                              onArchive={() => handleArchiveProperty(property.id)}
                               onToggleStatus={() => {}}
                               showView={true}
                               showEdit={true}
                               showArchive={true}
                               showToggle={false}
-                              disabled={!canManageProducts}
+                              disabled={!canManageProperties}
                               size="sm"
                             />
                           </td>
@@ -391,7 +376,7 @@ const Properties = () => {
                     ) : (
                       <tr className="empty-row">
                         <td colSpan="8" style={{ textAlign: "center", padding: "2rem", color: "#6b7280", fontStyle: "italic" }}>
-                          No products available
+                          No properties available
                         </td>
                       </tr>
                     )}
@@ -399,14 +384,14 @@ const Properties = () => {
                 </table>
               </div>
 
-              {/* Add Product Button - Bottom Right */}
+              {/* Add Property Button - Bottom Right */}
               <div className="flex justify-end mt-8">
                 <button 
-                  onClick={handleAddProduct}
-                  disabled={!canManageProducts}
-                  className={`px-8 py-3 rounded-lg font-semibold transition-all text-lg ${canManageProducts ? "bg-green-600 text-white hover:bg-green-700 shadow-lg" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
+                  onClick={handleAddProperty}
+                  disabled={!canManageProperties}
+                  className={`px-8 py-3 rounded-lg font-semibold transition-all text-lg ${canManageProperties ? "bg-green-600 text-white hover:bg-green-700 shadow-lg" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
                 >
-                  + Add Product
+                  + Add Property
                 </button>
               </div>
             </>
@@ -415,7 +400,7 @@ const Properties = () => {
           {/* Cards View */}
           {viewMode === "Cards" && (
             <>
-              {/* Product Tabs - Inside Cards View */}
+              {/* Property Tabs - Inside Cards View */}
               <nav className="mb-8">
                 <div className="flex space-x-3" role="tablist">
                   {["Lawn Lots", "Family Estates", "Columbariums"].map((tab) => (
@@ -423,14 +408,14 @@ const Properties = () => {
                       key={tab}
                       type="button"
                       role="tab"
-                      aria-selected={activeProductTab === tab}
+                      aria-selected={activePropertyTab === tab}
                       className={`px-6 py-3 rounded-xl text-sm font-semibold transition-colors duration-150 cursor-pointer
                         ${
-                          activeProductTab === tab
+                          activePropertyTab === tab
                             ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md"
                             : "bg-white text-gray-700 hover:bg-gray-50 shadow-sm border border-gray-200"
                         }`}
-                      onClick={() => setActiveProductTab(tab)}
+                      onClick={() => setActivePropertyTab(tab)}
                     >
                       {tab}
                     </button>
@@ -439,35 +424,35 @@ const Properties = () => {
               </nav>
 
               <div className="flex items-center justify-between mb-6">
-                <h5 className="text-xl font-semibold text-gray-800">Products</h5>
+                <h5 className="text-xl font-semibold text-gray-800">Properties</h5>
               </div>
 
-              {/* Product Detail View - Show editor inline */}
-              {getCardViewProducts().length > 0 ? (
+              {/* Property Detail View - Show editor inline */}
+              {getCardViewProperties().length > 0 ? (
                 <div>
-                  {getCardViewProducts().map((product) => (
+                  {getCardViewProperties().map((property) => (
                     <ServiceDetailEditorInline
-                      key={product.id}
-                      service={product}
-                      onSave={handleSaveProduct}
-                      canManageServices={canManageProducts}
+                      key={property.id}
+                      service={property}
+                      onSave={handleSaveProperty}
+                      canManageServices={canManageProperties}
                     />
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  No products available for this category
+                  No properties available for this category
                 </div>
               )}
 
-              {/* Add Product Button - Bottom Right */}
+              {/* Add Property Button - Bottom Right */}
               <div className="flex justify-end mt-8">
                 <button 
-                  onClick={handleAddProduct}
-                  disabled={!canManageProducts}
-                  className={`px-8 py-3 rounded-lg font-semibold transition-all text-lg ${canManageProducts ? "bg-green-600 text-white hover:bg-green-700 shadow-lg" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
+                  onClick={handleAddProperty}
+                  disabled={!canManageProperties}
+                  className={`px-8 py-3 rounded-lg font-semibold transition-all text-lg ${canManageProperties ? "bg-green-600 text-white hover:bg-green-700 shadow-lg" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
                 >
-                  + Add Product
+                  + Add Property
                 </button>
               </div>
             </>

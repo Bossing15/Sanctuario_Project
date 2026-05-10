@@ -32,7 +32,7 @@ function FamilyEstatesPage() {
 
   const fetchProduct = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/public/products', {
+      const response = await fetch('http://localhost:8000/api/public/properties', {
         headers: {
           'Accept': 'application/json',
         },
@@ -40,11 +40,11 @@ function FamilyEstatesPage() {
 
       if (response.ok) {
         const data = await response.json();
-        const familyEstates = data.products?.find(p => p.title === 'Family Estates');
+        const familyEstates = data.properties?.find(p => p.title === 'Family Estates');
         setProduct(familyEstates);
       }
     } catch (error) {
-      console.error('Error fetching product:', error);
+      console.error('Error fetching property:', error);
     } finally {
       setLoading(false);
     }
