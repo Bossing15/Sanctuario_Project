@@ -224,11 +224,14 @@ const Dashboard = () => {
         enrichedBookings.forEach(booking => {
           console.log(`Booking ${booking.id}:`, {
             service_id: booking.service_id,
+            product_id: booking.product_id,
             service_name: booking.service_name,
+            service_title: booking.service?.title,
             service_category: booking.service?.category,
             service_object: booking.service,
             status: booking.status,
-            authorization_status: booking.authorization_status
+            authorization_status: booking.authorization_status,
+            full_booking: booking
           });
         });
         setPurchases(enrichedBookings);
@@ -726,8 +729,8 @@ const Dashboard = () => {
                 ) : (
                   (() => {
                     // Separate service bookings from property bookings
-                    const serviceBookings = purchases.filter(p => p.service_id && !p.property_id);
-                    const propertyBookings = purchases.filter(p => p.property_id && !p.service_id);
+                    const serviceBookings = purchases.filter(p => p.service_id && !p.product_id);
+                    const propertyBookings = purchases.filter(p => p.product_id && !p.service_id);
                     
                     // Combine maintenance, service, property, and reservation data
                     const combinedData = [
@@ -837,12 +840,23 @@ const Dashboard = () => {
                         }
                         
                         if (item.type === 'Purchase') {
-                          console.log('Rendering Purchase item:', {
-                            id: item.id,
+                          // Check if this is a maintenance service booking
+                          const hasServiceId = item.service_id && !item.product_id;
+                          const serviceCategory = item.service?.category;
+                          const isMaintenance = hasServiceId && item.service && (
+                            serviceCategory === 'Grave Maintenance'
+                          );
+                          
+                          console.log(`Purchase ${item.id} - Maintenance Check:`, {
+                            service_id: item.service_id,
+                            product_id: item.product_id,
+                            hasServiceId: hasServiceId,
                             service_name: item.service_name,
-                            service_category: item.service?.category,
-                            service_object: item.service,
-                            should_show_status: (item.service?.category?.toLowerCase().includes('maintenance') || item.service_name?.toLowerCase().includes('grave'))
+                            service_title: item.service?.title,
+                            service_category: serviceCategory,
+                            isMaintenance: isMaintenance,
+                            full_service_object: item.service,
+                            item_keys: Object.keys(item)
                           });
                           const getAuthorizationBadge = (status) => {
                             const statusConfig = {
@@ -937,7 +951,7 @@ const Dashboard = () => {
                                       </button>
                                     </>
                                   )}
-                                  {(item.service?.category?.toLowerCase().includes('maintenance') || item.service_name?.toLowerCase().includes('grave')) && (
+                                  {isMaintenance && item.status === 'Approved' && (
                                     <button
                                       onClick={() => {
                                         setSelectedServiceBooking(item);
@@ -956,12 +970,16 @@ const Dashboard = () => {
                         }
                         
                         if (item.type === 'Service') {
-                          console.log('Rendering Service item:', {
-                            id: item.id,
+                          const isMaintenance = 
+                            item.service && item.service.category === 'Grave Maintenance';
+                          
+                          console.log(`Service ${item.id} - Maintenance Check:`, {
+                            service_id: item.service_id,
                             service_name: item.service_name,
+                            service_title: item.service?.title,
                             service_category: item.service?.category,
-                            service_object: item.service,
-                            should_show_status: (item.service?.category?.toLowerCase().includes('maintenance') || item.service_name?.toLowerCase().includes('grave'))
+                            isMaintenance: isMaintenance,
+                            full_service_object: item.service
                           });
                           return (
                             <tr key={`service-${item.id}`}>
@@ -1036,7 +1054,7 @@ const Dashboard = () => {
                                       </button>
                                     </>
                                   )}
-                                  {(item.service?.category?.toLowerCase().includes('maintenance') || item.service_name?.toLowerCase().includes('grave')) && (
+                                  {isMaintenance && item.status === 'Approved' && (
                                     <button
                                       onClick={() => {
                                         setSelectedServiceBooking(item);

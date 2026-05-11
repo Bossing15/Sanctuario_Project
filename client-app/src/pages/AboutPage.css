@@ -95,6 +95,10 @@
   padding: 20px 0;
   text-align: center;
   border-bottom: 1px solid #eee;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-link {
@@ -102,21 +106,38 @@
   text-decoration: none;
   padding: 0 20px;
   font-size: 1rem;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  transition: color 0.3s ease;
 }
 
 .nav-link.active {
+  color: #006400;
+  font-weight: 600;
+}
+
+.nav-link:hover {
   color: #006400;
 }
 
 .separator {
   color: #ccc;
   margin: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  width: auto;
+  min-width: 1px;
+  flex-shrink: 0;
 }
 
 .about-content {
   max-width: 1200px;
   margin: 40px auto;
   padding: 0 20px;
+  min-height: 300px;
 }
 
 .about-content p {
@@ -124,6 +145,7 @@
   line-height: 1.8;
   margin-bottom: 20px;
   font-size: 1.1rem;
+  font-weight: 400;
 }
 
 .contact-section {

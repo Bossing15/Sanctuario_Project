@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class SmsLog extends Model
 {
     protected $fillable = [
-        'phone',
+        'client_id',
+        'phone_number',
         'message',
+        'type',
         'status',
+        'error_message',
         'sent_at',
         'reference',
         'response',
@@ -20,4 +23,3 @@ class SmsLog extends Model
         'response' => 'json',
     ];
 }
-

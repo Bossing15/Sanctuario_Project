@@ -129,7 +129,7 @@ function NotificationDropdown({ isOpen, onClose, buttonRef, onUnreadStatusChange
       case 'requirement_rejected':
         return 'bg-red-100 text-red-600';
       case 'service':
-        return 'bg-purple-100 text-purple-600';
+        return 'bg-green-100 text-green-600';
       case 'maintenance':
         return 'bg-blue-100 text-blue-600';
       default:

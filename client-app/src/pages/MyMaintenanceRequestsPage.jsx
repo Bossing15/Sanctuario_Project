@@ -146,6 +146,8 @@ function MyMaintenanceRequestsPage() {
         const result = await response.json();
         let bookings = result.data || result.bookings || result || [];
         
+        console.log('Fetched bookings:', bookings);
+        
         const bookingsWithPaymentStatus = await Promise.all(
           bookings.map(async (booking) => {
             try {
@@ -180,6 +182,15 @@ function MyMaintenanceRequestsPage() {
         );
         
         const maintenanceOnly = bookingsWithPaymentStatus.filter(b => b.service_id && !b.product_id);
+        
+        console.log('Maintenance bookings:', maintenanceOnly.map(b => ({
+          id: b.id,
+          service_id: b.service_id,
+          service_completion_status: b.service_completion_status,
+          completion_images: b.completion_images,
+          service: b.service
+        })));
+        
         setMaintenanceBookings(maintenanceOnly);
       }
     } catch (error) {
@@ -731,26 +742,37 @@ function MyMaintenanceRequestsPage() {
     let amount = 0;
     let date = '';
     let id = item.id;
+    let customerName = 'N/A';
+    let customerPhone = 'N/A';
 
     if (type === 'maintenance-request') {
+      customerName = item.full_name || 'N/A';
+      customerPhone = item.phone || 'N/A';
       serviceName = extractServiceName(item.property_interest);
       status = getStatusText(item.status);
       paymentStatus = 'N/A';
       amount = item.message?.match(/₱([\d,]+)/)?.[1] || '0';
       date = formatDate(item.created_at);
     } else if (type === 'maintenance-booking') {
+      customerName = item.user?.name || item.client?.name || 'N/A';
+      customerPhone = item.user?.phone || item.client?.phone || 'N/A';
       serviceName = item.service?.title || item.service?.name || 'Maintenance Service';
-      status = item.status || 'Active';
+      // Show service completion status if available, otherwise show booking status
+      status = item.service_completion_status || item.status || 'Active';
       paymentStatus = getPaymentStatusText(item.paymentStatus);
       amount = item.total_amount || item.amount;
       date = formatDate(item.booking_date || item.created_at);
     } else if (type === 'purchase') {
+      customerName = item.user?.name || item.client?.name || 'N/A';
+      customerPhone = item.user?.phone || item.client?.phone || 'N/A';
       serviceName = item.service?.name || item.product?.name || 'Purchase';
       status = item.status || 'Active';
       paymentStatus = getPaymentStatusText(item.paymentStatus);
       amount = item.amount;
       date = formatDate(item.booking_date || item.created_at);
     } else if (type === 'reservation') {
+      customerName = item.user?.name || item.client?.name || 'N/A';
+      customerPhone = item.user?.phone || item.client?.phone || 'N/A';
       serviceName = item.product?.title || item.service?.title || 'Reservation';
       status = item.status === 'pending' ? 'Pending' : item.status === 'approved' ? 'Approved' : item.status;
       paymentStatus = 'N/A';
@@ -762,7 +784,11 @@ function MyMaintenanceRequestsPage() {
       <div key={rowId}>
         <div className="table-row">
           <div className="table-cell id-cell">#{id}</div>
-          <div className="table-cell name-cell">{serviceName}</div>
+          <div className="table-cell name-cell">{customerName}</div>
+          <div className="table-cell contact-cell">{customerPhone}</div>
+          <div className="table-cell date-cell">{date}</div>
+          <div className="table-cell service-cell">{serviceName}</div>
+          <div className="table-cell amount-cell">{formatCurrency(amount)}</div>
           <div className="table-cell status-cell">
             <span className={`status-badge ${getStatusClass(status)}`}>
               {status}
@@ -773,8 +799,6 @@ function MyMaintenanceRequestsPage() {
               {paymentStatus}
             </span>
           </div>
-          <div className="table-cell amount-cell">{formatCurrency(amount)}</div>
-          <div className="table-cell date-cell">{date}</div>
           <div className="table-cell actions-cell">
             <button 
               className="action-btn expand-btn"
@@ -903,10 +927,44 @@ function MyMaintenanceRequestsPage() {
                     <span className="detail-label">Plan Type:</span>
                     <span className="detail-value">{item.plan_type || 'Standard'}</span>
                   </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Service Status:</span>
+                    <span className="detail-value" style={{
+                      color: item.service_completion_status === 'Completed' ? '#27ae60' : 
+                             item.service_completion_status === 'In Progress' ? '#ff9800' : '#999',
+                      fontWeight: 'bold'
+                    }}>
+                      {item.service_completion_status || 'Pending'}
+                    </span>
+                  </div>
                   {item.notes && (
                     <div className="detail-item full-width">
                       <span className="detail-label">Notes:</span>
                       <span className="detail-value">{item.notes}</span>
+                    </div>
+                  )}
+                  {item.completion_images && item.completion_images.length > 0 && item.service_completion_status === 'Completed' && (
+                    <div className="detail-item full-width">
+                      <span className="detail-label">Completion Photos:</span>
+                      <div className="photos-grid-compact">
+                        {item.completion_images.map((photo, index) => (
+                          <img 
+                            key={index}
+                            src={`http://localhost:8000/${photo}`} 
+                            alt={`Completion ${index + 1}`}
+                            onClick={() => {
+                              const photos = item.completion_images.map(
+                                p => `http://localhost:8000/${p}`
+                              );
+                              setSelectedImages(photos);
+                              setSelectedImageIndex(index);
+                              setShowImageModal(true);
+                            }}
+                            className="photo-thumbnail-compact"
+                            style={{ cursor: 'pointer', borderRadius: '4px' }}
+                          />
+                        ))}
+                      </div>
                     </div>
                   )}
                 </>
@@ -1003,11 +1061,13 @@ function MyMaintenanceRequestsPage() {
           <div className="requests-table-container">
             <div className="table-header">
               <div className="table-cell id-cell">ID</div>
-              <div className="table-cell name-cell">Service/Product Name</div>
+              <div className="table-cell name-cell">Customer Name</div>
+              <div className="table-cell contact-cell">Contact Number</div>
+              <div className="table-cell date-cell">Date Added</div>
+              <div className="table-cell service-cell">Service/Product Name</div>
+              <div className="table-cell amount-cell">Amount</div>
               <div className="table-cell status-cell">Status</div>
               <div className="table-cell payment-cell">Payment Status</div>
-              <div className="table-cell amount-cell">Amount</div>
-              <div className="table-cell date-cell">Date</div>
               <div className="table-cell actions-cell">Actions</div>
             </div>
 

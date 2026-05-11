@@ -19,6 +19,9 @@ function BillingPage() {
   const [selectedReceiptPayment, setSelectedReceiptPayment] = useState(null);
   const [highlightedPaymentId, setHighlightedPaymentId] = useState(null);
   const [expandedRows, setExpandedRows] = useState({});
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [userVerified, setUserVerified] = useState(false);
+  const [verificationWarning, setVerificationWarning] = useState(null);
 
   useEffect(() => {
     fetchPendingPayments();
@@ -212,67 +215,8 @@ function BillingPage() {
         }
       }
       
-      // Fetch maintenance bookings that are ready for payment
-      try {
-        const userResponse = await fetch('http://localhost:8000/api/user', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-
-        if (userResponse.ok) {
-          const userData = await userResponse.json();
-          const userId = userData.id;
-
-          const bookingsResponse = await fetch(`http://localhost:8000/api/bookings/user/${userId}${cacheBuster}`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-              'Cache-Control': 'no-cache, no-store, must-revalidate',
-              'Pragma': 'no-cache',
-              'Expires': '0'
-            },
-            credentials: 'include',
-          });
-
-          if (bookingsResponse.ok) {
-            const bookingsData = await bookingsResponse.json();
-            let bookings = Array.isArray(bookingsData) ? bookingsData : (Array.isArray(bookingsData.data) ? bookingsData.data : (Array.isArray(bookingsData.bookings) ? bookingsData.bookings : []));
-            
-            // Filter maintenance bookings that are ready for payment
-            const maintenanceReadyForPayment = bookings.filter(b => 
-              b.service_id && !b.property_id && b.status?.toLowerCase() === 'readyforpayment'
-            );
-            
-            console.log('Maintenance bookings ready for payment:', maintenanceReadyForPayment);
-            
-            // Convert maintenance bookings to payment format
-            // Use booking ID as the payment ID for now
-            const maintenancePayments = maintenanceReadyForPayment.map(booking => ({
-              id: booking.id,
-              booking_id: booking.id,
-              type: 'maintenance-booking',
-              invoice_number: booking.invoice_number || `SANC-${booking.id}`,
-              description: booking.service?.title || booking.service?.name || 'Maintenance Service',
-              amount: booking.total_amount || booking.amount,
-              status: 'pending',
-              created_at: booking.created_at,
-              plan_type: booking.plan_type || 'Standard'
-            }));
-            
-            // Combine regular payments with maintenance bookings
-            allPayments = [...allPayments, ...maintenancePayments];
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching maintenance bookings:', error);
-      }
+      // Note: Maintenance bookings are no longer added to payments list
+      // Only actual Payment records from the database are shown
         
         const pending = allPayments.filter(
           payment => payment.status === 'pending' || payment.status === 'overdue'
@@ -294,6 +238,70 @@ function BillingPage() {
       setLoading(false);
     }
   };
+
+  // Verify user identity to prevent showing wrong account's payments
+  const verifyUserIdentity = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const storedUserId = localStorage.getItem('userId');
+      
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      // Fetch current user from backend
+      const response = await fetch('http://localhost:8000/api/user', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        const backendUserId = userData.id;
+        
+        // Store the verified user ID
+        setCurrentUserId(backendUserId);
+        
+        // Check if stored user ID matches backend user ID
+        if (storedUserId && storedUserId != backendUserId) {
+          console.warn('User ID mismatch detected!', {
+            stored: storedUserId,
+            backend: backendUserId
+          });
+          
+          // Update localStorage with correct user ID
+          localStorage.setItem('userId', backendUserId);
+          localStorage.setItem('userName', userData.name || userData.username);
+          localStorage.setItem('userEmail', userData.email);
+          
+          setVerificationWarning({
+            type: 'warning',
+            message: 'Your session was updated. Please refresh the page to ensure you\'re viewing the correct account.',
+            action: 'Refresh'
+          });
+        } else {
+          setUserVerified(true);
+        }
+      } else if (response.status === 401) {
+        // Token expired or invalid
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userId');
+        navigate('/login');
+      }
+    } catch (error) {
+      console.error('Error verifying user identity:', error);
+    }
+  };
+
+  // Verify user on component mount
+  useEffect(() => {
+    verifyUserIdentity();
+  }, []);
 
   const handlePayNow = (payment) => {
     console.log('Opening payment modal for payment:', payment);

@@ -94,7 +94,7 @@ function ActivityLogsPage() {
       'payment_processed': 'bg-green-100 text-green-700',
       'reservation_approved': 'bg-green-100 text-green-700',
       'reservation_rejected': 'bg-red-100 text-red-700',
-      'requirement_reviewed': 'bg-purple-100 text-purple-700',
+      'requirement_reviewed': 'bg-green-100 text-green-700',
       'booking_authorized': 'bg-indigo-100 text-indigo-700',
     };
     return colors[action] || 'bg-gray-100 text-gray-700';

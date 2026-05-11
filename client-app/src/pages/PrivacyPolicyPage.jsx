@@ -14,6 +14,14 @@ function PrivacyPolicyPage() {
         </div>
       </div>
 
+      <div className="about-navigation">
+        <Link to="/about" className="nav-link">About Us</Link>
+        <span className="separator">|</span>
+        <Link to="/team" className="nav-link">Our Team</Link>
+        <span className="separator">|</span>
+        <Link to="/privacy" className="nav-link active">Privacy Policy</Link>
+      </div>
+
       <div className="page-container">
         
         <div className="privacy-content">

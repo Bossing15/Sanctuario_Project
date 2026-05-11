@@ -278,7 +278,7 @@ const BillingManagement = () => {
         </div>
         <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
           <h6 className="text-gray-600 mb-1 text-sm font-medium">Total Revenue</h6>
-          <h5 className="font-bold text-xl text-purple-600">{formatCurrency(stats.paidAmount)}</h5>
+          <h5 className="font-bold text-xl text-green-600">{formatCurrency(stats.paidAmount)}</h5>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
           <h6 className="text-gray-600 mb-1 text-sm font-medium">Outstanding</h6>

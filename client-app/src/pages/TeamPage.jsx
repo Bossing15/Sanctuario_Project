@@ -11,7 +11,6 @@ function TeamPage() {
         <div className="banner-overlay"></div>
         <div className="banner-content">
           <h1>Our Team</h1>
-          <p>Meet the dedicated professionals behind Sanctuario De Carmona Memorial Park</p>
         </div>
       </div>
 
@@ -37,7 +36,12 @@ function TeamPage() {
           <div className="team-member">
             <div className="member-image">
               {/* Placeholder for team member image */}
-              <div className="image-placeholder"></div>
+              <div className="image-placeholder">
+                <svg className="profile-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="8" r="4" fill="currentColor"/>
+                  <path d="M 12 14 C 7 14 3 17 3 21 L 21 21 C 21 17 17 14 12 14 Z" fill="currentColor"/>
+                </svg>
+              </div>
             </div>
             <div className="member-info">
               <h3>Juan Dela Cruz</h3>
@@ -49,7 +53,12 @@ function TeamPage() {
           <div className="team-member">
             <div className="member-image">
               {/* Placeholder for team member image */}
-              <div className="image-placeholder"></div>
+              <div className="image-placeholder">
+                <svg className="profile-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="8" r="4" fill="currentColor"/>
+                  <path d="M 12 14 C 7 14 3 17 3 21 L 21 21 C 21 17 17 14 12 14 Z" fill="currentColor"/>
+                </svg>
+              </div>
             </div>
             <div className="member-info">
               <h3>Maria Santos</h3>
@@ -61,7 +70,12 @@ function TeamPage() {
           <div className="team-member">
             <div className="member-image">
               {/* Placeholder for team member image */}
-              <div className="image-placeholder"></div>
+              <div className="image-placeholder">
+                <svg className="profile-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="8" r="4" fill="currentColor"/>
+                  <path d="M 12 14 C 7 14 3 17 3 21 L 21 21 C 21 17 17 14 12 14 Z" fill="currentColor"/>
+                </svg>
+              </div>
             </div>
             <div className="member-info">
               <h3>Pedro Reyes</h3>
@@ -73,7 +87,12 @@ function TeamPage() {
           <div className="team-member">
             <div className="member-image">
               {/* Placeholder for team member image */}
-              <div className="image-placeholder"></div>
+              <div className="image-placeholder">
+                <svg className="profile-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="8" r="4" fill="currentColor"/>
+                  <path d="M 12 14 C 7 14 3 17 3 21 L 21 21 C 21 17 17 14 12 14 Z" fill="currentColor"/>
+                </svg>
+              </div>
             </div>
             <div className="member-info">
               <h3>Ana Lim</h3>

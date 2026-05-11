@@ -191,7 +191,8 @@ class SmsService
     private function isValidPhoneNumber($phoneNumber)
     {
         // Accept formats like: +63912345678, 09123456789, 63912345678
-        $pattern = '/^(\+63|0|63)[0-9]{9,10}$/';
+        // More flexible pattern to accept various formats
+        $pattern = '/^(\+63|0|63)[0-9]{7,11}$/';
         return preg_match($pattern, $phoneNumber) === 1;
     }
 

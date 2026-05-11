@@ -9,6 +9,10 @@ const ReservationDetailsModal = ({ reservation, onClose }) => {
 
   if (!reservation) return null;
 
+  // Handle both Reservation and Booking objects
+  const data = reservation;
+  const isBooking = !!data.service_id && !data.product_id;
+
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -28,7 +32,7 @@ const ReservationDetailsModal = ({ reservation, onClose }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modern-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modern-modal-header">
-          <h2>Reservation Details</h2>
+          <h2>{isBooking ? 'Service Booking Details' : 'Reservation Details'}</h2>
           <button className="modern-modal-close" onClick={onClose}>×</button>
         </div>
 
@@ -39,99 +43,103 @@ const ReservationDetailsModal = ({ reservation, onClose }) => {
             <div className="modal-info-grid">
               <div className="modal-info-item">
                 <label>Customer Name</label>
-                <span>{reservation.user?.name || 'N/A'}</span>
+                <span>{data.user?.name || data.client?.name || 'N/A'}</span>
               </div>
               <div className="modal-info-item">
                 <label>Email</label>
-                <span>{reservation.user?.email || 'N/A'}</span>
+                <span>{data.user?.email || data.client?.email || 'N/A'}</span>
               </div>
               <div className="modal-info-item">
                 <label>Phone</label>
-                <span>{reservation.user?.phone || 'N/A'}</span>
+                <span>{data.user?.phone || data.client?.phone || 'N/A'}</span>
               </div>
               <div className="modal-info-item">
                 <label>Address</label>
-                <span>{reservation.user?.address || 'N/A'}</span>
+                <span>{data.user?.address || data.client?.address || 'N/A'}</span>
               </div>
             </div>
           </div>
 
-          {/* Deceased Information - Only show if purpose is deceased */}
-          {reservation.request_purpose === 'deceased' && (
+          {/* Deceased Information - Only show if purpose is deceased (for reservations) */}
+          {!isBooking && data.request_purpose === 'deceased' && (
             <div className="modal-section">
               <span className="modal-section-title">Deceased Information</span>
               <div className="modal-info-grid">
                 <div className="modal-info-item">
                   <label>Deceased Name</label>
-                  <span className="highlight">{reservation.deceased_name || 'N/A'}</span>
+                  <span className="highlight">{data.deceased_name || 'N/A'}</span>
                 </div>
                 <div className="modal-info-item">
                   <label>Date of Death</label>
-                  <span className="highlight">{formatDate(reservation.deceased_date_of_death) || 'N/A'}</span>
+                  <span className="highlight">{formatDate(data.deceased_date_of_death) || 'N/A'}</span>
                 </div>
                 <div className="modal-info-item">
                   <label>Relationship</label>
-                  <span>{reservation.deceased_relationship || 'N/A'}</span>
+                  <span>{data.deceased_relationship || 'N/A'}</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Reservation Details */}
+          {/* Details */}
           <div className="modal-section">
-            <span className="modal-section-title">Reservation Details</span>
+            <span className="modal-section-title">{isBooking ? 'Service Booking Details' : 'Reservation Details'}</span>
             <div className="modal-info-grid">
               <div className="modal-info-item">
-                <label>Product/Service</label>
-                <span>{reservation.product?.title || reservation.service?.title || 'N/A'}</span>
+                <label>{isBooking ? 'Service' : 'Product/Service'}</label>
+                <span>{data.service?.title || data.product?.title || 'N/A'}</span>
               </div>
-              <div className="modal-info-item">
-                <label>Plan Type</label>
-                <span>{reservation.plan_type || 'N/A'}</span>
-              </div>
+              {!isBooking && (
+                <div className="modal-info-item">
+                  <label>Plan Type</label>
+                  <span>{data.plan_type || 'N/A'}</span>
+                </div>
+              )}
               <div className="modal-info-item">
                 <label>Amount</label>
-                <span>{formatCurrency(reservation.amount)}</span>
+                <span>{formatCurrency(data.amount || data.total_amount || 0)}</span>
               </div>
               <div className="modal-info-item">
                 <label>Status</label>
-                <span className={`badge ${reservation.status === 'pending' ? 'warning' : reservation.status === 'approved' ? 'success' : 'danger'}`}>
-                  {reservation.status.charAt(0).toUpperCase() + reservation.status.slice(1)}
+                <span className={`badge ${data.status === 'pending' ? 'warning' : data.status === 'approved' || data.status === 'Paid' ? 'success' : 'danger'}`}>
+                  {(data.status || '').charAt(0).toUpperCase() + (data.status || '').slice(1)}
                 </span>
               </div>
               <div className="modal-info-item">
-                <label>Reserved Date</label>
-                <span>{formatDate(reservation.created_at)}</span>
+                <label>{isBooking ? 'Booking Date' : 'Reserved Date'}</label>
+                <span>{formatDate(data.created_at || data.booking_date)}</span>
               </div>
-              {reservation.approved_at && (
+              {data.approved_at && (
                 <div className="modal-info-item">
                   <label>Approved Date</label>
-                  <span>{formatDate(reservation.approved_at)}</span>
+                  <span>{formatDate(data.approved_at)}</span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Request Purpose */}
-          <div className="modal-section">
-            <span className="modal-section-title">Request Purpose</span>
-            <div className="modal-info-grid">
-              <div className="modal-info-item">
-                <label>Purpose</label>
-                <span className={`badge ${reservation.request_purpose === 'deceased' ? 'warning' : 'success'}`}>
-                  {reservation.request_purpose === 'deceased' ? '👤 Deceased Loved One' : '📅 Reservation Only'}
-                </span>
+          {/* Request Purpose - Only show for reservations */}
+          {!isBooking && (
+            <div className="modal-section">
+              <span className="modal-section-title">Request Purpose</span>
+              <div className="modal-info-grid">
+                <div className="modal-info-item">
+                  <label>Purpose</label>
+                  <span className={`badge ${data.request_purpose === 'deceased' ? 'warning' : 'success'}`}>
+                    {data.request_purpose === 'deceased' ? '👤 Deceased Loved One' : '📅 Reservation Only'}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* ID Verification */}
           <div className="modal-section">
             <span className="modal-section-title">ID Verification</span>
-            {reservation.id_file ? (
+            {data.id_file ? (
               <div style={{ marginTop: '12px' }}>
                 <a 
-                  href={`http://localhost:8000/api/files/${reservation.id_file}`}
+                  href={`http://localhost:8000/api/files/${data.id_file}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="modal-btn-primary"
@@ -146,11 +154,11 @@ const ReservationDetailsModal = ({ reservation, onClose }) => {
           </div>
 
           {/* Admin Notes */}
-          {reservation.admin_notes && (
+          {data.admin_notes && (
             <div className="modal-section">
               <span className="modal-section-title">Admin Notes</span>
               <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #1B3022', color: '#1f2937', lineHeight: '1.6', whiteSpace: 'pre-wrap', wordWrap: 'break-word', fontSize: '14px' }}>
-                {reservation.admin_notes}
+                {data.admin_notes}
               </div>
             </div>
           )}

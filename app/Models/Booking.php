@@ -17,6 +17,7 @@ class Booking extends Model
         'plan_type',
         'amount',
         'notes',
+        'id_file',
         'total_amount',
         'payment_id',
         'requirement_status',

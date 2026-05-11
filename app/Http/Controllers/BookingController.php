@@ -107,7 +107,7 @@ class BookingController extends Controller
     public function getUserBookings($userId)
     {
         try {
-            $bookings = Booking::where('user_id', $userId)->with('service', 'product')->get();
+            $bookings = Booking::where('user_id', $userId)->with('user', 'service', 'product')->get();
             return response()->json([
                 'data' => $bookings,
                 'bookings' => $bookings,

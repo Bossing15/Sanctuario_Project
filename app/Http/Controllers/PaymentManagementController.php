@@ -27,6 +27,17 @@ class PaymentManagementController extends Controller
     {
         try {
             $user = $request->user();
+            
+            // SECURITY: Verify user is authenticated
+            if (!$user || !$user->id) {
+                return response()->json([
+                    'message' => 'Unauthorized: User not authenticated',
+                    'data' => [],
+                    'payments' => [],
+                    'count' => 0
+                ], 401);
+            }
+            
             // SECURITY FIX: Only check client_id, not user_id, to prevent cross-user contamination
             // All payments should use client_id as the primary user identifier
             $payments = Payment::where('client_id', $user->id)
@@ -44,7 +55,8 @@ class PaymentManagementController extends Controller
                         if ($property) {
                             $lotInfo = null;
                             
-                            switch ($product->slug) {
+                            // FIX: Use $property instead of $product
+                            switch ($property->slug) {
                                 case 'lawn-lots':
                                     $lotInfo = \App\Models\LawnLot::find($graveId);
                                     if ($lotInfo) {
@@ -88,12 +100,24 @@ class PaymentManagementController extends Controller
                     return $payment;
                 });
             
+            // Log payment retrieval for audit trail
+            \Log::info('User payments retrieved', [
+                'user_id' => $user->id,
+                'payment_count' => $payments->count(),
+                'timestamp' => now()
+            ]);
+            
             return response()->json([
                 'data' => $payments,
                 'payments' => $payments,
                 'count' => $payments->count()
             ]);
         } catch (\Exception $e) {
+            \Log::error('Error fetching user payments', [
+                'user_id' => $request->user()?->id,
+                'error' => $e->getMessage()
+            ]);
+            
             return response()->json([
                 'message' => 'Failed to fetch payments',
                 'error' => $e->getMessage()

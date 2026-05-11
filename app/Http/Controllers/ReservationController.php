@@ -252,6 +252,31 @@ class ReservationController extends Controller
 
             $reservation->approve($request->user()->id, $validated['notes'] ?? null);
 
+            // If this is a service reservation, create a Booking record
+            if ($reservation->service_id) {
+                $booking = \App\Models\Booking::create([
+                    'user_id' => $reservation->user_id,
+                    'service_id' => $reservation->service_id,
+                    'plan_type' => $reservation->plan_type,
+                    'amount' => $reservation->amount,
+                    'total_amount' => $reservation->amount,
+                    'status' => 'Approved',
+                    'booking_date' => now(),
+                    'authorization_status' => 'AUTHORIZED',
+                    'approved_by' => $request->user()->id,
+                    'approved_at' => now(),
+                    'id_file' => $reservation->id_file,
+                    'notes' => $validated['notes'] ?? null,
+                ]);
+                
+                \Log::info('Booking created from approved service reservation', [
+                    'booking_id' => $booking->id,
+                    'reservation_id' => $reservation->id,
+                    'service_id' => $reservation->service_id,
+                    'status' => 'Approved',
+                ]);
+            }
+
             // Create a payment record for the approved reservation
             $payment = \App\Models\Payment::create([
                 'client_id' => $reservation->user_id,

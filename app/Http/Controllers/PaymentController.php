@@ -6,6 +6,7 @@ use App\Models\Payment;
 use App\Models\Request as PurchaseRequest;
 use App\Services\AuthorizationService;
 use App\Services\EmailNotificationService;
+use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -17,8 +18,9 @@ class PaymentController extends Controller
     private $paymongoBaseUrl = 'https://api.paymongo.com/v1';
     protected $authorizationService;
     protected $emailNotificationService;
+    protected $smsService;
 
-    public function __construct(AuthorizationService $authorizationService, EmailNotificationService $emailNotificationService)
+    public function __construct(AuthorizationService $authorizationService, EmailNotificationService $emailNotificationService, SmsService $smsService)
     {
         $environment = config('services.paymongo.environment', 'test');
         
@@ -32,6 +34,7 @@ class PaymentController extends Controller
         
         $this->authorizationService = $authorizationService;
         $this->emailNotificationService = $emailNotificationService;
+        $this->smsService = $smsService;
     }
 
     public function paymentSuccess(Request $request)
@@ -56,6 +59,12 @@ class PaymentController extends Controller
                         'completed_at' => now(),
                         'paid_date' => now()
                     ]);
+
+                    // Get the client associated with this payment
+                    $client = null;
+                    if ($payment->client_id) {
+                        $client = \App\Models\Client::find($payment->client_id);
+                    }
 
                     // If there's a booking associated with this payment, update its status
                     $booking = null;
@@ -106,6 +115,11 @@ class PaymentController extends Controller
                         }
                     }
 
+                    // Send SMS notification to client if phone number is available
+                    if ($client && $client->phone) {
+                        $this->sendPaymentSuccessSms($client, $payment);
+                    }
+
                     // Return HTML page that redirects to client app
                     $clientUrl = config('app.client_url', 'http://localhost:3000');
                     return view('payment-success', [
@@ -131,6 +145,63 @@ class PaymentController extends Controller
                 'error' => $e->getMessage()
             ]);
         }
+    }
+
+    /**
+     * Send payment success SMS notification to client
+     */
+    private function sendPaymentSuccessSms($client, $payment)
+    {
+        try {
+            // Format the amount
+            $amount = number_format($payment->amount, 2);
+            
+            // Create formal payment confirmation message
+            $message = "Dear {$client->name}, your payment of ₱{$amount} has been successfully received by Sanctuario De Carmona Memorial Park. Reference: {$payment->payment_reference}. Thank you for your trust.";
+            
+            // Ensure message doesn't exceed 160 characters (SMS standard)
+            if (strlen($message) > 160) {
+                $message = "Payment of ₱{$amount} received successfully. Ref: {$payment->payment_reference}. Thank you, Sanctuario De Carmona.";
+            }
+            
+            // Send SMS via SMS service
+            $result = $this->smsService->sendSms(
+                $client->phone,
+                $message,
+                'payment_success_' . $payment->id
+            );
+            
+            if ($result['success']) {
+                Log::info('Payment success SMS sent', [
+                    'client_id' => $client->id,
+                    'payment_id' => $payment->id,
+                    'phone' => $this->maskPhoneNumber($client->phone)
+                ]);
+            } else {
+                Log::warning('Failed to send payment success SMS', [
+                    'client_id' => $client->id,
+                    'payment_id' => $payment->id,
+                    'error' => $result['message'] ?? 'Unknown error'
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error sending payment success SMS', [
+                'client_id' => $client->id ?? null,
+                'payment_id' => $payment->id ?? null,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Mask phone number for logging
+     */
+    private function maskPhoneNumber($phoneNumber)
+    {
+        $length = strlen($phoneNumber);
+        $visibleChars = 4;
+        $maskedChars = str_repeat('*', $length - $visibleChars);
+        return substr($phoneNumber, 0, $visibleChars) . $maskedChars;
     }
 
     public function paymentCancel(Request $request)

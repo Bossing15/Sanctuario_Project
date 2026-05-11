@@ -39,9 +39,11 @@ class SmsController extends Controller
 
             // Log the SMS
             $smsLog = SmsLog::create([
-                'phone' => $validated['phone'],
+                'phone_number' => $validated['phone'],
                 'message' => $validated['message'],
+                'type' => 'general',
                 'status' => $result['success'] ? 'sent' : 'failed',
+                'error_message' => $result['success'] ? null : ($result['error'] ?? 'Unknown error'),
                 'sent_at' => now(),
                 'reference' => $validated['reference'] ?? null,
                 'response' => json_encode($result['data'] ?? []),
@@ -84,9 +86,11 @@ class SmsController extends Controller
             $logs = [];
             foreach ($results as $result) {
                 $log = SmsLog::create([
-                    'phone' => $result['phone'],
+                    'phone_number' => $result['phone'],
                     'message' => $validated['message'],
+                    'type' => 'general',
                     'status' => $result['success'] ? 'sent' : 'failed',
+                    'error_message' => $result['success'] ? null : $result['message'],
                     'sent_at' => now(),
                     'response' => json_encode($result),
                 ]);
@@ -165,9 +169,11 @@ class SmsController extends Controller
 
                 // Log the SMS
                 $log = SmsLog::create([
-                    'phone' => $plan->client->phone,
+                    'phone_number' => $plan->client->phone,
                     'message' => "Payment reminder for ₱" . number_format($plan->amount, 2),
+                    'type' => 'payment_reminder',
                     'status' => $result['success'] ? 'sent' : 'failed',
+                    'error_message' => $result['success'] ? null : $result['message'],
                     'sent_at' => now(),
                     'reference' => 'payment_reminder_' . $plan->id,
                     'response' => json_encode($result),
@@ -234,9 +240,11 @@ class SmsController extends Controller
 
             // Log the SMS
             $smsLog = SmsLog::create([
-                'phone' => $client->phone,
+                'phone_number' => $client->phone,
                 'message' => "Booking confirmation for " . $validated['service_type'],
+                'type' => 'payment_confirmation',
                 'status' => $result['success'] ? 'sent' : 'failed',
+                'error_message' => $result['success'] ? null : $result['message'],
                 'sent_at' => now(),
                 'reference' => 'booking_' . $validated['booking_id'],
                 'response' => json_encode($result),
