@@ -25,6 +25,9 @@ const CustomersPage = () => {
   const [customerToUnarchive, setCustomerToUnarchive] = useState(null);
   const [unarchiveCustomerName, setUnarchiveCustomerName] = useState('');
   const [notification, setNotification] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [successIcon, setSuccessIcon] = useState('✓');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -173,6 +176,13 @@ const CustomersPage = () => {
     setTimeout(() => setNotification(null), 3000);
   };
 
+  const showSuccessModalWithMessage = (message, icon = '✓') => {
+    setSuccessMessage(message);
+    setSuccessIcon(icon);
+    setShowSuccessModal(true);
+    setTimeout(() => setShowSuccessModal(false), 2500);
+  };
+
   const handleAddCustomer = async (e) => {
     e.preventDefault();
     try {
@@ -262,7 +272,7 @@ const CustomersPage = () => {
       });
       
       if (response.ok) {
-        showNotification("Customer archived successfully!", "success");
+        showSuccessModalWithMessage("Customer Archived Successfully!", "📦");
         fetchCustomers();
         setShowArchiveConfirmModal(false);
         setCustomerToArchive(null);
@@ -315,7 +325,7 @@ const CustomersPage = () => {
       });
       
       if (response.ok) {
-        showNotification("Customer restored successfully!", "success");
+        showSuccessModalWithMessage("Customer Restored Successfully!", "✓");
         fetchCustomers();
         setShowUnarchiveConfirmModal(false);
         setCustomerToUnarchive(null);
@@ -706,6 +716,38 @@ const CustomersPage = () => {
         onCancel={closeUnarchiveConfirmModal}
         isLoading={false}
       />
+
+      {/* Success Modal for Archive/Restore */}
+      {showSuccessModal && (
+        <div className="modal-overlay" onClick={() => setShowSuccessModal(false)}>
+          <div className="modal max-w-sm" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-body" style={{ textAlign: 'center', padding: '60px 40px' }}>
+              <div style={{
+                fontSize: '64px',
+                marginBottom: '20px',
+                animation: 'bounce 0.6s ease-out'
+              }}>
+                {successIcon}
+              </div>
+              <h3 style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: '#1B3022',
+                marginBottom: '12px'
+              }}>
+                {successMessage}
+              </h3>
+              <p style={{
+                fontSize: '14px',
+                color: '#6b7280',
+                marginBottom: '0'
+              }}>
+                The customer has been updated successfully.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="p-8 min-h-screen flex-grow">
         {/* Header */}

@@ -392,6 +392,20 @@ body.modal-open {
   }
 }
 
+@keyframes bounce {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 .modal-success-feedback {
   position: absolute;
   top: 50%;
