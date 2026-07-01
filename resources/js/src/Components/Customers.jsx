@@ -21,6 +21,9 @@ const CustomersPage = () => {
   const [customerToArchive, setCustomerToArchive] = useState(null);
   const [archiveCustomerName, setArchiveCustomerName] = useState('');
   const [isArchiving, setIsArchiving] = useState(false);
+  const [showUnarchiveConfirmModal, setShowUnarchiveConfirmModal] = useState(false);
+  const [customerToUnarchive, setCustomerToUnarchive] = useState(null);
+  const [unarchiveCustomerName, setUnarchiveCustomerName] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -275,6 +278,59 @@ const CustomersPage = () => {
     setShowArchiveConfirmModal(false);
     setCustomerToArchive(null);
     setArchiveCustomerName('');
+  };
+
+  const handleUnarchiveCustomer = (id, customerName) => {
+    setCustomerToUnarchive(id);
+    setUnarchiveCustomerName(customerName);
+    setShowUnarchiveConfirmModal(true);
+  };
+
+  const confirmUnarchiveCustomer = async () => {
+    if (!customerToUnarchive) return;
+
+    try {
+      setIsArchiving(true);
+      const token = localStorage.getItem("authToken");
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/clients/${customerToUnarchive}`;
+      
+      const response = await fetch(apiUrl, {
+        method: "PATCH",
+        headers: { 
+          "Authorization": `Bearer ${token}`, 
+          "Accept": "application/json", 
+          "Content-Type": "application/json" 
+        },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          archived: false,
+          archived_at: null
+        })
+      });
+      
+      if (response.ok) {
+        alert("Customer restored successfully!");
+        fetchCustomers();
+        setShowUnarchiveConfirmModal(false);
+        setCustomerToUnarchive(null);
+        setUnarchiveCustomerName('');
+      } else {
+        const errorData = await response.json();
+        console.error("Unarchive error response:", errorData);
+        alert("Failed to restore customer: " + (errorData.message || response.statusText));
+      }
+    } catch (error) {
+      console.error("Error restoring customer:", error);
+      alert("Error restoring customer: " + error.message);
+    } finally {
+      setIsArchiving(false);
+    }
+  };
+
+  const closeUnarchiveConfirmModal = () => {
+    setShowUnarchiveConfirmModal(false);
+    setCustomerToUnarchive(null);
+    setUnarchiveCustomerName('');
   };
 
   if (loading) {
@@ -625,6 +681,17 @@ const CustomersPage = () => {
         isLoading={false}
       />
 
+      {/* Unarchive Confirmation Modal */}
+      <ArchiveConfirmationModal
+        isOpen={showUnarchiveConfirmModal}
+        title="Restore Customer"
+        message={`Are you sure you want to restore ${unarchiveCustomerName}? They will be able to log in again.`}
+        itemName={unarchiveCustomerName}
+        onConfirm={confirmUnarchiveCustomer}
+        onCancel={closeUnarchiveConfirmModal}
+        isLoading={false}
+      />
+
       <div className="p-8 min-h-screen flex-grow">
         {/* Header */}
         <div className="flex items-center mb-8">
@@ -777,14 +844,25 @@ const CustomersPage = () => {
                                 View
                               </button>
                               {!isComponentDisabled('customers') && (
-                                <button
-                                  onClick={() => handleArchiveCustomer(customer.id, customer.name)}
-                                  disabled={false}
-                                  className="action-btn archive-btn"
-                                  title="Archive customer"
-                                >
-                                  Archive
-                                </button>
+                                customer.archived ? (
+                                  <button
+                                    onClick={() => handleUnarchiveCustomer(customer.id, customer.name)}
+                                    disabled={false}
+                                    className="action-btn archive-btn"
+                                    title="Restore customer"
+                                  >
+                                    Restore
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => handleArchiveCustomer(customer.id, customer.name)}
+                                    disabled={false}
+                                    className="action-btn archive-btn"
+                                    title="Archive customer"
+                                  >
+                                    Archive
+                                  </button>
+                                )
                               )}
                             </div>
                           </td>
