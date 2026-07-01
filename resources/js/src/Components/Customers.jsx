@@ -24,6 +24,7 @@ const CustomersPage = () => {
   const [showUnarchiveConfirmModal, setShowUnarchiveConfirmModal] = useState(false);
   const [customerToUnarchive, setCustomerToUnarchive] = useState(null);
   const [unarchiveCustomerName, setUnarchiveCustomerName] = useState('');
+  const [notification, setNotification] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -151,7 +152,7 @@ const CustomersPage = () => {
       setShowModal(true);
     } catch (err) {
       console.error('Error fetching customer details:', err);
-      alert('Failed to load customer details. Please try again.');
+      showNotification('Failed to load customer details. Please try again.', 'error');
     }
   };
 
@@ -165,6 +166,11 @@ const CustomersPage = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const showNotification = (message, type = "success") => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
   };
 
   const handleAddCustomer = async (e) => {
@@ -189,7 +195,7 @@ const CustomersPage = () => {
       }
 
       const data = await response.json();
-      alert('Customer added successfully!');
+      showNotification('Customer added successfully!', 'success');
       setShowAddModal(false);
       setFormData({
         name: '',
@@ -205,7 +211,7 @@ const CustomersPage = () => {
       fetchCustomers();
     } catch (err) {
       console.error('Error adding customer:', err);
-      alert('Failed to add customer. Please try again.');
+      showNotification('Failed to add customer. Please try again.', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -256,7 +262,7 @@ const CustomersPage = () => {
       });
       
       if (response.ok) {
-        alert("Customer archived successfully!");
+        showNotification("Customer archived successfully!", "success");
         fetchCustomers();
         setShowArchiveConfirmModal(false);
         setCustomerToArchive(null);
@@ -264,11 +270,11 @@ const CustomersPage = () => {
       } else {
         const errorData = await response.json();
         console.error("Archive error response:", errorData);
-        alert("Failed to archive customer: " + (errorData.message || response.statusText));
+        showNotification("Failed to archive customer: " + (errorData.message || response.statusText), "error");
       }
     } catch (error) {
       console.error("Error archiving customer:", error);
-      alert("Error archiving customer: " + error.message);
+      showNotification("Error archiving customer: " + error.message, "error");
     } finally {
       setIsArchiving(false);
     }
@@ -309,7 +315,7 @@ const CustomersPage = () => {
       });
       
       if (response.ok) {
-        alert("Customer restored successfully!");
+        showNotification("Customer restored successfully!", "success");
         fetchCustomers();
         setShowUnarchiveConfirmModal(false);
         setCustomerToUnarchive(null);
@@ -317,11 +323,11 @@ const CustomersPage = () => {
       } else {
         const errorData = await response.json();
         console.error("Unarchive error response:", errorData);
-        alert("Failed to restore customer: " + (errorData.message || response.statusText));
+        showNotification("Failed to restore customer: " + (errorData.message || response.statusText), "error");
       }
     } catch (error) {
       console.error("Error restoring customer:", error);
-      alert("Error restoring customer: " + error.message);
+      showNotification("Error restoring customer: " + error.message, "error");
     } finally {
       setIsArchiving(false);
     }
@@ -428,6 +434,15 @@ const CustomersPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      {/* Modern Toast Notification */}
+      {notification && (
+        <div className={`fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg text-white z-50 ${notification.type === "success" ? "bg-green-600" : "bg-red-600"}`}>
+          <div className="flex items-center gap-2">
+            {notification.type === "success" ? "✓" : "✕"} {notification.message}
+          </div>
+        </div>
+      )}
+
       {/* Navbar is now handled globally in App.jsx */}
 
       {/* Customer Details Modal - Rendered at top level */}
