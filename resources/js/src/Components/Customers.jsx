@@ -182,7 +182,6 @@ const CustomersPage = () => {
     setSuccessIcon(icon);
     setSuccessSubMessage('The customer has been updated successfully.');
     setShowSuccessModal(true);
-    setTimeout(() => setShowSuccessModal(false), 2500);
   };
 
   const showSuccessModalWithCustomMessage = (message, icon = '✓', subMessage = 'The customer has been updated successfully.') => {
@@ -190,7 +189,6 @@ const CustomersPage = () => {
     setSuccessIcon(icon);
     setSuccessSubMessage(subMessage);
     setShowSuccessModal(true);
-    setTimeout(() => setShowSuccessModal(false), 2500);
   };
 
   const handleAddCustomer = async (e) => {
