@@ -25,6 +25,8 @@ class Client extends Model
         'address',
         'registered_date',
         'last_payment',
+        'archived',
+        'archived_at',
     ];
 
     protected $hidden = [
@@ -34,5 +36,7 @@ class Client extends Model
     protected $casts = [
         'registered_date' => 'datetime',
         'last_payment' => 'datetime',
+        'archived_at' => 'datetime',
+        'archived' => 'boolean',
     ];
 }

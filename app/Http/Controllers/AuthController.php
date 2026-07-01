@@ -108,6 +108,15 @@ class AuthController extends Controller
         $client = Client::where('username', $credentials['username'])->first();
 
         if ($client && Hash::check($credentials['password'], $client->password)) {
+            // Check if client account is archived
+            if ($client->archived) {
+                \Illuminate\Support\Facades\Log::warning('Client login blocked - account archived', [
+                    'username' => $client->username,
+                    'archived_at' => $client->archived_at,
+                ]);
+                return response()->json(['message' => 'Your account has been archived and is no longer accessible. Please contact support for assistance.'], 403);
+            }
+
             // Check if client account is active
             if ($client->status === 'inactive' || $client->status === 'deactivated') {
                 \Illuminate\Support\Facades\Log::warning('Client login blocked - account inactive', [
@@ -431,6 +440,48 @@ class AuthController extends Controller
                 'message' => 'Client not found',
                 'error' => $e->getMessage()
             ], 404);
+        }
+    }
+
+    public function updateClient(Request $request, $id)
+    {
+        try {
+            $client = Client::findOrFail($id);
+            
+            $validated = $request->validate([
+                'archived' => 'sometimes|boolean',
+                'archived_at' => 'sometimes|nullable|string',
+                'name' => 'sometimes|string|max:255',
+                'email' => 'sometimes|email|max:255|unique:clients,email,' . $id,
+                'phone' => 'sometimes|string|max:20',
+                'address' => 'sometimes|string|max:255',
+                'status' => 'sometimes|string|in:Active,Inactive',
+            ]);
+            
+            $client->update($validated);
+            
+            return response()->json([
+                'message' => 'Client updated successfully',
+                'client' => $client
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Client not found'
+            ], 404);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error updating client', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'message' => 'Failed to update client',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 

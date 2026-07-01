@@ -3,12 +3,11 @@ import { TableSkeleton } from "./SkeletonLoader";
 import customerIcon from '../assets/icons/Customers.png';
 import { formatDate } from '../utils/dateFormatter';
 import StatsCards from "./StatsCards";
-import CrudActions from "./CrudActions";
-import crudUtils from "../utils/crudUtils";
 import ArchiveConfirmationModal from "./ArchiveConfirmationModal";
 import usePermissions from "../utils/usePermissions";
 import { preserveScrollPosition, restoreScrollPosition } from "../utils/scrollPreserver";
 import { getSequentialIdFromIndex } from "../utils/tableIdGenerator";
+import '../styles/modern-modal.css';
 
 const CustomersPage = () => {
   const { canPerformActions, canView, isComponentDisabled } = usePermissions();
@@ -20,6 +19,7 @@ const CustomersPage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showArchiveConfirmModal, setShowArchiveConfirmModal] = useState(false);
   const [customerToArchive, setCustomerToArchive] = useState(null);
+  const [archiveCustomerName, setArchiveCustomerName] = useState('');
   const [isArchiving, setIsArchiving] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -34,6 +34,7 @@ const CustomersPage = () => {
   });
   const [submitting, setSubmitting] = useState(false);
   const [customerSearchQuery, setCustomerSearchQuery] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
 
   // Fetch customers from API
   useEffect(() => {
@@ -223,33 +224,48 @@ const CustomersPage = () => {
     );
   };
 
-  const handleArchiveCustomer = (id) => {
+  const handleArchiveCustomer = (id, customerName) => {
     setCustomerToArchive(id);
+    setArchiveCustomerName(customerName);
     setShowArchiveConfirmModal(true);
   };
 
   const confirmArchiveCustomer = async () => {
     if (!customerToArchive) return;
 
-    setIsArchiving(true);
     try {
+      setIsArchiving(true);
       const token = localStorage.getItem("authToken");
-      const response = await fetch(`/api/clients/${customerToArchive}`, {
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/clients/${customerToArchive}`;
+      
+      const response = await fetch(apiUrl, {
         method: "PATCH",
-        headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({ archived: true })
+        headers: { 
+          "Authorization": `Bearer ${token}`, 
+          "Accept": "application/json", 
+          "Content-Type": "application/json" 
+        },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          archived: true,
+          archived_at: new Date().toISOString()
+        })
       });
       
       if (response.ok) {
+        alert("Customer archived successfully!");
         fetchCustomers();
         setShowArchiveConfirmModal(false);
         setCustomerToArchive(null);
+        setArchiveCustomerName('');
       } else {
-        alert("Failed to archive customer");
+        const errorData = await response.json();
+        console.error("Archive error response:", errorData);
+        alert("Failed to archive customer: " + (errorData.message || response.statusText));
       }
     } catch (error) {
       console.error("Error archiving customer:", error);
-      alert("Error archiving customer");
+      alert("Error archiving customer: " + error.message);
     } finally {
       setIsArchiving(false);
     }
@@ -258,6 +274,7 @@ const CustomersPage = () => {
   const closeArchiveConfirmModal = () => {
     setShowArchiveConfirmModal(false);
     setCustomerToArchive(null);
+    setArchiveCustomerName('');
   };
 
   if (loading) {
@@ -597,6 +614,17 @@ const CustomersPage = () => {
         </div>
       )}
 
+      {/* Archive Confirmation Modal */}
+      <ArchiveConfirmationModal
+        isOpen={showArchiveConfirmModal}
+        title="Archive Customer"
+        message={`Are you sure you want to archive ${archiveCustomerName}? You can restore them later from the archive.`}
+        itemName={archiveCustomerName}
+        onConfirm={confirmArchiveCustomer}
+        onCancel={closeArchiveConfirmModal}
+        isLoading={false}
+      />
+
       <div className="p-8 min-h-screen flex-grow">
         {/* Header */}
         <div className="flex items-center mb-8">
@@ -672,6 +700,24 @@ const CustomersPage = () => {
                   </div>
                 </div>
 
+                <div className="mb-4 flex items-center justify-between">
+                  <button
+                    onClick={() => setShowArchived(!showArchived)}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                      showArchived
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'bg-green-600 text-white hover:bg-green-700'
+                    }`}
+                  >
+                    {showArchived ? '📦 Showing Archived' : '✅ Showing Active'}
+                  </button>
+                  <span className="text-sm text-gray-600">
+                    {showArchived 
+                      ? `Archived: ${customers.filter(c => c.archived).length}` 
+                      : `Active: ${customers.filter(c => !c.archived).length}`}
+                  </span>
+                </div>
+
                 <div className="table-wrapper">
                   <table>
                     <thead>
@@ -689,12 +735,15 @@ const CustomersPage = () => {
                     <tbody>
                       {customers.filter((customer) => {
                         const query = customerSearchQuery.toLowerCase();
-                        return (
+                        const matchesSearch = (
                           customer.id.toString().includes(query) ||
                           customer.name.toLowerCase().includes(query) ||
                           customer.email.toLowerCase().includes(query) ||
                           customer.phone.toLowerCase().includes(query)
                         );
+                        // Filter by archive status
+                        const matchesArchiveStatus = showArchived ? customer.archived : !customer.archived;
+                        return matchesSearch && matchesArchiveStatus;
                       }).map((customer, index) => (
                         <tr key={customer.id}>
                           <td className="font-mono">{getSequentialIdFromIndex(index)}</td>
@@ -718,17 +767,26 @@ const CustomersPage = () => {
                             )}
                           </td>
                           <td className="text-center">
-                            <CrudActions
-                              onView={() => handleViewCustomer(customer.id)}
-                              onEdit={() => {}}
-                              onArchive={() => handleArchiveCustomer(customer.id)}
-                              onToggleStatus={() => {}}
-                              showView={true}
-                              showEdit={false}
-                              showArchive={!isComponentDisabled('customers')}
-                              showToggle={false}
-                              size="sm"
-                            />
+                            <div className="crud-actions sm">
+                              <button
+                                onClick={() => handleViewCustomer(customer.id)}
+                                disabled={false}
+                                className="action-btn view-btn"
+                                title="View details"
+                              >
+                                View
+                              </button>
+                              {!isComponentDisabled('customers') && (
+                                <button
+                                  onClick={() => handleArchiveCustomer(customer.id, customer.name)}
+                                  disabled={false}
+                                  className="action-btn archive-btn"
+                                  title="Archive customer"
+                                >
+                                  Archive
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -761,11 +819,11 @@ const CustomersPage = () => {
       <ArchiveConfirmationModal
         isOpen={showArchiveConfirmModal}
         title="Archive Customer"
-        message="Are you sure you want to archive this customer?"
-        itemName="this customer"
+        message={`Are you sure you want to archive ${archiveCustomerName}? You can restore them later from the archive.`}
+        itemName={archiveCustomerName}
         onConfirm={confirmArchiveCustomer}
         onCancel={closeArchiveConfirmModal}
-        isLoading={isArchiving}
+        isLoading={false}
       />
     </div>
   );

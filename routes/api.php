@@ -171,6 +171,8 @@ Route::middleware('auth.multiple')->group(function () {
     Route::get('/graves/{id}', [AuthController::class, 'getGraveById']);
     Route::get('/clients', [AuthController::class, 'getAllClients']);
     Route::get('/clients/{id}', [AuthController::class, 'getClientById']);
+    Route::put('/clients/{id}', [AuthController::class, 'updateClient']);
+    Route::patch('/clients/{id}', [AuthController::class, 'updateClient']);
     
     // Routes accessible by admin and staff only
     Route::middleware('access.level:admin,staff')->group(function () {
