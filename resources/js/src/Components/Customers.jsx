@@ -28,6 +28,7 @@ const CustomersPage = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [successIcon, setSuccessIcon] = useState('✓');
+  const [successSubMessage, setSuccessSubMessage] = useState('The customer has been updated successfully.');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -179,6 +180,15 @@ const CustomersPage = () => {
   const showSuccessModalWithMessage = (message, icon = '✓') => {
     setSuccessMessage(message);
     setSuccessIcon(icon);
+    setSuccessSubMessage('The customer has been updated successfully.');
+    setShowSuccessModal(true);
+    setTimeout(() => setShowSuccessModal(false), 2500);
+  };
+
+  const showSuccessModalWithCustomMessage = (message, icon = '✓', subMessage = 'The customer has been updated successfully.') => {
+    setSuccessMessage(message);
+    setSuccessIcon(icon);
+    setSuccessSubMessage(subMessage);
     setShowSuccessModal(true);
     setTimeout(() => setShowSuccessModal(false), 2500);
   };
@@ -272,7 +282,7 @@ const CustomersPage = () => {
       });
       
       if (response.ok) {
-        showSuccessModalWithMessage("Customer Archived Successfully!", "📦");
+        showSuccessModalWithCustomMessage("Customer Archived Successfully!", "📦", "The customer has been archived and cannot log in.");
         fetchCustomers();
         setShowArchiveConfirmModal(false);
         setCustomerToArchive(null);
@@ -325,7 +335,7 @@ const CustomersPage = () => {
       });
       
       if (response.ok) {
-        showSuccessModalWithMessage("Customer Restored Successfully!", "✓");
+        showSuccessModalWithCustomMessage("Customer Restored Successfully!", "✓", "The customer has been restored and can now log in.");
         fetchCustomers();
         setShowUnarchiveConfirmModal(false);
         setCustomerToUnarchive(null);
@@ -721,29 +731,50 @@ const CustomersPage = () => {
       {showSuccessModal && (
         <div className="modal-overlay" onClick={() => setShowSuccessModal(false)}>
           <div className="modal max-w-sm" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-body" style={{ textAlign: 'center', padding: '60px 40px' }}>
+            <div className="modal-header">
+              <div className="modal-header-title">
+                <span>Success</span>
+              </div>
+              <button 
+                className="modal-close" 
+                onClick={() => setShowSuccessModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body" style={{ textAlign: 'center', padding: '40px 30px' }}>
               <div style={{
-                fontSize: '64px',
-                marginBottom: '20px',
+                fontSize: '56px',
+                marginBottom: '16px',
                 animation: 'bounce 0.6s ease-out'
               }}>
                 {successIcon}
               </div>
               <h3 style={{
-                fontSize: '24px',
+                fontSize: '22px',
                 fontWeight: '700',
                 color: '#1B3022',
-                marginBottom: '12px'
+                marginBottom: '8px'
               }}>
                 {successMessage}
               </h3>
               <p style={{
                 fontSize: '14px',
                 color: '#6b7280',
-                marginBottom: '0'
+                marginBottom: '0',
+                lineHeight: '1.5'
               }}>
-                The customer has been updated successfully.
+                {successSubMessage}
               </p>
+            </div>
+            <div className="modal-footer">
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="modal-btn-primary"
+                style={{ width: '100%' }}
+              >
+                OK
+              </button>
             </div>
           </div>
         </div>
