@@ -165,29 +165,25 @@
 
 .table-header {
   display: grid;
-  grid-template-columns: 50px 1fr 1fr 1fr 2fr 1fr 1fr 1fr 80px;
+  grid-template-columns: 60px 120px 120px 110px 150px 100px 100px 100px 80px;
   gap: 0;
-  background: linear-gradient(135deg, #1B3022 0%, #2A4D36 100%);
-  border-bottom: 4px solid #16a34a;
-  padding: 18px 0;
-  font-weight: 700;
+  background: #1B3022;
+  border-bottom: 2px solid #16a34a;
+  padding: 14px 0;
+  font-weight: 600;
   color: #ffffff;
   font-size: 12px;
   position: sticky;
   top: 0;
   z-index: 10;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  align-items: center;
-  min-height: 60px;
 }
 
 .table-header .table-cell {
   color: #ffffff;
-  padding: 12px 14px;
+  padding: 14px 12px;
   background: transparent;
   border-right: none;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 12px;
   white-space: normal;
   word-wrap: break-word;
@@ -195,9 +191,9 @@
   text-overflow: clip;
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  line-height: 1.4;
+  justify-content: flex-start;
+  text-align: left;
+  line-height: 1.3;
 }
 
 .table-body {
@@ -207,34 +203,27 @@
 
 .table-row {
   display: grid;
-  grid-template-columns: 50px 1fr 1fr 1fr 2fr 1fr 1fr 1fr 80px;
+  grid-template-columns: 60px 120px 120px 110px 150px 100px 100px 100px 80px;
   gap: 0;
   padding: 0;
-  border-bottom: 1px solid #f0f0f0;
-  align-items: stretch;
-  transition: all 0.3s ease;
+  border-bottom: 1px solid #e5e7eb;
+  align-items: center;
+  transition: background-color 0.2s ease;
   background: #ffffff;
 }
 
 .table-row:hover {
-  background-color: #f8fdf6;
-  border-left: 4px solid #16a34a;
-  box-shadow: 0 2px 8px rgba(27, 48, 34, 0.06);
+  background-color: #f9fafb;
 }
 
 .table-cell {
-  padding: 16px 14px;
-  overflow: visible;
-  text-overflow: clip;
-  white-space: normal;
+  padding: 14px 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 14px;
   color: #1a1a1a;
   font-weight: 500;
-  display: flex;
-  align-items: center;
-  min-height: 20px;
-  word-wrap: break-word;
-  text-align: left;
 }
 
 .table-cell.id-cell {
@@ -409,13 +398,11 @@
 /* Expanded Row Details */
 .table-row-details {
   display: grid;
-  grid-template-columns: 50px 1fr 1fr 1fr 2fr 1fr 1fr 1fr 80px;
+  grid-template-columns: 60px 120px 120px 110px 150px 100px 100px 100px 80px;
   gap: 0;
-  background: linear-gradient(135deg, #f8fdf6 0%, #f0fdf4 100%);
-  border-bottom: 2px solid #e0e7ff;
-  border-top: 2px solid #e0e7ff;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
   padding: 0;
-  box-shadow: inset 0 2px 6px rgba(22, 163, 74, 0.05);
 }
 
 .details-content {
@@ -478,20 +465,15 @@
   .table-header,
   .table-row,
   .table-row-details {
-    grid-template-columns: 50px 1fr 1fr 1fr 2fr 1fr 1fr 1fr 70px;
+    grid-template-columns: 55px 110px 110px 100px 130px 90px 90px 90px 75px;
   }
 
   .table-cell {
-    padding: 16px 12px;
+    padding: 12px 10px;
     font-size: 13px;
-    white-space: normal;
-    word-wrap: break-word;
-    overflow: visible;
   }
 
   .table-header .table-cell {
-    white-space: normal;
-    word-wrap: break-word;
     font-size: 11px;
     padding: 12px 10px;
   }
@@ -503,13 +485,13 @@
   }
 
   .action-btn {
-    padding: 9px 11px;
+    padding: 8px 10px;
     font-size: 12px;
   }
 
   .details-content {
-    padding: 20px;
-    gap: 16px;
+    padding: 16px;
+    gap: 12px;
   }
 }
 
@@ -523,58 +505,40 @@
   }
 
   .maintenance-content-wrapper {
-    padding: 30px 15px;
+    padding: 25px 15px;
   }
 
   .table-header,
   .table-row,
   .table-row-details {
-    grid-template-columns: 45px 1fr 1fr 1fr 1.5fr 1fr 1fr 1fr 60px;
+    grid-template-columns: 50px 100px 100px 90px 120px 80px 80px 80px 65px;
   }
 
   .table-cell {
-    padding: 14px 10px;
+    padding: 12px 8px;
     font-size: 12px;
-    white-space: normal;
-    word-wrap: break-word;
-    overflow: visible;
   }
 
   .table-header .table-cell {
-    white-space: normal;
-    word-wrap: break-word;
-    font-size: 10px;
-    padding: 10px 8px;
-  }
-
-  .table-cell.id-cell {
-    font-size: 12px;
+    font-size: 11px;
+    padding: 12px 8px;
   }
 
   .status-badge,
   .payment-badge {
-    padding: 6px 10px;
+    padding: 5px 10px;
     font-size: 10px;
   }
 
   .action-btn {
-    padding: 8px 9px;
+    padding: 7px 8px;
     font-size: 11px;
   }
 
   .details-content {
     grid-template-columns: 1fr;
-    padding: 18px;
-    gap: 14px;
-  }
-
-  .photos-grid-compact {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    padding: 14px;
     gap: 10px;
-  }
-
-  .photo-thumbnail-compact {
-    height: 80px;
   }
 }
 
@@ -594,64 +558,34 @@
   .table-header,
   .table-row,
   .table-row-details {
-    grid-template-columns: 40px 1fr 1fr 1fr 1.2fr 0.8fr 0.8fr 0.8fr 50px;
+    grid-template-columns: 45px 85px 85px 75px 100px 65px 65px 65px 55px;
   }
 
   .table-cell {
-    padding: 12px 8px;
+    padding: 10px 6px;
     font-size: 11px;
-    white-space: normal;
-    word-wrap: break-word;
-    overflow: visible;
   }
 
   .table-header .table-cell {
-    white-space: normal;
-    word-wrap: break-word;
-    font-size: 9px;
+    font-size: 10px;
     padding: 10px 6px;
-  }
-
-  .table-cell.id-cell {
-    font-size: 11px;
-  }
-
-  .table-cell.name-cell {
-    font-size: 11px;
   }
 
   .status-badge,
   .payment-badge {
-    padding: 5px 8px;
+    padding: 4px 8px;
     font-size: 9px;
   }
 
   .action-btn {
-    padding: 7px 7px;
+    padding: 6px 6px;
     font-size: 10px;
   }
 
   .details-content {
     grid-template-columns: 1fr;
-    padding: 14px;
-    gap: 12px;
-  }
-
-  .detail-label {
-    font-size: 10px;
-  }
-
-  .detail-value {
-    font-size: 13px;
-  }
-
-  .photos-grid-compact {
-    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+    padding: 12px;
     gap: 8px;
-  }
-
-  .photo-thumbnail-compact {
-    height: 75px;
   }
 }
 
@@ -660,63 +594,33 @@
   .table-header,
   .table-row,
   .table-row-details {
-    grid-template-columns: 35px 1fr 1fr 1fr 1fr 0.7fr 0.7fr 0.7fr 40px;
+    grid-template-columns: 40px 75px 75px 65px 85px 55px 55px 55px 45px;
   }
 
   .table-cell {
-    padding: 10px 6px;
+    padding: 8px 5px;
     font-size: 10px;
-    white-space: normal;
-    word-wrap: break-word;
-    overflow: visible;
   }
 
   .table-header .table-cell {
-    white-space: normal;
-    word-wrap: break-word;
-    font-size: 8px;
-    padding: 8px 4px;
-  }
-
-  .table-cell.id-cell {
-    font-size: 10px;
-  }
-
-  .table-cell.name-cell {
-    font-size: 10px;
+    font-size: 9px;
+    padding: 8px 5px;
   }
 
   .status-badge,
   .payment-badge {
-    padding: 4px 6px;
+    padding: 3px 6px;
     font-size: 8px;
   }
 
   .action-btn {
-    padding: 6px 6px;
+    padding: 5px 5px;
     font-size: 9px;
   }
 
   .details-content {
-    padding: 12px;
-    gap: 10px;
-  }
-
-  .detail-label {
-    font-size: 9px;
-  }
-
-  .detail-value {
-    font-size: 12px;
-  }
-
-  .photos-grid-compact {
-    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-    gap: 6px;
-  }
-
-  .photo-thumbnail-compact {
-    height: 60px;
+    padding: 10px;
+    gap: 8px;
   }
 }
 
