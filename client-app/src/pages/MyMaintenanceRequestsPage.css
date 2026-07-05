@@ -165,19 +165,39 @@
 
 .table-header {
   display: grid;
-  grid-template-columns: 70px 140px 130px 110px 1fr 110px 110px 110px 90px;
+  grid-template-columns: 50px 130px 130px 110px 200px 100px 100px 100px 80px;
   gap: 0;
   background: linear-gradient(135deg, #1B3022 0%, #2A4D36 100%);
-  border-bottom: 3px solid #16a34a;
-  padding: 0;
+  border-bottom: 4px solid #16a34a;
+  padding: 18px 0;
   font-weight: 700;
   color: #ffffff;
-  font-size: 13px;
+  font-size: 12px;
   position: sticky;
   top: 0;
   z-index: 10;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
+  align-items: center;
+  min-height: 60px;
+}
+
+.table-header .table-cell {
+  color: #ffffff;
+  padding: 0 14px;
+  background: transparent;
+  border-right: none;
+  font-weight: 700;
+  font-size: 12px;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow: visible;
+  text-overflow: clip;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.4;
 }
 
 .table-body {
@@ -187,11 +207,11 @@
 
 .table-row {
   display: grid;
-  grid-template-columns: 70px 140px 130px 110px 1fr 110px 110px 110px 90px;
+  grid-template-columns: 50px 130px 130px 110px 200px 100px 100px 100px 80px;
   gap: 0;
   padding: 0;
   border-bottom: 1px solid #f0f0f0;
-  align-items: center;
+  align-items: stretch;
   transition: all 0.3s ease;
   background: #ffffff;
 }
@@ -203,13 +223,18 @@
 }
 
 .table-cell {
-  padding: 18px 14px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  padding: 16px 14px;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
   font-size: 14px;
   color: #1a1a1a;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  min-height: 20px;
+  word-wrap: break-word;
+  text-align: left;
 }
 
 .table-cell.id-cell {
@@ -217,6 +242,7 @@
   color: #16a34a;
   background: #f0fdf4;
   border-right: 2px solid #e0e7ff;
+  justify-content: center;
 }
 
 .table-cell.name-cell {
@@ -225,6 +251,7 @@
   text-overflow: clip;
   font-weight: 600;
   color: #1a1a1a;
+  word-wrap: break-word;
 }
 
 .table-cell.status-cell,
@@ -238,11 +265,13 @@
   font-weight: 700;
   color: #16a34a;
   font-size: 15px;
+  justify-content: center;
 }
 
 .table-cell.date-cell {
   font-size: 13px;
   color: #666;
+  word-wrap: break-word;
 }
 
 .table-cell.actions-cell {
@@ -380,7 +409,7 @@
 /* Expanded Row Details */
 .table-row-details {
   display: grid;
-  grid-template-columns: 70px 140px 130px 110px 1fr 110px 110px 110px 90px;
+  grid-template-columns: 50px 130px 130px 110px 200px 100px 100px 100px 80px;
   gap: 0;
   background: linear-gradient(135deg, #f8fdf6 0%, #f0fdf4 100%);
   border-bottom: 2px solid #e0e7ff;
@@ -449,12 +478,21 @@
   .table-header,
   .table-row,
   .table-row-details {
-    grid-template-columns: 60px 130px 120px 100px 1fr 100px 100px 100px 80px;
+    grid-template-columns: 50px 120px 120px 100px 180px 90px 90px 90px 70px;
   }
 
   .table-cell {
     padding: 16px 12px;
     font-size: 13px;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow: visible;
+  }
+
+  .table-header .table-cell {
+    white-space: normal;
+    word-wrap: break-word;
+    font-size: 11px;
   }
 
   .status-badge,
@@ -490,12 +528,22 @@
   .table-header,
   .table-row,
   .table-row-details {
-    grid-template-columns: 50px 100px 90px 80px 1fr 80px 80px 80px 70px;
+    grid-template-columns: 45px 100px 100px 85px 150px 75px 75px 75px 60px;
   }
 
   .table-cell {
     padding: 14px 10px;
     font-size: 12px;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow: visible;
+  }
+
+  .table-header .table-cell {
+    white-space: normal;
+    word-wrap: break-word;
+    font-size: 11px;
+    padding: 0 8px;
   }
 
   .table-cell.id-cell {
@@ -545,12 +593,22 @@
   .table-header,
   .table-row,
   .table-row-details {
-    grid-template-columns: 45px 70px 70px 65px 1fr 65px 65px 65px 60px;
+    grid-template-columns: 40px 80px 80px 70px 120px 60px 60px 60px 50px;
   }
 
   .table-cell {
     padding: 12px 8px;
     font-size: 11px;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow: visible;
+  }
+
+  .table-header .table-cell {
+    white-space: normal;
+    word-wrap: break-word;
+    font-size: 10px;
+    padding: 0 6px;
   }
 
   .table-cell.id-cell {
@@ -601,12 +659,22 @@
   .table-header,
   .table-row,
   .table-row-details {
-    grid-template-columns: 40px 60px 60px 55px 1fr 55px 55px 55px 50px;
+    grid-template-columns: 35px 70px 70px 60px 100px 50px 50px 50px 45px;
   }
 
   .table-cell {
     padding: 10px 6px;
     font-size: 10px;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow: visible;
+  }
+
+  .table-header .table-cell {
+    white-space: normal;
+    word-wrap: break-word;
+    font-size: 9px;
+    padding: 0 4px;
   }
 
   .table-cell.id-cell {
