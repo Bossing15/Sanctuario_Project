@@ -16,7 +16,8 @@ function NotificationsPage() {
     try {
       setLoading(true);
       const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:8000/api/notifications', {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/notifications`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -40,7 +41,8 @@ function NotificationsPage() {
   const markAsRead = async (notificationId) => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:8000/api/notifications/${notificationId}/mark-read`, {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/notifications/${notificationId}/mark-read`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -58,7 +60,8 @@ function NotificationsPage() {
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      await fetch('http://localhost:8000/api/notifications/mark-all-read', {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      await fetch(`${apiUrl}/api/notifications/mark-all-read`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
