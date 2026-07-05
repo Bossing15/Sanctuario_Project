@@ -49,7 +49,8 @@ function MyMaintenanceRequestsPage() {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/inquiries/user', {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/inquiries/user`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -106,7 +107,8 @@ function MyMaintenanceRequestsPage() {
     }
 
     try {
-      const userResponse = await fetch('http://localhost:8000/api/user', {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      const userResponse = await fetch(`${apiUrl}/api/user`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -132,7 +134,7 @@ function MyMaintenanceRequestsPage() {
       const userData = await userResponse.json();
       const userId = userData.id;
 
-      const response = await fetch(`http://localhost:8000/api/bookings/user/${userId}`, {
+      const response = await fetch(`${apiUrl}/api/bookings/user/${userId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -151,7 +153,7 @@ function MyMaintenanceRequestsPage() {
         const bookingsWithPaymentStatus = await Promise.all(
           bookings.map(async (booking) => {
             try {
-              const paymentResponse = await fetch('http://localhost:8000/api/payments', {
+              const paymentResponse = await fetch(`${apiUrl}/api/payments`, {
                 method: 'GET',
                 headers: {
                   'Authorization': `Bearer ${token}`,
@@ -205,7 +207,8 @@ function MyMaintenanceRequestsPage() {
     }
 
     try {
-      const userResponse = await fetch('http://localhost:8000/api/user', {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      const userResponse = await fetch(`${apiUrl}/api/user`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -231,7 +234,7 @@ function MyMaintenanceRequestsPage() {
       const userData = await userResponse.json();
       const userId = userData.id;
 
-      const response = await fetch(`http://localhost:8000/api/bookings/user/${userId}`, {
+      const response = await fetch(`${apiUrl}/api/bookings/user/${userId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -248,7 +251,7 @@ function MyMaintenanceRequestsPage() {
         const bookingsWithPaymentStatus = await Promise.all(
           bookings.map(async (booking) => {
             try {
-              const paymentResponse = await fetch('http://localhost:8000/api/payments', {
+              const paymentResponse = await fetch(`${apiUrl}/api/payments`, {
                 method: 'GET',
                 headers: {
                   'Authorization': `Bearer ${token}`,
@@ -293,7 +296,8 @@ function MyMaintenanceRequestsPage() {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/reservations', {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/reservations`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -405,7 +409,8 @@ function MyMaintenanceRequestsPage() {
     
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:8000/api/inquiries/${request.id}/create-payment`, {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/inquiries/${request.id}/create-payment`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -440,7 +445,8 @@ function MyMaintenanceRequestsPage() {
 
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:8000/api/reservations/${reservationId}/cancel`, {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/reservations/${reservationId}/cancel`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -557,22 +563,25 @@ function MyMaintenanceRequestsPage() {
                   <div className="modal-detail-item full-width">
                     <span className="modal-detail-label">Photos:</span>
                     <div className="photos-grid-modal">
-                      {JSON.parse(item.maintenance_photos).map((photo, index) => (
-                        <img 
-                          key={index}
-                          src={`http://localhost:8000/${photo}`} 
-                          alt={`Maintenance ${index + 1}`}
-                          onClick={() => {
-                            const photos = JSON.parse(item.maintenance_photos).map(
-                              p => `http://localhost:8000/${p}`
-                            );
-                            setSelectedImages(photos);
-                            setSelectedImageIndex(index);
-                            setShowImageModal(true);
-                          }}
-                          className="photo-thumbnail-modal"
-                        />
-                      ))}
+                      {JSON.parse(item.maintenance_photos).map((photo, index) => {
+                        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+                        return (
+                          <img 
+                            key={index}
+                            src={`${apiUrl}/${photo}`} 
+                            alt={`Maintenance ${index + 1}`}
+                            onClick={() => {
+                              const photos = JSON.parse(item.maintenance_photos).map(
+                                p => `${apiUrl}/${p}`
+                              );
+                              setSelectedImages(photos);
+                              setSelectedImageIndex(index);
+                              setShowImageModal(true);
+                            }}
+                            className="photo-thumbnail-modal"
+                          />
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -896,22 +905,25 @@ function MyMaintenanceRequestsPage() {
                     <div className="detail-item full-width">
                       <span className="detail-label">Photos:</span>
                       <div className="photos-grid-compact">
-                        {JSON.parse(item.maintenance_photos).map((photo, index) => (
-                          <img 
-                            key={index}
-                            src={`http://localhost:8000/${photo}`} 
-                            alt={`Maintenance ${index + 1}`}
-                            onClick={() => {
-                              const photos = JSON.parse(item.maintenance_photos).map(
-                                p => `http://localhost:8000/${p}`
-                              );
-                              setSelectedImages(photos);
-                              setSelectedImageIndex(index);
-                              setShowImageModal(true);
-                            }}
-                            className="photo-thumbnail-compact"
-                          />
-                        ))}
+                        {JSON.parse(item.maintenance_photos).map((photo, index) => {
+                          const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+                          return (
+                            <img 
+                              key={index}
+                              src={`${apiUrl}/${photo}`} 
+                              alt={`Maintenance ${index + 1}`}
+                              onClick={() => {
+                                const photos = JSON.parse(item.maintenance_photos).map(
+                                  p => `${apiUrl}/${p}`
+                                );
+                                setSelectedImages(photos);
+                                setSelectedImageIndex(index);
+                                setShowImageModal(true);
+                              }}
+                              className="photo-thumbnail-compact"
+                            />
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -947,23 +959,26 @@ function MyMaintenanceRequestsPage() {
                     <div className="detail-item full-width">
                       <span className="detail-label">Completion Photos:</span>
                       <div className="photos-grid-compact">
-                        {item.completion_images.map((photo, index) => (
-                          <img 
-                            key={index}
-                            src={`http://localhost:8000/${photo}`} 
-                            alt={`Completion ${index + 1}`}
-                            onClick={() => {
-                              const photos = item.completion_images.map(
-                                p => `http://localhost:8000/${p}`
-                              );
-                              setSelectedImages(photos);
-                              setSelectedImageIndex(index);
-                              setShowImageModal(true);
-                            }}
-                            className="photo-thumbnail-compact"
-                            style={{ cursor: 'pointer', borderRadius: '4px' }}
-                          />
-                        ))}
+                        {item.completion_images.map((photo, index) => {
+                          const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+                          return (
+                            <img 
+                              key={index}
+                              src={`${apiUrl}/${photo}`} 
+                              alt={`Completion ${index + 1}`}
+                              onClick={() => {
+                                const photos = item.completion_images.map(
+                                  p => `${apiUrl}/${p}`
+                                );
+                                setSelectedImages(photos);
+                                setSelectedImageIndex(index);
+                                setShowImageModal(true);
+                              }}
+                              className="photo-thumbnail-compact"
+                              style={{ cursor: 'pointer', borderRadius: '4px' }}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
                   )}
