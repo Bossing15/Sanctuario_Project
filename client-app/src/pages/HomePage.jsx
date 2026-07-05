@@ -180,7 +180,7 @@ function HomePage() {
           <p className="hero-subtitle">{getSetting('homepage_subtitle', 'Your sanctuary for peace and tranquility in the heart of Cavite')}</p>
           <button 
             className="explore-services-button"
-            onClick={() => navigate('/products-services')}
+            onClick={() => navigate('/properties-services')}
           >
             Explore Our Products & Services
           </button>
@@ -313,7 +313,7 @@ function HomePage() {
             </ul>
             <button 
               className="services-button"
-              onClick={() => navigate('/products-services')}
+              onClick={() => navigate('/properties-services')}
             >
               Explore Our Products & Services
             </button>
