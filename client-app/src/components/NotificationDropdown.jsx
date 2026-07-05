@@ -65,6 +65,19 @@ function NotificationDropdown({ isOpen, onClose, buttonRef, onUnreadStatusChange
     try {
       const token = localStorage.getItem('authToken');
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      
+      // Update local state immediately for optimistic update
+      setNotifications(prev => 
+        prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
+      );
+      
+      // Update unread status in parent
+      const hasUnread = notifications.some(n => n.id !== notificationId && !n.is_read);
+      if (onUnreadStatusChange) {
+        onUnreadStatusChange(hasUnread);
+      }
+      
+      // Then make the API call
       const response = await fetch(`${apiUrl}/api/notifications/${notificationId}/mark-read`, {
         method: 'POST',
         headers: {
@@ -72,9 +85,10 @@ function NotificationDropdown({ isOpen, onClose, buttonRef, onUnreadStatusChange
           'Accept': 'application/json',
         },
       });
-      await fetchNotifications();
     } catch (error) {
       console.error('Error marking notification as read:', error);
+      // Refetch on error to sync with server
+      await fetchNotifications();
     }
   };
 
@@ -82,6 +96,18 @@ function NotificationDropdown({ isOpen, onClose, buttonRef, onUnreadStatusChange
     try {
       const token = localStorage.getItem('authToken');
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      
+      // Update local state immediately for optimistic update
+      setNotifications(prev => 
+        prev.map(n => ({ ...n, is_read: true }))
+      );
+      
+      // Update unread status in parent
+      if (onUnreadStatusChange) {
+        onUnreadStatusChange(false);
+      }
+      
+      // Then make the API call
       await fetch(`${apiUrl}/api/notifications/mark-all-read`, {
         method: 'POST',
         headers: {
@@ -89,9 +115,10 @@ function NotificationDropdown({ isOpen, onClose, buttonRef, onUnreadStatusChange
           'Accept': 'application/json',
         },
       });
-      await fetchNotifications();
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
+      // Refetch on error to sync with server
+      await fetchNotifications();
     }
   };
 

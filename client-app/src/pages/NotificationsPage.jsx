@@ -42,6 +42,13 @@ function NotificationsPage() {
     try {
       const token = localStorage.getItem('authToken');
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      
+      // Update local state immediately for optimistic update
+      setNotifications(prev => 
+        prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
+      );
+      
+      // Then make the API call
       const response = await fetch(`${apiUrl}/api/notifications/${notificationId}/mark-read`, {
         method: 'POST',
         headers: {
@@ -51,9 +58,10 @@ function NotificationsPage() {
         },
         credentials: 'include',
       });
-      fetchNotifications();
     } catch (error) {
       console.error('Error marking notification as read:', error);
+      // Refetch on error to sync with server
+      fetchNotifications();
     }
   };
 
@@ -61,6 +69,13 @@ function NotificationsPage() {
     try {
       const token = localStorage.getItem('authToken');
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      
+      // Update local state immediately for optimistic update
+      setNotifications(prev => 
+        prev.map(n => ({ ...n, is_read: true }))
+      );
+      
+      // Then make the API call
       await fetch(`${apiUrl}/api/notifications/mark-all-read`, {
         method: 'POST',
         headers: {
@@ -70,9 +85,10 @@ function NotificationsPage() {
         },
         credentials: 'include',
       });
-      fetchNotifications();
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
+      // Refetch on error to sync with server
+      fetchNotifications();
     }
   };
 
